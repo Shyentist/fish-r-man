@@ -4,17 +4,19 @@ library(shinyWidgets)
 library(DBI)
 library(bigrquery)
 library(tidyverse)
+library(glue)
+library(countrycode)
+library(stringi)
 
 project <- "global-fishing-watch"
 dataset <- "global_footprint_of_fisheries"
-billing <- "fish-r-man" # my billing account name, but I would like the users to 
-#be able to insert their own
+billing <- "fish-r-man" # your billing account name
 
 BQ_connection <-  dbConnect(bigquery(), 
                             project = project,
                             dataset = dataset, 
                             billing = billing, 
-                            use_legacy_sql = FALSE)
+                            use_legacy_sql = FALSE) # specify we are using Standard SQL
 
 tables_list <- dbListTables(BQ_connection)
 
@@ -58,7 +60,27 @@ tables_columns_list_ui <- list(
   column_list_fe100_ui,
   column_list_fe10_ui
 )
-#next is a simple ui, server and session set-up, with the fields for the query
+
+geartype_elements <- c(
+  "drifting_longlines",
+  "fixed_gear",
+  "purse_seines",
+  "squid_jigger",
+  "trawlers",
+  "other_fishing"
+)
+
+geartype_names <- c(
+  "Drifting longlines",
+  "Fixed gear",
+  "Purse seines",
+  "Squid jigger",
+  "Trawlers",
+  "Other fishing gear"
+)
+
+names(geartype_elements) <- geartype_names
+
 ui <- fluidPage(
   
   useShinyjs(),
@@ -134,7 +156,7 @@ ui <- fluidPage(
     selectInput(
       inputId = "flag",
       label = "Flag",
-      choices = NULL,
+      choices = na.omit(codelist$iso3c),
       multiple = TRUE
     )),
   
@@ -142,7 +164,7 @@ ui <- fluidPage(
     selectInput(
       inputId = "geartype",
       label = "Geartype",
-      choices = NULL,
+      choices = geartype_elements,
       multiple = TRUE
     )),
   
@@ -199,7 +221,139 @@ server <- function(input,output,session) {
     }
   },ignoreNULL = FALSE)
   
-}
-  shinyApp(ui = ui, server = server)
   
-#I am working on a script for interactive SQL query building, it will be ready shortly
+  observeEvent(input$filter_button, {
+    
+    table_name_ui <- input$table_name_ui
+    
+    table_full_name <- paste(
+      project, 
+      dataset, 
+      tables_list[match(
+        table_name_ui,
+        tables_list_ui)], 
+      sep = ".")
+    
+    SQL <- "SELECT * FROM {`table_full_name`}"
+    
+    if ("date" %in% input$filter_columns_ui){
+      
+      date_SQL <- "AND _PARTITIONTIME >= {input$date[1]} AND _PARTITIONTIME < {input$date[2]}"
+      
+      SQL <- paste(
+        SQL,
+        date_SQL,
+        sep = " "
+      )
+    }
+    
+    for (field in input$filter_columns_ui){
+      
+      if (field == "date" || field == "flag" || field == "geartype"){ 
+        
+        next } else {
+          
+          next_SQL <- sprintf(
+            "AND %s >= {input$%s[1]} AND %s < {input$%s[2]}", 
+            field, 
+            field, 
+            field, 
+            field
+          )
+          
+          SQL <- paste(
+            SQL, 
+            next_SQL, 
+            sep = " "
+          )}
+    }
+    
+    if (isTruthy(input$flag)){
+      
+      flag_SQL <- "AND ("
+      
+      for (isocode in input$flag) {
+        
+        next_flag_SQL <- sprintf(
+          "flag = '%s' OR", 
+          isocode
+        )
+        
+        flag_SQL <- paste(
+          flag_SQL, 
+          next_flag_SQL, 
+          sep = " "
+        )
+      }
+      
+      flag_SQL <- stri_replace_last_fixed(
+        flag_SQL, 
+        ' OR', 
+        ')'
+      )
+      
+      SQL <- paste(
+        SQL, 
+        flag_SQL, 
+        sep = " "
+      )
+    }
+    
+    if ("geartype" %in% input$filter_columns_ui && isTruthy(input$geartype)){
+      
+      geartype_SQL <- "AND ("
+      
+      for (gear in input$geartype) {
+        
+        next_geartype_SQL <- sprintf(
+          "geartype = '%s' OR", 
+          gear
+        )
+        
+        geartype_SQL <- paste(
+          geartype_SQL, 
+          next_geartype_SQL, 
+          sep = " "
+        )
+      }
+      
+      geartype_SQL <- stri_replace_last_fixed(
+        geartype_SQL, 
+        ' OR', 
+        ')'
+      )
+      
+      SQL <- paste(
+        SQL, 
+        geartype_SQL, 
+        sep = " "
+      )
+    }
+    
+    SQL <- sub(
+      "AND", 
+      "WHERE", 
+      SQL
+    )
+    
+    GLUED_SQL <- glue_sql(
+      SQL,
+      .con = BQ_connection
+    )
+    
+    retrieved_data <- dbGetQuery(
+      BQ_connection, 
+      GLUED_SQL
+    )
+    
+    output$queried_table <- renderDataTable(retrieved_data)
+    
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+
+
+  
+#I am working on the layout and CSS, and will upload the results shortly
