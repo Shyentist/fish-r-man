@@ -83,100 +83,153 @@ names(geartype_elements) <- geartype_names
 
 ui <- fluidPage(
   
+  theme = "style.css",
+  
   useShinyjs(),
   
-  selectInput(
-    inputId = "table_name_ui",
-    label = "Query table",
-    choices = tables_list_ui[1:2]
+  fluidRow(
+    column(3,
+           tags$div(class = "sidenav",
+                    tags$div(class = "sidebar",
+                             
+                             selectInput(
+                               inputId = "table_name_ui",
+                               label = "Query table",
+                               choices = tables_list_ui[1:2]
+                             ),
+                             
+                             prettyCheckboxGroup(
+                               inputId = "filter_columns_ui",
+                               label = "Filter by",
+                               choices = NULL,
+                               shape = "curve",
+                               animation = "pulse"
+                             )),
+                    
+                    tags$div(class = "sidebar",
+                             tags$div(class="doubleNumber",
+                                      disabled(
+                                        dateRangeInput(
+                                          inputId = "date",
+                                          label = "Date range:",
+                                          start = "2012-01-01",
+                                          end = "2012-01-02",
+                                          min = "2012-01-01",
+                                          max = "2017-01-01",
+                                          autoclose = FALSE
+                                        )
+                                      ),
+                                      
+                                      disabled(
+                                        numericRangeInput(
+                                          inputId = "lat_bin",
+                                          label = "Latitude range:",
+                                          value = c(-90, 90)
+                                        )
+                                      ),
+                                      
+                                      disabled(
+                                        numericRangeInput(
+                                          inputId = "lon_bin",
+                                          label = "Longitude range:",
+                                          value = c(-180, 180)
+                                        )
+                                      ),
+                                      
+                                      disabled(
+                                        numericRangeInput(
+                                          inputId = "vessel_hours",
+                                          label = "Vessel hours range:",
+                                          value = c(0, 2000)
+                                        )
+                                      ),
+                                      
+                                      disabled(
+                                        numericRangeInput(
+                                          inputId = "fishing_hours",
+                                          label = "Fishing hours range:",
+                                          value = c(0, 200)
+                                        )
+                                      ),
+                                      
+                                      disabled(
+                                        numericRangeInput(
+                                          inputId = "mmsi_present",
+                                          label = "MMSI present range:",
+                                          value = c(0, 600)
+                                        )
+                                      ),
+                                      
+                                      disabled(
+                                        numericRangeInput(
+                                          inputId = "mmsi",
+                                          label = "MMSI range:",
+                                          value = c(0, 1111111111)
+                                        )
+                                      )
+                             )
+                    ),
+                    
+                    tags$div(class = "sidebar",
+                             disabled(
+                               selectInput(
+                                 inputId = "flag",
+                                 label = "Flag",
+                                 choices = na.omit(codelist$iso3c),
+                                 multiple = TRUE
+                               )
+                             ),
+                             
+                             disabled(
+                               selectInput(
+                                 inputId = "geartype",
+                                 label = "Geartype",
+                                 choices = geartype_elements,
+                                 multiple = TRUE
+                               )
+                             )
+                    ),
+                    
+                    tags$div(class = "sidebar",
+                             actionButton(
+                               inputId = "filter_button",
+                               label = "Filter"
+                             )
+                    )
+           )
+    ),
+    column(7,
+           tags$div(class = "queried_table",
+                    dataTableOutput(
+                      outputId = "queried_table"
+                    )
+           )
+    ),
     
-  ),
-  
-  checkboxGroupInput(
-    inputId = "filter_columns_ui",
-    label = "Filter by",
-    choices = NULL
-  ),
-  
-  disabled(
-    dateRangeInput(
-      inputId = "date", 
-      label = "Date range",
-      start = "2012-01-01",
-      end = "2012-01-02",
-      min = "2012-01-01",
-      max = "2017-01-01",
-      separator = " to ",
-      autoclose = FALSE
-    )),
-  
-  disabled(
-    numericRangeInput(
-      inputId = "lat_bin",
-      label = "Latitude range:",
-      value = c(-90, 90)
-    )),
-  
-  disabled(
-    numericRangeInput(
-      inputId = "lon_bin",
-      label = "Longitude range:",
-      value = c(-180, 180)
-    )),
-  
-  disabled(
-    numericRangeInput(
-      inputId = "vessel_hours",
-      label = "Vessel hours range:",
-      value = c(0, 2000)
-    )),
-  
-  disabled(
-    numericRangeInput(
-      inputId = "fishing_hours",
-      label = "Fishing hours range:",
-      value = c(0, 200)
-    )),
-  
-  disabled(
-    numericRangeInput(
-      inputId = "mmsi_present",
-      label = "MMSI present range:",
-      value = c(0, 600)
-    )),
-  
-  disabled(
-    numericRangeInput(
-      inputId = "mmsi",
-      label = "MMSI range:",
-      value = c(0, 1111111111)
-    )),
-  
-  disabled(
-    selectInput(
-      inputId = "flag",
-      label = "Flag",
-      choices = na.omit(codelist$iso3c),
-      multiple = TRUE
-    )),
-  
-  disabled(
-    selectInput(
-      inputId = "geartype",
-      label = "Geartype",
-      choices = geartype_elements,
-      multiple = TRUE
-    )),
-  
-  actionButton(
-    inputId = "filter_button",
-    label = "Filter"
-  ),
-  
-  dataTableOutput(
-    outputId = "queried_table"
+    fluidRow(
+      column(2,
+             tags$div(class = "sidebar",
+                      img(
+                        src = "img/fishrman_logo.png",
+                        height = 'auto',
+                        width = '100%'
+                      ),
+                      href="https://github.com/Shyentist/fish-r-man"
+             ),
+             
+             tags$div(class = "sidebar",
+                      tags$a
+                      (img
+                        (
+                          src = "img/github_logo.png",
+                          height = 'auto',
+                          width = '100%'
+                        ),
+                        href="https://github.com/Shyentist/fish-r-man"
+                      ))
+      )
+    )
   )
-  
 )
 
 server <- function(input,output,session) {
@@ -190,7 +243,8 @@ server <- function(input,output,session) {
       tables_list[match(
         table_name_ui,
         tables_list_ui
-      )])
+      )]
+    )
     
     fields_list_names <- tables_columns_list_ui[[match(
       table_name_ui, 
@@ -199,11 +253,12 @@ server <- function(input,output,session) {
     
     names(fields_list) <- fields_list_names
     
-    updateCheckboxGroupInput(
+    updatePrettyCheckboxGroup(
       session,
       inputId = 'filter_columns_ui',
       choices = fields_list
-    )}) 
+    )
+  }) 
   
   observeEvent(input$filter_columns_ui,{
     
@@ -216,11 +271,12 @@ server <- function(input,output,session) {
       } else {
         
         disable (id = field)
-        
       }
+      
     }
-  },ignoreNULL = FALSE)
-  
+    
+  },
+  ignoreNULL = FALSE)
   
   observeEvent(input$filter_button, {
     
@@ -232,7 +288,8 @@ server <- function(input,output,session) {
       tables_list[match(
         table_name_ui,
         tables_list_ui)], 
-      sep = ".")
+      sep = "."
+    )
     
     SQL <- "SELECT * FROM {`table_full_name`}"
     
@@ -354,6 +411,5 @@ server <- function(input,output,session) {
 
 shinyApp(ui = ui, server = server)
 
-
-  
-#I am working on the layout and CSS, and will upload the results shortly
+#I am working on the download button and a way for the user to sign in to
+#their own google cloud account, results will be up ASAP
