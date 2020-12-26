@@ -1,9 +1,9 @@
-# Welcome to FishRMan
+# Welcome to fishRman
 ## Intent
-FishRMan is a Shiny R Web Application/Dashboard that allows people to easily query and analyze Global Fishing Watch data without any prior knowledge of R, SQL, and BigQuery.
+fishRman is a Shiny R Web Application/Dashboard that allows people to easily query and analyze Global Fishing Watch data without any prior knowledge of R, SQL, and BigQuery.
 
 ## Motive
-I tend to query and analyze this kind of data often, and usually find myself fiddling with some variables before running the code. This got me thinking: "*I could just write an app that makes the whole experience more enjoyable*".
+I tend to query and analyze this kind of data often, and usually find myself fiddling with some variables before re-running the code. This got me thinking: "*I could just write an app that makes the whole experience more enjoyable*".
 
 ## OK, but why Open-Source?
 Why not? I would definitely not market this anyway, so I might as well enjoy the perks of cooperation, learning from other contributors to the project, and from the experience itself.
