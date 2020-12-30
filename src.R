@@ -88,6 +88,7 @@ ui <- fluidPage(
   useShinyjs(),
   
   fluidRow(
+    
     column(3,
            tags$div(class = "sidenav",
                     tags$div(class = "sidebar",
@@ -195,9 +196,19 @@ ui <- fluidPage(
                                inputId = "filter_button",
                                label = "Filter"
                              )
+                    ),
+                    
+                    tags$div(class = "sidebar",
+                             disabled(
+                               downloadButton(
+                                 outputId = "download_button",
+                                 label = "Download"
+                               )
+                             )
                     )
            )
     ),
+    
     column(7,
            tags$div(class = "queried_table",
                     dataTableOutput(
@@ -206,28 +217,27 @@ ui <- fluidPage(
            )
     ),
     
-    fluidRow(
-      column(2,
-             tags$div(class = "sidebar",
-                      img(
-                        src = "img/fishrman_logo.png",
+    column(2,
+           tags$div(class = "sidebar",
+                    img(
+                      src = "img/fishrman_logo.png",
+                      height = 'auto',
+                      width = '100%'
+                    ),
+                    href="https://github.com/Shyentist/fish-r-man"
+           ),
+           
+           tags$div(class = "sidebar",
+                    tags$a
+                    (img
+                      (
+                        src = "img/github_logo.png",
                         height = 'auto',
                         width = '100%'
                       ),
                       href="https://github.com/Shyentist/fish-r-man"
-             ),
-             
-             tags$div(class = "sidebar",
-                      tags$a
-                      (img
-                        (
-                          src = "img/github_logo.png",
-                          height = 'auto',
-                          width = '100%'
-                        ),
-                        href="https://github.com/Shyentist/fish-r-man"
-                      ))
-      )
+                    )
+           )
     )
   )
 )
@@ -405,11 +415,69 @@ server <- function(input,output,session) {
     
     output$queried_table <- renderDataTable(retrieved_data)
     
-  })
-  
+    enable(id = "download_button")
+    
+    selectedData <- reactive(
+      {
+        retrieved_data
+      }
+    )
+    
+    metaData <- reactive(
+      {
+        paste(
+          "Software by 'Buonomo Pasquale. [2020]. https://github.com/Shyentist/fish-r-man'
+
+Data by 'Global Fishing Watch. [2020]. www.globalfishingwatch.org' (last checked: ", Sys.Date(),")
+
+Retrieved from their public dataset on Google's BigQuery with the following query: 
+
+",
+          GLUED_SQL,
+          sep = ""
+        )
+      }
+    )
+    
+    output$download_button <- downloadHandler(
+      filename = function() {
+        paste(
+          "data-", 
+          Sys.Date(), 
+          ".zip", 
+          sep=""
+        )
+      },
+      content = function (con){
+        write.csv(
+          selectedData(), 
+          "data.csv",
+          row.names = FALSE
+        )
+        
+        write.table(
+          metaData(), 
+          "metadata.txt",
+          row.names = FALSE,
+          col.names = FALSE
+        )
+        
+        utils::zip(
+          con, 
+          files = c(
+            "data.csv",
+            "metadata.txt"
+          )
+        )
+        
+      },
+      contentType = "application/zip"
+    )
+  }
+  )
 }
 
 shinyApp(ui = ui, server = server)
 
-#I am working on the download button and a way for the user to sign in to
-#their own google cloud account, results will be up ASAP
+#I am working on a way (having issues is more like it) for the user to
+#sign in to their own google cloud account, results will be up ASAP
