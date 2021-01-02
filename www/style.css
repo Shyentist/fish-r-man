@@ -1,5 +1,6 @@
 body {
 
+    overflow-y: scroll;
     background:linear-gradient(rgba(0, 0, 0, 0.10), 
     rgba(0, 0, 0, 0.10)
   ),url("img/boat1.jpg") no-repeat fixed center;
@@ -19,6 +20,44 @@ div.sidebar {
 
 }
 
+div.tab-content {
+
+    background-color: rgba(255, 255, 255, 0.40);
+    border-radius: 15px;
+    padding: 0px 12px;
+
+}
+
+ul.nav-tabs {
+
+    border-bottom: none;
+    padding-left: 25px;
+    margin-top: 5px;
+
+}
+
+ul.nav-tabs li {
+
+    margin-bottom: 0px;
+
+}
+
+ul.nav-tabs li a {
+
+    background-color: rgba(255, 255, 255, 0.50) !important;
+    border-color: transparent !important;
+    font-weight: bold;
+    font-size: 12px;
+
+}
+
+ul.nav-tabs li.active a {
+
+    background-color: rgba(255, 255, 255, 0.40) !important;
+    border-color: transparent !important;
+
+}
+
 div.right_sidebar {
 
     margin: 12px 0px;
@@ -31,7 +70,7 @@ div.right_sidebar {
 
 }
 
-.sidebar button {
+.sidebar .btn {
 
     font-weight: bold;
     font-size: large;
