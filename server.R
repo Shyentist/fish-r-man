@@ -75,6 +75,8 @@ server <- function(input,output,session) {
     
     checked_boxes <- input$filter_columns_ui
     
+    table_name_ui <- input$table_name_ui
+    
     for (field in checked_boxes){
       
       if (field == "date" || field == "flag" || field == "geartype"){ 
@@ -89,12 +91,24 @@ server <- function(input,output,session) {
             (!is.null(first_field) && !is.na(first_field)) && 
             (!is.null(second_field) && !is.na(second_field))) {
             
+            if ((field == "lat_bin" || field == "lon_bin") && (table_name_ui == "Fishing effort at 10th degree")) {
+              
+              first_field <- first_field*10
+              second_field <- second_field*10
+              
+            } else if ((field == "lat_bin" || field == "lon_bin") && (table_name_ui == "Fishing effort at 100th degree")) {
+              
+              first_field <- first_field*100
+              second_field <- second_field*100
+              
+            } 
+            
             next_SQL <- sprintf(
-              "AND %s >= {input$%s[1]} AND %s < {input$%s[2]}", 
+              "AND %s >= {%s} AND %s < {%s}", 
               field, 
+              first_field, 
               field, 
-              field, 
-              field
+              second_field
             )
             
             SQL <- paste(
@@ -104,7 +118,7 @@ server <- function(input,output,session) {
             )}}
     }
     
-    flags <- input$flags
+    flags <- input$flag
     
     if (!is.null(flags) && !is.na(flags)) {
       
@@ -181,27 +195,19 @@ server <- function(input,output,session) {
       .con = BQ_connection
     )
     
-    retrieved_data <- dbGetQuery(
+    selectedData <- dbGetQuery(
       BQ_connection, 
       GLUED_SQL
     )
     
-    output$queried_table <- renderDataTable(retrieved_data)
+    output$queried_table <- renderDataTable(selectedData)
     
     enable(id = "download_button")
     
-    selectedData <- reactive(
-      {
-        retrieved_data
-      }
-    )
-    
-    metaData <- reactive(
-      {
-        paste(
-"Software by 'Buonomo Pasquale. [2020]. https://github.com/Shyentist/fish-r-man'
+    metaData <- paste(
+"Software by 'Buonomo Pasquale. [2021]. https://github.com/Shyentist/fish-r-man'
 
-Data by 'Global Fishing Watch. [2020]. www.globalfishingwatch.org' (last checked: ", Sys.Date(),")
+Data by 'Global Fishing Watch. [2021]. www.globalfishingwatch.org' (last checked: ", Sys.Date(),")
 
 Retrieved from their public dataset on Google's BigQuery with the following query: 
 
@@ -209,8 +215,6 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
           GLUED_SQL,
           sep = ""
         )
-      }
-    )
     
     output$download_button <- downloadHandler(
       filename = function() {
@@ -223,13 +227,13 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
       },
       content = function (con){
         write.csv(
-          selectedData(), 
+          selectedData, 
           "data.csv",
           row.names = FALSE
         )
         
         write.table(
-          metaData(), 
+          metaData, 
           "metadata.txt",
           row.names = FALSE,
           col.names = FALSE
@@ -248,4 +252,18 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
     )
   }
   )
+  
+  observeEvent(input$uploaded_csv, {
+  
+  output$uploaded_csv_viz <- renderTable({
+    
+    df <- read.csv(input$uploaded_csv$datapath,
+                 header = TRUE,
+                 sep = ",",
+                 quote = '"')
+    
+    return(head(df))
+    
+    })
+  })
 }

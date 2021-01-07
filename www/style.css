@@ -79,6 +79,14 @@ div.right_sidebar {
 
 }
 
+.sidebar .btn.btn-file{
+
+    font-size: 12px;
+    width: 100%;
+    padding: 5.5px 12px;
+
+}
+
 .form-control[disabled] {
 
     background-color: #c1c1c1;
@@ -156,6 +164,16 @@ div.dataTables_wrapper.form-inline.dt-bootstrap{
     margin-top: 12px;
     width: 100%;
     padding: 12px;
+
+}
+
+table.table.shiny-table.table-.spacing-s {
+
+    background-color: rgba(255, 255, 255, 0.850);
+    border-radius: 15px;
+    text-align:center;
+    margin-top: 12px;
+    width: 100% !important;
 
 }
 

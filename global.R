@@ -8,6 +8,8 @@ library(glue)
 library(countrycode)
 library(stringi)
 
+options(shiny.maxRequestSize = 20*1024*1024^2)
+
 project <- "global-fishing-watch"
 dataset <- "global_footprint_of_fisheries"
 billing <- "fish-r-man" # your billing account name

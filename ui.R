@@ -167,12 +167,19 @@ tabPanel("Analysis",
          fluidRow(
            column(3,
                   tags$div(class = "sidenav",
-                           tags$div(class = "sidebar", "second tab")
+                           tags$div(class = "sidebar", 
+                                    fileInput("uploaded_csv", "Choose CSV File",
+                                              multiple = FALSE,
+                                              accept = c("text/csv",
+                                                         "text/comma-separated-values,text/plain",
+                                                         ".csv"))
+                                    )
                   )
            ),
            
            column(7,
-                  tags$div(class = "sidebar", "second tab")
+                  tags$div(class = "queried_table", 
+                           tableOutput("uploaded_csv_viz"))
            ),
            
            column(2,
@@ -199,8 +206,6 @@ tabPanel("Analysis",
                            )
                   )
            )
-           
-           
          )
 )
 
