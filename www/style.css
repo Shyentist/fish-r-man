@@ -1,0 +1,198 @@
+body {
+
+    overflow-y: scroll;
+    background:linear-gradient(rgba(0, 0, 0, 0.10), 
+    rgba(0, 0, 0, 0.10)
+  ),url("img/boat1.jpg") no-repeat fixed center;
+    background-size: 100% 100%;
+    font-size: 0.8vw !important;
+
+}
+
+div.sidebar {
+
+    margin: 12px 0px;
+    width: 100%;
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.850);
+    border-radius: 15px;
+    text-align:center;
+
+}
+
+div.tab-content {
+
+    background-color: rgba(255, 255, 255, 0.40);
+    border-radius: 15px;
+    padding: 0px 12px;
+
+}
+
+ul.nav-tabs {
+
+    border-bottom: none;
+    padding-left: 25px;
+    margin-top: 5px;
+
+}
+
+ul.nav-tabs li {
+
+    margin-bottom: 0px;
+
+}
+
+ul.nav-tabs li a {
+
+    background-color: rgba(255, 255, 255, 0.50) !important;
+    border-color: transparent !important;
+    font-weight: bold;
+    font-size: 12px;
+
+}
+
+ul.nav-tabs li.active a {
+
+    background-color: rgba(255, 255, 255, 0.40) !important;
+    border-color: transparent !important;
+
+}
+
+div.right_sidebar {
+
+    margin: 12px 0px;
+    width: 100%;
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.850);
+    border-radius: 15px;
+    text-align:center;
+    position: fixed;
+
+}
+
+.sidebar .btn {
+
+    font-weight: bold;
+    font-size: large;
+    width: 80%;
+    border-radius: 5px;
+
+}
+
+.sidebar .btn.btn-file{
+
+    font-size: 12px;
+    width: 100%;
+    padding: 5.5px 12px;
+
+}
+
+.form-control[disabled] {
+
+    background-color: #c1c1c1;
+   
+}
+
+.form-control {
+
+    font-size: inherit;
+    height: 30px;
+
+}
+
+div.input-daterange.input-group.input-group-sm {
+
+    position: relative;
+    display: table;
+    border-collapse: separate;
+    text-align: center;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 1.42857143;
+    color: #333;
+    height: auto;
+
+}
+
+.input-daterange input {
+
+    text-align:left;
+    
+}
+   
+.input-numeric-range.input-group {
+
+height: 30px;
+
+}
+
+.input-group-addon {
+
+    padding: 5px 10px;
+    border: none;
+    font-size: 0.8vw;
+
+}
+
+.input-group-sm > .form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .btn {
+
+    font-size: 0.8vw;
+
+}
+
+span.input-group-addon.input-group-prepend.input-group-append{
+
+    height: auto;
+}
+
+.shiny-options-group{
+
+    text-align: left;
+    
+}
+
+.shiny-input-container:not(.shiny-input-container-inline){
+
+    width: auto;
+
+}
+
+div.dataTables_wrapper.form-inline.dt-bootstrap{
+
+    background-color: rgba(255, 255, 255, 0.850);
+    border-radius: 15px;
+    text-align:center;
+    margin-top: 12px;
+    width: 100%;
+    padding: 12px;
+
+}
+
+table.table.shiny-table.table-.spacing-s {
+
+    background-color: rgba(255, 255, 255, 0.850);
+    border-radius: 15px;
+    text-align:center;
+    margin-top: 12px;
+    width: 100% !important;
+
+}
+
+table.table.table-striped.table-hover.dataTable{
+    
+    width: 100% !important;
+    
+}
+
+form.well {
+
+    padding: 0px;
+
+}
+
+table.dataTable thead > tr > th {
+    
+    padding-left: 0px;
+    padding-right: 0px;
+
+}
+
