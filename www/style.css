@@ -144,7 +144,7 @@ span.input-group-addon.input-group-prepend.input-group-append{
     height: auto;
 }
 
-#filter_columns_ui .shiny-options-group{
+.shiny-options-group{
 
     text-align: left;
     

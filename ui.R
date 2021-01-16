@@ -173,9 +173,34 @@ tabPanel("Analysis",
                                               accept = c("text/csv",
                                                          "text/comma-separated-values,text/plain",
                                                          ".csv"))
+                                    ),
+                           tags$div(class = "sidebar", 
+                                    prettyCheckboxGroup(
+                                      inputId = "available_analyses_ui",
+                                      label = "Available analyses",
+                                      choices = NULL,
+                                      shape = "curve",
+                                      animation = "pulse"
+                                      )
+                                    ),
+                           
+                           tags$div(class = "sidebar",
+                                    actionButton(
+                                      inputId = "analyses_button",
+                                      label = "Analyze"
                                     )
-                  )
-           ),
+                           ),
+                           
+                           tags$div(class = "sidebar",
+                                    disabled(
+                                      downloadButton(
+                                        outputId = "download_analyses_button",
+                                        label = "Download"
+                                      )
+                                    )
+                           )
+                           )
+                  ),
            
            column(7,
                   tags$div(class = "queried_table", 

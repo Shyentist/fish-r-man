@@ -82,3 +82,26 @@ geartype_names <- c(
 )
 
 names(geartype_elements) <- geartype_names
+
+column_100th <- c(
+  "date",
+  "lat_bin",
+  "lon_bin",
+  "flag",
+  "geartype",
+  "vessel_hours",
+  "fishing_hours",
+  "mmsi_present"
+  )
+
+column_10th <- c(
+  "date",
+  "lat_bin",
+  "lon_bin",
+  "mmsi",
+  "fishing_hours"
+  )
+
+available_analyses_10th <- c("Descriptive statistics 10th degree")
+
+available_analyses_100th <- c("Descriptive statistics 100th degree")
