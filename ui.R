@@ -174,22 +174,21 @@ tabPanel("Analysis",
                                                          "text/comma-separated-values,text/plain",
                                                          ".csv"))
                                     ),
-                           tags$div(class = "sidebar", 
+                           
+                           tags$div(class = "sidebar",
+                                    "Available analyses",
                                     prettyCheckboxGroup(
-                                      inputId = "available_analyses_ui",
-                                      label = "Available analyses",
+                                      inputId = "summaries",
+                                      label = "Summarize by",
                                       choices = NULL,
                                       shape = "curve",
                                       animation = "pulse"
-                                      )
-                                    ),
-                           
-                           tags$div(class = "sidebar",
+                                      ),
                                     actionButton(
-                                      inputId = "analyses_button",
-                                      label = "Analyze"
+                                      inputId = "summarize_button",
+                                      label = "Summarize"
                                     )
-                           ),
+                                    ),
                            
                            tags$div(class = "sidebar",
                                     disabled(
