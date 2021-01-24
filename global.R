@@ -102,6 +102,8 @@ column_10th <- c(
   "fishing_hours"
   )
 
-available_analyses_10th <- c("Descriptive statistics 10th degree")
+month_year_vector <- c("month","year")
 
-available_analyses_100th <- c("Descriptive statistics 100th degree")
+available_summaries_10th <- append(column_10th,month_year_vector)
+
+available_summaries_100th <- append(column_100th,month_year_vector)

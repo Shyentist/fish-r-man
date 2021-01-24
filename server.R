@@ -50,18 +50,18 @@ server <- function(input,output,session) {
     
     if (table_name_ui == "Fishing effort at 100th degree"){
       
-      available_analyses <- available_analyses_100th
+      summaries <- available_summaries_100th
       
     } else if (table_name_ui == "Fishing effort at 10th degree") {
       
-      available_analyses <- available_analyses_10th
+      summaries <- available_summaries_10th
       
     }
     
     updatePrettyCheckboxGroup(
       session,
-      inputId = 'available_analyses_ui',
-      choices = available_analyses
+      inputId = 'summaries',
+      choices = summaries
     )
     
     table_full_name <- paste(
@@ -294,18 +294,18 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
     
     if (isTRUE(all.equal(col_names_csv,column_100th))){
       
-      available_analyses <- available_analyses_100th
+      summaries <- available_summaries_100th
       
     } else if (isTRUE(all.equal(col_names_csv,column_10th))) {
       
-      available_analyses <- available_analyses_10th
+      summaries <- available_summaries_10th
       
     }
     
     updatePrettyCheckboxGroup(
       session,
-      inputId = 'available_analyses_ui',
-      choices = available_analyses
+      inputId = 'summaries',
+      choices = summaries
     )
     
     
@@ -313,34 +313,31 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
     
     })})
   
-  observeEvent(input$analyses_button, {
+  observeEvent(input$summarize_button, {
     
-    choice <- input$available_analyses_ui
+    choice <- input$summaries
     
     if (!is.null(choice)){
     
     df <- my_data()
     
-    enable(id = "download_analyses_button")
+    if ("month" %in% choice) {
+      df$month <- substr(
+        df$date, 
+        start = 1, 
+        stop = 7
+      )
+        }
+      
+    if ("year" %in% choice) {
+      df$year <- substr(
+        df$date, 
+        start = 1, 
+        stop = 4
+      )
+    }
     
-    summary_total <- summarize(df,
-                               "Total fishing" = sum(fishing_hours),
-                               "Min. fishing" = min(fishing_hours),
-                               "1st Qu. fishing" = quantile(fishing_hours, 0.25),
-                               "Median fishing" = median(fishing_hours),
-                               "Mean fishing" = mean(fishing_hours), 
-                               "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
-                               "Max. fishing" = max(fishing_hours),
-                               "Total vessel" = sum(vessel_hours),
-                               "Min. vessel" = min(vessel_hours),
-                               "1st Qu. vessel" = quantile(vessel_hours, 0.25),
-                               "Median vessel" = median(vessel_hours), 
-                               "Mean vessel" = mean(vessel_hours), 
-                               "3rd Qu. vessel" = quantile(vessel_hours, 0.75),
-                               "Max. vessel" = max(vessel_hours)
-    )
-    
-    summary_by_date <- group_by(df, date) %>%
+    summarized <- group_by_at(df, vars(one_of(choice))) %>%
       summarize("Total fishing" = sum(fishing_hours),
                 "Min. fishing" = min(fishing_hours),
                 "1st Qu. fishing" = quantile(fishing_hours, 0.25),
@@ -356,128 +353,46 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
                 "3rd Qu. vessel" = quantile(vessel_hours, 0.75),
                 "Max. vessel" = max(vessel_hours)
       )
-    
-    if (choice == "Descriptive statistics 10th degree"){
-      
-      summary_by_mmsi <- group_by(df, mmsi) %>%
-        summarize("Total fishing" = sum(fishing_hours),
-                  "Min. fishing" = min(fishing_hours),
-                  "1st Qu. fishing" = quantile(fishing_hours, 0.25),
-                  "Median fishing" = median(fishing_hours),
-                  "Mean fishing" = mean(fishing_hours), 
-                  "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
-                  "Max. fishing" = max(fishing_hours),
-                  "Total vessel" = sum(vessel_hours),
-                  "Min. vessel" = min(vessel_hours),
-                  "1st Qu. vessel" = quantile(vessel_hours, 0.25),
-                  "Median vessel" = median(vessel_hours), 
-                  "Mean vessel" = mean(vessel_hours), 
-                  "3rd Qu. vessel" = quantile(vessel_hours, 0.75),
-                  "Max. vessel" = max(vessel_hours)
-        )
       
       
-    } else if (choice == "Descriptive statistics 100th degree") {
+    } else {
       
-      summary_by_flag <- group_by(df, flag) %>%
-        summarize("Total fishing" = sum(fishing_hours),
-                  "Min. fishing" = min(fishing_hours),
-                  "1st Qu. fishing" = quantile(fishing_hours, 0.25),
-                  "Median fishing" = median(fishing_hours),
-                  "Mean fishing" = mean(fishing_hours), 
-                  "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
-                  "Max. fishing" = max(fishing_hours),
-                  "Total vessel" = sum(vessel_hours),
-                  "Min. vessel" = min(vessel_hours),
-                  "1st Qu. vessel" = quantile(vessel_hours, 0.25),
-                  "Median vessel" = median(vessel_hours), 
-                  "Mean vessel" = mean(vessel_hours), 
-                  "3rd Qu. vessel" = quantile(vessel_hours, 0.75),
-                  "Max. vessel" = max(vessel_hours)
-        )
-      
-      summary_by_geartype <- group_by(df, geartype) %>%
-        summarize("Total fishing" = sum(fishing_hours),
-                  "Min. fishing" = min(fishing_hours),
-                  "1st Qu. fishing" = quantile(fishing_hours, 0.25),
-                  "Median fishing" = median(fishing_hours),
-                  "Mean fishing" = mean(fishing_hours), 
-                  "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
-                  "Max. fishing" = max(fishing_hours),
-                  "Total vessel" = sum(vessel_hours),
-                  "Min. vessel" = min(vessel_hours),
-                  "1st Qu. vessel" = quantile(vessel_hours, 0.25),
-                  "Median vessel" = median(vessel_hours), 
-                  "Mean vessel" = mean(vessel_hours), 
-                  "3rd Qu. vessel" = quantile(vessel_hours, 0.75),
-                  "Max. vessel" = max(vessel_hours)
-        )
-      
+      summarized <- summarize(df,
+                                 "Total fishing" = sum(fishing_hours),
+                                 "Min. fishing" = min(fishing_hours),
+                                 "1st Qu. fishing" = quantile(fishing_hours, 0.25),
+                                 "Median fishing" = median(fishing_hours),
+                                 "Mean fishing" = mean(fishing_hours), 
+                                 "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
+                                 "Max. fishing" = max(fishing_hours),
+                                 "Total vessel" = sum(vessel_hours),
+                                 "Min. vessel" = min(vessel_hours),
+                                 "1st Qu. vessel" = quantile(vessel_hours, 0.25),
+                                 "Median vessel" = median(vessel_hours), 
+                                 "Mean vessel" = mean(vessel_hours), 
+                                 "3rd Qu. vessel" = quantile(vessel_hours, 0.75),
+                                 "Max. vessel" = max(vessel_hours)
+      )
     }
     
     output$download_analyses_button <- downloadHandler(
+      
       filename = function() {
         paste(
-          "analyses-", 
+          "summary-",
           Sys.Date(), 
-          ".zip", 
+          ".csv", 
           sep=""
         )
       },
-      content = function (descr){
-        write.csv(
-          summary_total, 
-          "summary.csv",
-          row.names = FALSE
-        )
-        
-        write.csv(
-          summary_by_date, 
-          "summary_by_date.csv",
-          row.names = FALSE
-        )
-        
-        if (choice == "Descriptive statistics 10th degree"){
-          
-          write.csv(
-            summary_by_mmsi,
-            "summary_by_mmsi.csv",
-            row.names = FALSE
-          )
-          
-          utils::zip(
-            descr, 
-            files = c(
-              "summary.csv",
-              "summary_by_date.csv",
-              "summary_by_mmsi.csv"
-            )
-          )} else if (choice == "Descriptive statistics 100th degree"){
-            
-            write.csv(
-              summary_by_flag,
-              "summary_by_flag.csv",
-              row.names = FALSE
-            )
-            
-            write.csv(
-              summary_by_geartype,
-              "summary_by_geartype.csv",
-              row.names = FALSE
-            )
-            
-            utils::zip(
-              descr, 
-              files = c(
-                "summary.csv",
-                "summary_by_date.csv",
-                "summary_by_flag.csv",
-                "summary_by_geartype.csv"
-              ))
-            
-          } })
+      content = function(file) {
+        write.csv(summarized, file, row.names = F)
+      }
+      )
+    
+    enable(id = "download_analyses_button")
    
-  }})
+  })
 
   }
  
