@@ -131,9 +131,12 @@ ui <- fluidPage(
     
     column(7,
            tags$div(class = "queried_table",
-                    dataTableOutput(
+                    withSpinner(
+                      dataTableOutput(
                       outputId = "queried_table"
-                    )
+                      ), 
+                      type = 1
+                      )
            )
     ),
     

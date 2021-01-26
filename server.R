@@ -46,6 +46,12 @@ server <- function(input,output,session) {
   
   my_data <- eventReactive(input$filter_button, {
     
+    output$queried_table <- renderDataTable({})
+    
+    disable(id = "filter_button")
+    
+    disable(id = "download_button")
+    
     table_name_ui <- input$table_name_ui
     
     if (table_name_ui == "Fishing effort at 100th degree"){
@@ -226,6 +232,8 @@ server <- function(input,output,session) {
     
     enable(id = "download_button")
     
+    enable(id = "filter_button")
+    
     metaData <- paste(
 "Software by 'Buonomo Pasquale. [2021]. https://github.com/Shyentist/fish-r-man'
 
@@ -277,7 +285,9 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
   }
   )
   
-  output$queried_table <- renderDataTable(my_data())
+  observe(my_data())
+  
+  output$queried_table <- renderDataTable({my_data()})
   
   output$uploaded_csv_viz <- renderTable({head(my_data())})
   
@@ -314,6 +324,10 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
     })})
   
   observeEvent(input$summarize_button, {
+    
+    disable(id = "download_analyses_button")
+    
+    disable(id = "summarize_button")
     
     choice <- input$summaries
     
@@ -391,6 +405,8 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
       )
     
     enable(id = "download_analyses_button")
+    
+    enable(id = "summarize_button")
    
   })
 
