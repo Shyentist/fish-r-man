@@ -196,3 +196,10 @@ table.dataTable thead > tr > th {
 
 }
 
+div.load-container {
+
+    position: fixed;
+    top: 50%;
+    width: 50%;
+
+}

@@ -7,6 +7,9 @@ library(tidyverse)
 library(glue)
 library(countrycode)
 library(stringi)
+library(shinycssloaders)
+
+options(spinner.color="#0275D8", spinner.color.background="#FF000000", spinner.size=5)
 
 options(shiny.maxRequestSize = 20*1024*1024^2)
 
@@ -104,6 +107,6 @@ column_10th <- c(
 
 month_year_vector <- c("month","year")
 
-available_summaries_10th <- append(column_10th,month_year_vector)
+available_summaries_10th <- append(column_10th,month_year_vector, after = 1)
 
-available_summaries_100th <- append(column_100th,month_year_vector)
+available_summaries_100th <- append(column_100th,month_year_vector, after = 1)
