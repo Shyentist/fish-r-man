@@ -8,6 +8,8 @@ library(glue)
 library(countrycode)
 library(stringi)
 library(shinycssloaders)
+library(sf)
+library(maps)
 
 options(spinner.color="#0275D8", spinner.color.background="#FF000000", spinner.size=5)
 
