@@ -52,6 +52,10 @@ server <- function(input,output,session) {
     
     disable(id = "download_button")
     
+    disable(id = "summarize_button")
+    
+    disable(id = "convert_to_spatial_button")
+    
     table_name_ui <- input$table_name_ui
     
     if (table_name_ui == "Fishing effort at 100th degree"){
@@ -234,6 +238,10 @@ server <- function(input,output,session) {
     
     enable(id = "filter_button")
     
+    enable(id = "summarize_button")
+    
+    enable(id = "convert_to_spatial_button")
+    
     metaData <- paste(
 "Software by 'Buonomo Pasquale. [2021]. https://github.com/Shyentist/fish-r-man'
 
@@ -331,9 +339,10 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
     
     choice <- input$summaries
     
+    df <- my_data()
+    
     if (!is.null(choice)){
     
-    df <- my_data()
     
     if ("month" %in% choice) {
       df$month <- substr(
@@ -409,6 +418,79 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
     enable(id = "summarize_button")
    
   })
+  
+  sf_data <- eventReactive(input$convert_to_spatial_button, {
+    
+    disable(id = "convert_to_spatial_button")
+    
+    disable(id = "download_gpkg_button")
+    
+    df <- my_data()
+    
+    col_names_csv <- colnames(df)
+    
+    if (isTRUE(all.equal(col_names_csv,column_100th))){
+      
+      rez <- 100
+      
+    } else if (isTRUE(all.equal(col_names_csv,column_10th))) {
+      
+      rez <- 10
+      
+    }
+    
+    df$lat_bin <- df$lat_bin/rez
+    df$lon_bin <- df$lon_bin/rez
+    
+    enable(id = "download_gpkg_button")
+    
+    enable(id = "convert_to_spatial_button")
+    
+    sdf <- st_as_sf(df, coords = c("lon_bin","lat_bin"))
+    
+    sdf
+  })
+                           
+  observe(sf_data())
+  
+  output$download_gpkg_button <- downloadHandler(
+    
+    filename = function() {
+      paste(
+        "spatial-data-",
+        Sys.Date(), 
+        ".gpkg", 
+        sep=""
+      )
+    },
+    content = function(file) {
+      
+      sdf <- sf_data()
+      
+      world_sf <- sf::st_as_sf(
+        maps::map(
+          "world", 
+          plot = FALSE, 
+          fill = TRUE
+          )
+        )
+      
+      st_write(
+        sdf, 
+        file, 
+        layer = "GFW", 
+        driver = "GPKG"
+        )
+      
+      st_write(
+        world_sf, 
+        file, 
+        layer = "Land", 
+        driver = "GPKG", 
+        append = TRUE
+        )
+    }
+  )
 
   }
  

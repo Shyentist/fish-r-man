@@ -170,13 +170,32 @@ tabPanel("Analysis",
          fluidRow(
            column(3,
                   tags$div(class = "sidenav",
-                           tags$div(class = "sidebar", 
-                                    fileInput("uploaded_csv", "Choose CSV File",
-                                              multiple = FALSE,
-                                              accept = c("text/csv",
-                                                         "text/comma-separated-values,text/plain",
-                                                         ".csv"))
-                                    ),
+                           tags$div(class = "sidebar",
+                                    tabsetPanel(type = "tabs",
+                                                tabPanel("CSV",
+                                                         fileInput("uploaded_csv", "Choose CSV File",
+                                                                   multiple = FALSE,
+                                                                   accept = c("text/csv",
+                                                                              "text/comma-separated-values,text/plain",
+                                                                              ".csv"))
+                                    ),tabPanel("GPKG",
+                                               fileInput("uploaded_gpkg", "Choose GPKG File",
+                                                         multiple = FALSE,
+                                                         accept = c("gpkg")),
+                                               "Or use the current data",
+                                               disabled(actionButton(
+                                                 inputId = "convert_to_spatial_button",
+                                                 label = "Convert"
+                                               )),
+                                               disabled(
+                                                 downloadButton(
+                                                   outputId = "download_gpkg_button",
+                                                   label = "Download .gpkg"
+                                                 )
+                                               )
+                                               
+                                    )
+                                    )),
                            
                            tags$div(class = "sidebar",
                                     "Available analyses",
