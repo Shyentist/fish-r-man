@@ -7,11 +7,8 @@ library(tidyverse)
 library(glue)
 library(countrycode)
 library(stringi)
-library(shinycssloaders)
 library(sf)
 library(maps)
-
-options(spinner.color="#0275D8", spinner.color.background="#FF000000", spinner.size=5)
 
 options(shiny.maxRequestSize = 20*1024*1024^2)
 
