@@ -44,17 +44,50 @@ server <- function(input,output,session) {
   },
   ignoreNULL = FALSE)
   
-  my_data <- eventReactive(input$filter_button, {
+  which_event <- reactiveValues(
+    query = FALSE, 
+    csv = FALSE
+    )
+  
+  observeEvent(input$filter_button, {
     
-    output$queried_table <- renderDataTable({})
+    which_event$query <- TRUE
+    which_event$csv <- FALSE
     
-    disable(id = "filter_button")
+  })
+  
+  observeEvent(input$uploaded_csv, {
     
-    disable(id = "download_button")
+    which_event$query <- FALSE
+    which_event$csv <- TRUE
     
-    disable(id = "summarize_button")
+  })
+  
+  possibleInputs <- reactive({
+    
+    list(
+      input$filter_button,
+      input$uploaded_csv
+    )
+    
+  })
+
+  my_data <- eventReactive(possibleInputs(), {
+    
+    summaries <- NULL
     
     disable(id = "convert_to_spatial_button")
+    
+    if (which_event$query){
+    
+    showModal(
+      modalDialog(
+        "Constructing SQL Query...", 
+        footer=NULL
+        )
+      )
+    
+    output$queried_table <- renderDataTable({})
     
     table_name_ui <- input$table_name_ui
     
@@ -67,12 +100,6 @@ server <- function(input,output,session) {
       summaries <- available_summaries_10th
       
     }
-    
-    updatePrettyCheckboxGroup(
-      session,
-      inputId = 'summaries',
-      choices = summaries
-    )
     
     table_full_name <- paste(
       project, 
@@ -227,98 +254,89 @@ server <- function(input,output,session) {
       .con = BQ_connection
     )
     
-    selectedData <- dbGetQuery(
+    output$sql_query <- renderText({GLUED_SQL})
+    
+    showModal(modalDialog("Fishing for data...", footer=NULL))
+    
+    df <- dbGetQuery(
       BQ_connection, 
       GLUED_SQL
     )
     
-    output$queried_table <- renderDataTable(selectedData)
+    showModal(
+      modalDialog(
+        "Building table...",
+        footer=NULL
+        )
+      )
+    
+    output$queried_table <- renderDataTable(df)
     
     enable(id = "download_button")
-    
-    enable(id = "filter_button")
-    
-    enable(id = "summarize_button")
-    
-    enable(id = "convert_to_spatial_button")
-    
-    metaData <- paste(
-"Software by 'Buonomo Pasquale. [2021]. https://github.com/Shyentist/fish-r-man'
-
-Data by 'Global Fishing Watch. [2021]. www.globalfishingwatch.org' (last checked: ", Sys.Date(),")
-
-Retrieved from their public dataset on Google's BigQuery with the following query: 
-
-",
-          GLUED_SQL,
-          sep = ""
-        )
     
     output$download_button <- downloadHandler(
       filename = function() {
         paste(
           "data-", 
           Sys.Date(), 
-          ".zip", 
+          ".csv", 
           sep=""
         )
       },
-      content = function (con){
+      content = function(con) {
         write.csv(
-          selectedData, 
-          "data.csv",
-          row.names = FALSE
-        )
-        
-        write.table(
-          metaData, 
-          "metadata.txt",
-          row.names = FALSE,
-          col.names = FALSE
-        )
-        
-        utils::zip(
-          con, 
-          files = c(
-            "data.csv",
-            "metadata.txt"
+          df,
+          con,
+          row.names = F
           )
-        )
-        
-      },
-      contentType = "application/zip"
+      }
     )
     
-    return(selectedData)
-  }
-  )
-  
-  observe(my_data())
-  
-  output$queried_table <- renderDataTable({my_data()})
-  
-  output$uploaded_csv_viz <- renderTable({head(my_data())})
-  
-  observeEvent(input$uploaded_csv, {
-  
-  output$uploaded_csv_viz <- renderTable({
+    if (table_name_ui == "Fishing effort at 100th degree"){
     
-    df <- read.csv(input$uploaded_csv$datapath,
-                 header = TRUE,
-                 sep = ",",
-                 quote = '"')
+    summaries <- available_summaries_100th
     
-    col_names_csv <- colnames(df)
-    
-    if (isTRUE(all.equal(col_names_csv,column_100th))){
+    } else if (table_name_ui == "Fishing effort at 10th degree"){
       
-      summaries <- available_summaries_100th
-      
-    } else if (isTRUE(all.equal(col_names_csv,column_10th))) {
-      
-      summaries <- available_summaries_10th
+    summaries <- available_summaries_100th
       
     }
+    
+    removeModal()
+    
+    } else if (which_event$csv){
+      
+      showModal(
+        modalDialog(
+          "Uploading your data...",
+          footer=NULL
+          )
+        )
+    
+      df <- read.csv(input$uploaded_csv$datapath,
+                     header = TRUE,
+                     sep = ",",
+                     quote = '"')
+      
+      col_names_csv <- colnames(df)
+      
+      if (isTRUE(all.equal(col_names_csv,column_100th))){
+        
+        summaries <- available_summaries_100th
+        
+      } else if (isTRUE(all.equal(col_names_csv,column_10th))) {
+        
+        summaries <- available_summaries_10th
+        
+      } else {
+        
+        df <- my_data()
+        
+      }
+      
+      removeModal()
+      
+      } else { df <- NULL }
     
     updatePrettyCheckboxGroup(
       session,
@@ -326,16 +344,23 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
       choices = summaries
     )
     
+    if (!is.null(df)){
+      
+      enable(id = "convert_to_spatial_button")
+      
+    }
     
-    return(head(df))
-    
-    })})
+    return(df)
+    }
+  )
   
+  observe(my_data())
+  
+  output$uploaded_csv_viz <- renderTable({head(my_data())})
+
   observeEvent(input$summarize_button, {
     
-    disable(id = "download_analyses_button")
-    
-    disable(id = "summarize_button")
+    showModal(modalDialog("Summarizing...", footer=NULL))
     
     choice <- input$summaries
     
@@ -398,6 +423,15 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
       )
     }
     
+    columns_to_append <- c("Total fishing",
+                           "Mean fishing",
+                           "Total vessel",
+                           "Mean vessel")
+    
+    columns_to_show <- append(choice, columns_to_append)
+    
+    output$summary_preview <- renderDataTable ({summarized[,columns_to_show]})
+    
     output$download_analyses_button <- downloadHandler(
       
       filename = function() {
@@ -409,21 +443,27 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
         )
       },
       content = function(file) {
-        write.csv(summarized, file, row.names = F)
+        write.csv(summarized,
+                  file,
+                  row.names = F
+                  )
       }
       )
     
     enable(id = "download_analyses_button")
     
-    enable(id = "summarize_button")
+    removeModal()
    
   })
   
   sf_data <- eventReactive(input$convert_to_spatial_button, {
     
-    disable(id = "convert_to_spatial_button")
-    
-    disable(id = "download_gpkg_button")
+    showModal(
+      modalDialog(
+        "Converting data to GeoPackage...",
+        footer=NULL
+        )
+      )
     
     df <- my_data()
     
@@ -442,11 +482,14 @@ Retrieved from their public dataset on Google's BigQuery with the following quer
     df$lat_bin <- df$lat_bin/rez
     df$lon_bin <- df$lon_bin/rez
     
+    sdf <- st_as_sf(df,
+                    coords = c("lon_bin",
+                               "lat_bin")
+                    )
+    
     enable(id = "download_gpkg_button")
     
-    enable(id = "convert_to_spatial_button")
-    
-    sdf <- st_as_sf(df, coords = c("lon_bin","lat_bin"))
+    removeModal()
     
     sdf
   })

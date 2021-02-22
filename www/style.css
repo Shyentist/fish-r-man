@@ -28,6 +28,16 @@ div.tab-content {
 
 }
 
+div.footer {
+
+    background-color: rgba(255, 255, 255, 0.40);
+    border-radius: 15px;
+    padding: 0px 12px;
+    margin-top: 6px;
+    overflow: auto;
+
+}
+
 ul.nav-tabs {
 
     border-bottom: none;
@@ -193,13 +203,5 @@ table.dataTable thead > tr > th {
     
     padding-left: 0px;
     padding-right: 0px;
-
-}
-
-div.load-container {
-
-    position: fixed;
-    top: 50%;
-    width: 50%;
 
 }

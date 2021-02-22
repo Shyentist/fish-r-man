@@ -4,7 +4,8 @@ ui <- fluidPage(
   
   useShinyjs(),
   
-  tabsetPanel(type = "tabs",
+  tabsetPanel(id = "tabs",
+              type = "tabs",
               tabPanel("Query",
   
   fluidRow(
@@ -119,6 +120,11 @@ ui <- fluidPage(
                     ),
                     
                     tags$div(class = "sidebar",
+                             "SQL Query:",
+                             textOutput(
+                               outputId = "sql_query"
+                             )),
+                    tags$div(class = "sidebar",
                              disabled(
                                downloadButton(
                                  outputId = "download_button",
@@ -129,42 +135,17 @@ ui <- fluidPage(
            )
     ),
     
-    column(7,
+    column(9,
            tags$div(class = "queried_table",
-                    withSpinner(
-                      dataTableOutput(
+                    dataTableOutput(
                       outputId = "queried_table"
-                      ), 
-                      type = 1
                       )
            )
-    ),
-    
-    column(2,
-           tags$div(class = "sidenav",
-           tags$div(class = "sidebar",
-                    img(
-                      src = "img/fishrman_logo.png",
-                      height = 'auto',
-                      width = '100%'
-                    ),
-                    href="https://github.com/Shyentist/fish-r-man"
-           ),
-           
-           tags$div(class = "sidebar",
-                    tags$a
-                    (img
-                      (
-                        src = "img/github_logo.png",
-                        height = 'auto',
-                        width = '100%'
-                      ),
-                      href="https://github.com/Shyentist/fish-r-man"
-                    )
-           )
     )
-  )
-)),
+)
+
+
+),
 
 tabPanel("Analysis", 
          fluidRow(
@@ -175,8 +156,8 @@ tabPanel("Analysis",
                                                 tabPanel("CSV",
                                                          fileInput("uploaded_csv", "Choose CSV File",
                                                                    multiple = FALSE,
-                                                                   accept = c("text/csv",
-                                                                              "text/comma-separated-values,text/plain",
+                                                                   accept = c("csv",
+                                                                              "comma-separated-values",
                                                                               ".csv"))
                                     ),tabPanel("GPKG",
                                                fileInput("uploaded_gpkg", "Choose GPKG File",
@@ -223,36 +204,47 @@ tabPanel("Analysis",
                            )
                   ),
            
-           column(7,
+           column(9,
                   tags$div(class = "queried_table", 
-                           tableOutput("uploaded_csv_viz"))
-           ),
-           
-           column(2,
-                  tags$div(class = "sidenav",
-                           tags$div(class = "sidebar",
-                                    img(
-                                      src = "img/fishrman_logo.png",
-                                      height = 'auto',
-                                      width = '100%'
-                                    ),
-                                    href="https://github.com/Shyentist/fish-r-man"
+                           tableOutput("uploaded_csv_viz")
                            ),
-                           
-                           tags$div(class = "sidebar",
-                                    tags$a
-                                    (img
-                                      (
-                                        src = "img/github_logo.png",
-                                        height = 'auto',
-                                        width = '100%'
-                                      ),
-                                      href="https://github.com/Shyentist/fish-r-man"
-                                    )
-                           )
+                  tags$div(class = "queried_table", 
+                           dataTableOutput("summary_preview")
                   )
            )
          )
 )
 
-))
+),
+
+fluidRow(
+  column(12,
+         tags$div(class = "footer",
+                  column(2),
+                  
+                  column(3,
+                         tags$a(
+                           img(
+                             src = "img/fishrman_banner.png",
+                             height = 'auto',
+                             width = '100%'
+                             ),
+                           href="https://github.com/Shyentist/fish-r-man"
+                           )),
+                  
+                  column(2),
+                  
+                  column(3,
+                         tags$a(img(
+                           src = "img/github_logo.png",
+                           height = 'auto',
+                           width = '100%'
+                           ),
+                           href="https://github.com/Shyentist/fish-r-man"
+                           )),
+                  
+                  column(2)
+                  )
+         )
+  )
+)
