@@ -116,22 +116,21 @@ ui <- fluidPage(
                              actionButton(
                                inputId = "filter_button",
                                label = "Filter"
-                             )
-                    ),
-                    
-                    tags$div(class = "sidebar",
-                             "SQL Query:",
-                             textOutput(
-                               outputId = "sql_query"
-                             )),
-                    tags$div(class = "sidebar",
+                             ),
                              disabled(
                                downloadButton(
                                  outputId = "download_button",
                                  label = "Download"
                                )
                              )
-                    )
+                    ),
+                    
+                    tags$div(class = "sidebar",
+                             "SQL Query:",
+                             tags$code(textOutput(
+                               outputId = "sql_query"
+                             )))
+                    
            )
     ),
     
@@ -156,13 +155,11 @@ tabPanel("Analysis",
                                                 tabPanel("CSV",
                                                          fileInput("uploaded_csv", "Choose CSV File",
                                                                    multiple = FALSE,
-                                                                   accept = c("csv",
-                                                                              "comma-separated-values",
-                                                                              ".csv"))
+                                                                   accept = ".csv")
                                     ),tabPanel("GPKG",
                                                fileInput("uploaded_gpkg", "Choose GPKG File",
                                                          multiple = FALSE,
-                                                         accept = c("gpkg")),
+                                                         accept = ".gpkg"),
                                                "Or use the current data",
                                                disabled(actionButton(
                                                  inputId = "convert_to_spatial_button",
@@ -180,6 +177,8 @@ tabPanel("Analysis",
                            
                            tags$div(class = "sidebar",
                                     "Available analyses",
+                                    tabsetPanel(type = "tabs",
+                                                tabPanel("Descriptive",
                                     prettyCheckboxGroup(
                                       inputId = "summaries",
                                       label = "Summarize by",
@@ -187,33 +186,89 @@ tabPanel("Analysis",
                                       shape = "curve",
                                       animation = "pulse"
                                       ),
+                                    disabled(
                                     actionButton(
                                       inputId = "summarize_button",
                                       label = "Summarize"
-                                    )
-                                    ),
-                           
-                           tags$div(class = "sidebar",
+                                    )),
                                     disabled(
                                       downloadButton(
                                         outputId = "download_analyses_button",
                                         label = "Download"
                                       )
                                     )
+                                    ),
+                                    
+                                    tabPanel("Spatial",
+                                             prettyCheckboxGroup(
+                                               inputId = "spatial_analyses",
+                                               label = "Visualization options",
+                                               choices = NULL,
+                                               shape = "curve",
+                                               animation = "pulse"
+                                             ),
+                                             disabled(
+                                             actionButton(
+                                               inputId = "visualize_button",
+                                               label = "Visualize"
+                                             ))
+                                           
+                                             )
+                                    
+                                    
+                                    )
+                           
+                           
                            )
-                           )
-                  ),
+                  )),
            
            column(9,
-                  tags$div(class = "queried_table", 
+                  tags$div(class = "queried_table",
+                           id = "preview-table",
                            tableOutput("uploaded_csv_viz")
                            ),
-                  tags$div(class = "queried_table", 
+                  
+                  tags$div(class = "queried_table",
+                           id = "summary-table",
                            dataTableOutput("summary_preview")
+                  ),
+                  
+                  hidden(tags$div(class = "sidebar",
+                           id = "map",
+                           fluidRow(
+                             column(9,
+                           plotOutput("viz_map")
+                           ),
+                           column(3,
+                                  selectInput(
+                                    inputId = "mapped_column",
+                                    label = "Map by",
+                                    choices = NULL
+                                  ),
+                                  
+                                  numericInput(
+                                    inputId = "map_rez",
+                                    label = "Map resolution",
+                                    value = NULL
+                                  ),
+                                  
+                                  actionButton(
+                                    inputId = "re_visualize_button",
+                                    label = "Re-Visualize"
+                                  ),
+                                  
+                                  downloadButton(
+                                    outputId = "download_map_button",
+                                    label = "Download"
+                                  )
+                                  
+                                  
+                                  
+                                  )
                   )
-           )
+           ))
          )
-)
+))
 
 ),
 

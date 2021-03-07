@@ -9,6 +9,8 @@ library(countrycode)
 library(stringi)
 library(sf)
 library(maps)
+library(ggplot2)
+library(viridis)
 
 options(shiny.maxRequestSize = 20*1024*1024^2)
 
@@ -109,3 +111,9 @@ month_year_vector <- c("month","year")
 available_summaries_10th <- append(column_10th,month_year_vector, after = 1)
 
 available_summaries_100th <- append(column_100th,month_year_vector, after = 1)
+
+sf_column_100th <- column_100th[! column_100th %in% c("lat_bin", "lon_bin")] %>%
+                      append("geom")
+  
+sf_column_10th <- column_10th[! column_10th %in% c("lat_bin", "lon_bin")] %>%
+  append("geom")

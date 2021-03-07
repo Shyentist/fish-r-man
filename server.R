@@ -77,6 +77,7 @@ server <- function(input,output,session) {
     summaries <- NULL
     
     disable(id = "convert_to_spatial_button")
+    disable(id = "summarize_button")
     
     if (which_event$query){
     
@@ -256,7 +257,11 @@ server <- function(input,output,session) {
     
     output$sql_query <- renderText({GLUED_SQL})
     
-    showModal(modalDialog("Fishing for data...", footer=NULL))
+    showModal(
+      modalDialog(
+        "Fishing for data...", 
+        footer=NULL)
+      )
     
     df <- dbGetQuery(
       BQ_connection, 
@@ -298,7 +303,7 @@ server <- function(input,output,session) {
     
     } else if (table_name_ui == "Fishing effort at 10th degree"){
       
-    summaries <- available_summaries_100th
+    summaries <- available_summaries_10th
       
     }
     
@@ -347,6 +352,7 @@ server <- function(input,output,session) {
     if (!is.null(df)){
       
       enable(id = "convert_to_spatial_button")
+      enable(id = "summarize_button")
       
     }
     
@@ -360,7 +366,11 @@ server <- function(input,output,session) {
 
   observeEvent(input$summarize_button, {
     
-    showModal(modalDialog("Summarizing...", footer=NULL))
+    showModal(
+      modalDialog(
+        "Summarizing...", 
+        footer=NULL)
+      )
     
     choice <- input$summaries
     
@@ -456,7 +466,42 @@ server <- function(input,output,session) {
    
   })
   
-  sf_data <- eventReactive(input$convert_to_spatial_button, {
+  which_sf_event <- reactiveValues(
+    gpkg = FALSE, 
+    converted = FALSE
+  )
+  
+  observeEvent(input$convert_to_spatial_button, {
+    
+    which_sf_event$converted <- TRUE
+    which_sf_event$gpkg <- FALSE
+    
+  })
+  
+  observeEvent(input$uploaded_gpkg, {
+    
+    which_sf_event$converted <- FALSE
+    which_sf_event$gpkg <- TRUE
+    
+  })
+  
+  possibleSpatialInputs <- reactive({
+    
+    list(
+      input$uploaded_gpkg,
+      input$convert_to_spatial_button
+    )
+    
+  })
+  
+  sf_data <- eventReactive(possibleSpatialInputs(), {
+    
+    sdf <- NULL
+    
+    disable(id = "visualize_button")
+    disable(id = "download_gpkg_button")
+    
+    if (which_sf_event$converted){
     
     showModal(
       modalDialog(
@@ -467,13 +512,13 @@ server <- function(input,output,session) {
     
     df <- my_data()
     
-    col_names_csv <- colnames(df)
+    col_names_conv <- colnames(df)
     
-    if (isTRUE(all.equal(col_names_csv,column_100th))){
+    if (isTRUE(all.equal(col_names_conv,column_100th))){
       
       rez <- 100
       
-    } else if (isTRUE(all.equal(col_names_csv,column_10th))) {
+    } else if (isTRUE(all.equal(col_names_conv,column_10th))) {
       
       rez <- 10
       
@@ -487,11 +532,41 @@ server <- function(input,output,session) {
                                "lat_bin")
                     )
     
-    enable(id = "download_gpkg_button")
+    removeModal()} else if (which_sf_event$gpkg){
+      
+      showModal(
+        modalDialog(
+          "Uploading GeoPackage...",
+          footer=NULL
+        )
+      )
+      
+      
+      sdf <- st_read(input$uploaded_gpkg$datapath,
+              layer = "GFW",
+              geometry_column = "geom")
+      
+      col_names_gpkg <- colnames(sdf)
+      
+      
+      if (isFALSE(all.equal(col_names_gpkg,sf_column_100th)) & isFALSE(all.equal(col_names_gpkg,sf_column_10th))){
+        
+        sdf <- NULL
+        
+      }
+      
+      removeModal()
+      
+    }
     
-    removeModal()
+    if (!is.null(sdf)) {
+      
+      enable(id = "download_gpkg_button")
+      enable(id = "visualize_button")
+      
+      }
     
-    sdf
+    return(sdf)
   })
                            
   observe(sf_data())
@@ -534,6 +609,185 @@ server <- function(input,output,session) {
         )
     }
   )
+  
+  which_viz_event <- reactiveValues(
+    origin = FALSE, 
+    reviz = FALSE
+  )
+  
+  observeEvent(input$visualize_button, {
+    
+    which_viz_event$origin <- TRUE
+    which_viz_event$reviz <- FALSE
+    
+  })
+  
+  observeEvent(input$re_visualize_button, {
+    
+    which_viz_event$origin <- FALSE
+    which_viz_event$reviz <- TRUE
+    
+  })
+  
+  possibleVizInputs <- reactive({
+    
+    list(
+      input$visualize_button,
+      input$re_visualize_button
+    )
+    
+  })
+  
+  observeEvent(possibleVizInputs(), {
+    
+    if (which_viz_event$origin || which_viz_event$reviz){
+    
+    showModal(
+      modalDialog(
+        "Visualizing your data...",
+        footer=NULL
+      )
+    )
+    
+    sdf <- sf_data()
+    
+    colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" 
+    
+    st_geometry(sdf) <- "geom"
+    
+    col_names_sdf <- colnames(sdf)
+    
+    bbox <- st_bbox(sdf)
+    
+    lowx <- bbox$xmin - 1
+    highx <- bbox$xmax + 1
+    lowy <- bbox$ymin - 1 
+    highy <- bbox$ymax + 1
+
+    df <- sdf %>%
+      dplyr::mutate(lon = sf::st_coordinates(.)[,1],
+                    lat = sf::st_coordinates(.)[,2])
+    
+    if (isTRUE(all.equal(col_names_sdf,sf_column_100th))){
+      
+      if (which_viz_event$origin){
+        
+        updateNumericInput(session,
+                           inputId = "map_rez",
+                           min = 0.01,
+                           max = 1,
+                           value = 0.01)
+        rez <- 0.01
+        
+      } else {rez <- input$map_rez}
+      
+      if (is.numeric(rez) && rez > 0.01 && rez <= 1) {
+        df <- df %>% 
+        mutate(
+          lat = floor(lat/rez) * rez + 0.5 * rez, 
+          lon = floor(lon/rez) * rez + 0.5 * rez)}
+      
+      grouped_df <- df %>%
+        
+        as.data.frame() %>%
+        
+        group_by(lon, lat) %>%
+        
+        summarise("Total fishing hours" = sum(fishing_hours),
+                  "Total vessel hours" = sum(vessel_hours),
+                  "Total MMSI present" = sum(mmsi_present),
+                  "Mean fishing hours" = mean(fishing_hours),
+                  "Mean vessel hours" = mean(vessel_hours),
+                  "Mean MMSI present" = mean(mmsi_present))
+ 
+    } else if (isTRUE(all.equal(col_names_sdf,sf_column_10th))) {
+      
+      if (which_viz_event$origin){
+        
+        updateNumericInput(session,
+                           inputId = "map_rez",
+                           min = 0.1,
+                           max = 1,
+                           value = 0.1)
+        
+        rez <- 0.1
+       
+      } else {rez <- input$map_rez}
+      
+      if (is.numeric(rez) && rez > 0.1 && rez <= 1) {df <- df %>% 
+        mutate(
+          lat = floor(lat/rez) * rez + 0.5 * rez, 
+          lon = floor(lon/rez) * rez + 0.5 * rez)}
+      
+      grouped_df <- df %>%
+        
+        as.data.frame() %>%
+        
+        group_by(lon, lat) %>%
+        
+        summarise("Total fishing hours" = sum(fishing_hours),
+                  "Mean fishing hours" = mean(fishing_hours))
+    
+    }
+    
+    if (which_viz_event$origin) {col_names_grouped <- colnames(grouped_df)
+    
+    col_names_grouped_no_geo <- col_names_grouped[! col_names_grouped %in% c("lat", "lon")]
+    
+    updateSelectInput(session,
+                      inputId = "mapped_column",
+                      choices = col_names_grouped_no_geo)
+    
+    to_fill <- "Total fishing hours"} else {to_fill <- input$mapped_column}
+    
+    world_sf <- sf::st_as_sf(
+      maps::map(
+        "world", 
+        plot = FALSE, 
+        fill = TRUE
+      )
+    )
+    
+    map <- ggplot() +
+      
+      geom_tile(data = grouped_df, aes(x = lon, y = lat, fill = .data[[to_fill]])) +
+      
+      scale_fill_viridis() +
+      
+      geom_sf(data = world_sf, 
+              fill = '#BABABA', 
+              color = '#0A1738',
+              size = 0.1) +
+      
+      coord_sf(xlim = c(lowx, highx),
+               ylim = c(lowy, highy),
+               expand = FALSE)
+    
+    output$viz_map <- renderPlot({return(map)})
+    
+    shinyjs::show("map")
+    
+    output$download_map_button <- downloadHandler(
+      
+      filename = function() {
+        paste(
+          to_fill,
+          Sys.Date(), 
+          ".png", 
+          sep=""
+        )
+      },
+      
+      content = function(file) {
+        
+        ggsave(map, filename = file)
+        
+      }
+    )
+    
+    removeModal()}
+    
+    })
 
   }
  
