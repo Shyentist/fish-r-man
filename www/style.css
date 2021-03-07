@@ -80,14 +80,28 @@ div.right_sidebar {
 
 }
 
-.sidebar .btn {
-
+.sidebar .btn.action-button{
+	
+	margin-top: 3px;
+	margin-bottom: 3px;
     font-weight: bold;
     font-size: large;
     width: 80%;
     border-radius: 5px;
 
 }
+
+.sidebar .btn.shiny-download-link{
+	
+	margin-top: 3px;
+	margin-bottom: 3px;
+    font-weight: bold;
+    font-size: large;
+    width: 80%;
+    border-radius: 5px;
+
+}
+
 
 .sidebar .btn.btn-file{
 
@@ -199,9 +213,10 @@ form.well {
 
 }
 
-table.dataTable thead > tr > th {
+table thead > tr > th {
     
     padding-left: 0px;
     padding-right: 0px;
+	text-align: center !important;
 
 }
