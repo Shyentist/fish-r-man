@@ -5,7 +5,7 @@ body {
     rgba(0, 0, 0, 0.10)
   ),url("img/boat1.jpg") no-repeat fixed center;
     background-size: 100% 100%;
-    font-size: 0.8vw !important;
+    font-size: 1vw !important;
 
 }
 
@@ -25,6 +25,7 @@ div.tab-content {
     background-color: rgba(255, 255, 255, 0.40);
     border-radius: 15px;
     padding: 0px 12px;
+    margin-bottom: 3px;
 
 }
 
@@ -32,11 +33,20 @@ div.footer {
 
     background-color: rgba(255, 255, 255, 0.40);
     border-radius: 15px;
-    padding: 0px 12px;
-    margin-top: 6px;
+    padding: 6px 6px;
+    margin-top: 3px;
+    margin-bottom: 3px;
     overflow: auto;
+    color: black;
 
 }
+
+div.footer p {
+
+    font-weight: bold;
+
+}
+
 
 ul.nav-tabs {
 
@@ -65,18 +75,6 @@ ul.nav-tabs li.active a {
 
     background-color: rgba(255, 255, 255, 0.40) !important;
     border-color: transparent !important;
-
-}
-
-div.right_sidebar {
-
-    margin: 12px 0px;
-    width: 100%;
-    padding: 12px;
-    background-color: rgba(255, 255, 255, 0.850);
-    border-radius: 15px;
-    text-align:center;
-    position: fixed;
 
 }
 
@@ -213,10 +211,15 @@ form.well {
 
 }
 
-table thead > tr > th {
+table {
     
     padding-left: 0px;
     padding-right: 0px;
 	text-align: center !important;
+    font-size: 0.7vw !important;
 
+}
+
+div#sql_query {
+    font-size: 0.7vw !important;
 }

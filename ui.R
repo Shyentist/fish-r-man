@@ -181,7 +181,7 @@ tabPanel("Analysis",
                                                 tabPanel("Descriptive",
                                     prettyCheckboxGroup(
                                       inputId = "summaries",
-                                      label = "Summarize by",
+                                      label = "Summarize by (max 7)",
                                       choices = NULL,
                                       shape = "curve",
                                       animation = "pulse"
@@ -275,10 +275,9 @@ tabPanel("Analysis",
 fluidRow(
   column(12,
          tags$div(class = "footer",
-                  column(2),
-                  
-                  column(3,
-                         tags$a(
+                  column(2,
+                         tags$a(target="_blank",
+                                rel = "noreferrer noopener",
                            img(
                              src = "img/fishrman_banner.png",
                              height = 'auto',
@@ -287,18 +286,41 @@ fluidRow(
                            href="https://github.com/Shyentist/fish-r-man"
                            )),
                   
-                  column(2),
+                  column(5,
+                         tags$p("References"),
+                         "Software by 'Buonomo Pasquale. [2021].",
+                         tags$a("https://github.com/Shyentist/fish-r-man'",
+                                target="_blank",
+                                rel = "noreferrer noopener",
+                                href = "https://github.com/Shyentist/fish-r-man",
+                                style = "color:#000000"),
+                         tags$br(),
+                         "Data by 'Global Fishing Watch. [2021].",
+                         tags$a("www.globalfishingwatch.org'",
+                                target="_blank",
+                                rel = "noreferrer noopener",
+                                href = "https://globalfishingwatch.org/",
+                                style = "color:#000000")),
                   
                   column(3,
-                         tags$a(img(
+                         tags$p("Contacts"),
+                         "E-mail:",
+                         tags$a("pasqualebuonomo@hotmail.it",
+                                target = "_blank",
+                                rel = "noreferrer noopener",
+                                href = "mailto:pasqualebuonomo@hotmail.it",
+                                style = "color:#000000")),
+                  
+                  column(2,
+                         tags$a(target="_blank",
+                                rel = "noreferrer noopener",
+                                img(
                            src = "img/github_logo.png",
                            height = 'auto',
                            width = '100%'
                            ),
                            href="https://github.com/Shyentist/fish-r-man"
-                           )),
-                  
-                  column(2)
+                           ))
                   )
          )
   )

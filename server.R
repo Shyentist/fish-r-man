@@ -374,6 +374,8 @@ server <- function(input,output,session) {
     
     choice <- input$summaries
     
+    if (length(choice) < 8){
+    
     df <- my_data()
     
     if (!is.null(choice)){
@@ -460,9 +462,13 @@ server <- function(input,output,session) {
       }
       )
     
-    enable(id = "download_analyses_button")
+    enable(id = "download_analyses_button") 
     
-    removeModal()
+    removeModal()} else {
+      showModal(
+      modalDialog(
+        "Maximum 7 fields")
+    )}
    
   })
   
@@ -532,7 +538,7 @@ server <- function(input,output,session) {
                                "lat_bin")
                     )
     
-    removeModal()} else if (which_sf_event$gpkg){
+    } else if (which_sf_event$gpkg){
       
       showModal(
         modalDialog(
@@ -553,18 +559,18 @@ server <- function(input,output,session) {
         
         sdf <- NULL
         
-      }
-      
-      removeModal()
-      
-    }
+      }}
     
-    if (!is.null(sdf)) {
+    
+    
+    if ((!is.null(sdf)) && (length(sdf$geom) > 0)) {
       
       enable(id = "download_gpkg_button")
       enable(id = "visualize_button")
       
-      }
+    }
+    
+    removeModal()
     
     return(sdf)
   })
