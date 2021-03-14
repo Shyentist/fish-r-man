@@ -18,8 +18,8 @@ project <- "global-fishing-watch"
 dataset <- "global_footprint_of_fisheries"
 billing <- "fish-r-man" # your billing account name
 
-bq_auth(email = "user-359@fish-r-man.iam.gserviceaccount.com", 
-        path = "www/appDir/Fish-R-Man-4a4612e29f94.json")
+bq_auth(email = "fishrman-user@fish-r-man.iam.gserviceaccount.com", 
+        path = "www/appDir/fish-r-man-ec45cfe426c8.json")
 
 BQ_connection <-  dbConnect(bigquery(), 
                             project = project,
