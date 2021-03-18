@@ -538,6 +538,10 @@ server <- function(input,output,session) {
                                "lat_bin")
                     )
     
+    colnames(sdf)[colnames(sdf) == "geometry"] <- "geom"
+    
+    st_geometry(sdf) <- "geom"
+    
     } else if (which_sf_event$gpkg){
       
       showModal(
@@ -665,10 +669,13 @@ server <- function(input,output,session) {
     
     bbox <- st_bbox(sdf)
     
-    lowx <- bbox$xmin - 1
-    highx <- bbox$xmax + 1
-    lowy <- bbox$ymin - 1 
-    highy <- bbox$ymax + 1
+    xbuff <- (bbox$xmax - bbox$xmin)*0.05
+    ybuff <- (bbox$ymax - bbox$ymin)*0.05
+    
+    lowx <- bbox$xmin - xbuff
+    highx <- bbox$xmax + xbuff
+    lowy <- bbox$ymin - ybuff 
+    highy <- bbox$ymax + ybuff
 
     df <- sdf %>%
       dplyr::mutate(lon = sf::st_coordinates(.)[,1],
