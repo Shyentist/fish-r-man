@@ -19,20 +19,36 @@ server <- function(input,output,session) {
     
     names(fields_list) <- fields_list_names
     
-    updatePrettyCheckboxGroup(
+    updatePrettyCheckboxGroup( #this way, the checkboxes are always named after the table fields
       session,
       inputId = 'filter_columns_ui',
       choices = fields_list
     )
   }) 
   
+  #what follow enables and disables the input boxes from the "filter sidebar"
+  #I do this so that I can later check on which boxes are ticked, instead of
+  #checking directly for the inputs, and I can build the SQL Query based on
+  #which inputs are enabled. The logic is simple, for inputs of type numeric range
+  #the query adds AND, as in "WHERE lat_bin > 10 AND lat_bin < 20 ", since the
+  #two things must be true at the same time. For categories, such as flag and
+  #geartype, I add OR, as in " flag = 'ITA' OR flag = 'FRA' ", since we are 
+  #looking for entries that much any of these categories
+  
+  #The query starts without a WHERE, only AND, then, I substitute the first AND
+  #of the query with a WHERE. I am sure someone else can come up with something
+  #more elegant, but I figured this was the best option at the time of coding
+  
+  #Also, the field 'date' is the only one that is not queried as is, since
+  #using PARTITIONTIME instead helps reducing the amount of data billed
+  
   observeEvent(input$filter_columns_ui,{
     
-    for (field in list_togglable_ids) {
+    for (field in list_togglable_ids) { 
       
-      if (field %in% input$filter_columns_ui) {
+      if (field %in% input$filter_columns_ui) { 
         
-        enable(id = field)
+        enable(id = field) 
         
       } else {
         
@@ -44,12 +60,19 @@ server <- function(input,output,session) {
   },
   ignoreNULL = FALSE)
   
+  #what is happening down here, with which_event, you will see it often in this
+  #code. It is basically a switch, that I can later check in reactive expressions
+  #that must differentiate among the various type of inputs that they can receive
+  #for instance, both when uploading a csv or querying data, I need the final 
+  #result to be assigned to 'my_data', so that later on I can just refer to this
+  #value, which is qualitatively the same for both sources
+  
   which_event <- reactiveValues(
     query = FALSE, 
     csv = FALSE
     )
   
-  observeEvent(input$filter_button, {
+  observeEvent(input$filter_button, { 
     
     which_event$query <- TRUE
     which_event$csv <- FALSE
@@ -435,12 +458,12 @@ server <- function(input,output,session) {
       )
     }
     
-    columns_to_append <- c("Total fishing",
-                           "Mean fishing",
-                           "Total vessel",
-                           "Mean vessel")
+    columns_to_append <- c("Total fishing", #this is to limit the amount of fields
+                           "Mean fishing", #displayed on screen, since one could
+                           "Total vessel", #group by every single field and obtain
+                           "Mean vessel") #over 20 columns
     
-    columns_to_show <- append(choice, columns_to_append)
+    columns_to_show <- append(choice, columns_to_append) 
     
     output$summary_preview <- renderDataTable ({summarized[,columns_to_show]})
     
@@ -538,9 +561,12 @@ server <- function(input,output,session) {
                                "lat_bin")
                     )
     
-    colnames(sdf)[colnames(sdf) == "geometry"] <- "geom"
+    colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" #this happens because 
+                                              #st_write creates a column "geom",
+                                      #but st_as_sf names it "geometry", messing
+                                            #with my system of checking colnames
     
-    st_geometry(sdf) <- "geom"
+    st_geometry(sdf) <- "geom" #otherwise the sf object would still look for "geometry" for its geometry
     
     } else if (which_sf_event$gpkg){
       
@@ -667,6 +693,10 @@ server <- function(input,output,session) {
     
     col_names_sdf <- colnames(sdf)
     
+    #what happens here with bbox is so that the plot can "zoom in" on the area
+    #of interest, with a padding of 5% of the x and y range on either side of
+    #the range
+    
     bbox <- st_bbox(sdf)
     
     xbuff <- (bbox$xmax - bbox$xmin)*0.05
@@ -679,7 +709,7 @@ server <- function(input,output,session) {
 
     df <- sdf %>%
       dplyr::mutate(lon = sf::st_coordinates(.)[,1],
-                    lat = sf::st_coordinates(.)[,2])
+                    lat = sf::st_coordinates(.)[,2]) #lat and lon are easier to work with than "geom"
     
     if (isTRUE(all.equal(col_names_sdf,sf_column_100th))){
       
@@ -698,9 +728,9 @@ server <- function(input,output,session) {
         df <- df %>% 
         mutate(
           lat = floor(lat/rez) * rez + 0.5 * rez, 
-          lon = floor(lon/rez) * rez + 0.5 * rez)}
+          lon = floor(lon/rez) * rez + 0.5 * rez)} #this sets new lat and lon for the new aggregation
       
-      grouped_df <- df %>%
+      grouped_df <- df %>% #aggregation starts here
         
         as.data.frame() %>%
         
@@ -751,9 +781,9 @@ server <- function(input,output,session) {
                       inputId = "mapped_column",
                       choices = col_names_grouped_no_geo)
     
-    to_fill <- "Total fishing hours"} else {to_fill <- input$mapped_column}
+    to_fill <- "Total fishing hours"} else {to_fill <- input$mapped_column} #basically, if it's the first plot, it defaults to "Total fishing hours" to fill, otherwise, it is the chosen field
     
-    world_sf <- sf::st_as_sf(
+    world_sf <- sf::st_as_sf( #world map to give some reference 
       maps::map(
         "world", 
         plot = FALSE, 
@@ -772,13 +802,14 @@ server <- function(input,output,session) {
               color = '#0A1738',
               size = 0.1) +
       
-      coord_sf(xlim = c(lowx, highx),
-               ylim = c(lowy, highy),
+      coord_sf(xlim = c(lowx, highx), #these are the zoom in coordinates
+               ylim = c(lowy, highy), #I mentioned earlier
                expand = FALSE)
     
     output$viz_map <- renderPlot({return(map)})
     
-    shinyjs::show("map")
+    shinyjs::show("map") #the map output is always present on screen, it is only
+    #shown when in use in order to have a cleaner UI
     
     output$download_map_button <- downloadHandler(
       

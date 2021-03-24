@@ -12,14 +12,14 @@ library(maps)
 library(ggplot2)
 library(viridis)
 
-options(shiny.maxRequestSize = 20*1024*1024^2)
+options(shiny.maxRequestSize = 20*1024*1024^2) #this should take care of the majority of the gpkg sizes
 
 project <- "global-fishing-watch"
 dataset <- "global_footprint_of_fisheries"
 billing <- "fish-r-man" # your billing account name
 
-bq_auth(email = "fishrman-user@fish-r-man.iam.gserviceaccount.com", 
-        path = "www/appDir/fish-r-man-ec45cfe426c8.json")
+bq_auth(email = "fishrman-user@fish-r-man.iam.gserviceaccount.com", #comment these out
+        path = "www/appDir/fish-r-man-ec45cfe426c8.json") #to access your own account
 
 BQ_connection <-  dbConnect(bigquery(), 
                             project = project,
@@ -88,9 +88,9 @@ geartype_names <- c(
   "Other fishing gear"
 )
 
-names(geartype_elements) <- geartype_names
+names(geartype_elements) <- geartype_names #to have a cleaner UI, will change with newer version of the tables
 
-column_100th <- c(
+column_100th <- c( #the col names are here so I can check against them for validity of uploaded files
   "date",
   "lat_bin",
   "lon_bin",
@@ -109,13 +109,13 @@ column_10th <- c(
   "fishing_hours"
   )
 
-month_year_vector <- c("month","year")
+month_year_vector <- c("month","year") #to append to colnames, to have a cleaner UI and two more options for summaries
 
 available_summaries_10th <- append(column_10th,month_year_vector, after = 1)
 
 available_summaries_100th <- append(column_100th,month_year_vector, after = 1)
 
-sf_column_100th <- column_100th[! column_100th %in% c("lat_bin", "lon_bin")] %>%
+sf_column_100th <- column_100th[! column_100th %in% c("lat_bin", "lon_bin")] %>% #to later check the validity of spatial data uploaded (they must have same colnames as these vectors)
                       append("geom")
   
 sf_column_10th <- column_10th[! column_10th %in% c("lat_bin", "lon_bin")] %>%
