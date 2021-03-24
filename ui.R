@@ -283,7 +283,7 @@ fluidRow(
                              height = 'auto',
                              width = '100%'
                              ),
-                           href="https://github.com/Shyentist/fish-r-man"
+                           href="https://github.com/Shyentist/fish-r-man"   #this is temporary, it will eventually link to fishRman website or similar hub
                            )),
                   
                   column(5,
