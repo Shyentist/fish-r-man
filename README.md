@@ -1,4 +1,7 @@
 # Welcome to fishRman
+## The Dashboard
+https://shyentist.shinyapps.io/fish-r-man/
+
 ## Intent
 fishRman is a Shiny R Web Application/Dashboard that allows people to easily query and analyze Global Fishing Watch data without any prior knowledge of R, SQL, and BigQuery.
 
