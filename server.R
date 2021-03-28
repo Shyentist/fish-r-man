@@ -30,17 +30,17 @@ server <- function(input,output,session) {
   #I do this so that I can later check on which boxes are ticked, instead of
   #checking directly for the inputs, and I can build the SQL Query based on
   #which inputs are enabled. The logic is simple, for inputs of type numeric range
-  #the query adds AND, as in "WHERE lat_bin > 10 AND lat_bin < 20 ", since the
+  #the query adds AND, as in "WHERE cell_ll_lat > 10 AND cell_ll_lat < 20 ", since the
   #two things must be true at the same time. For categories, such as flag and
   #geartype, I add OR, as in " flag = 'ITA' OR flag = 'FRA' ", since we are 
   #looking for entries that much any of these categories
   
+  #for MMSI, the SQL created is a simple 'like', but one can use the '%'
+  #character to search things starting/ending/containing the input
+  
   #The query starts without a WHERE, only AND, then, I substitute the first AND
   #of the query with a WHERE. I am sure someone else can come up with something
   #more elegant, but I figured this was the best option at the time of coding
-  
-  #Also, the field 'date' is the only one that is not queried as is, since
-  #using PARTITIONTIME instead helps reducing the amount of data billed
   
   observeEvent(input$filter_columns_ui,{
     
@@ -139,9 +139,13 @@ server <- function(input,output,session) {
     first_date <- input$date[1]
     second_date <- input$date[2]
     
+    checked_boxes <- input$filter_columns_ui
+    
+    table_name_ui <- input$table_name_ui
+    
     if ((!is.null(first_date) && !is.na(first_date)) && (!is.null(second_date)&& !is.na(second_date))) {
       
-      date_SQL <- "AND _PARTITIONTIME >= {first_date} AND _PARTITIONTIME < {second_date}"
+      date_SQL <- "AND date >= {first_date} AND date < {second_date}"
       
       SQL <- paste(
         SQL,
@@ -150,13 +154,9 @@ server <- function(input,output,session) {
       )
     }
     
-    checked_boxes <- input$filter_columns_ui
-    
-    table_name_ui <- input$table_name_ui
-    
     for (field in checked_boxes){
       
-      if (field == "date" || field == "flag" || field == "geartype"){ 
+      if (field == "date" || field == "flag" || field == "geartype" || field == "mmsi"){ 
         
         next } else { 
           
@@ -167,24 +167,6 @@ server <- function(input,output,session) {
             
             (!is.null(first_field) && !is.na(first_field)) && 
             (!is.null(second_field) && !is.na(second_field))) {
-            
-            if (
-              
-              (field == "lat_bin" || field == "lon_bin") && 
-              (table_name_ui == "Fishing effort at 10th degree")) {
-              
-              first_field <- first_field*10
-              second_field <- second_field*10
-              
-            } else if (
-              
-              (field == "lat_bin" || field == "lon_bin") && 
-              (table_name_ui == "Fishing effort at 100th degree")) {
-              
-              first_field <- first_field*100
-              second_field <- second_field*100
-              
-            } 
             
             next_SQL <- sprintf(
               "AND %s >= {%s} AND %s < {%s}", 
@@ -201,9 +183,26 @@ server <- function(input,output,session) {
             )}}
     }
     
+    mmsi <- input$mmsi
+    
+    if ("mmsi" %in% checked_boxes) {
+      
+      mmsi_SQL <- sprintf(
+        "AND mmsi LIKE '%s'",
+        mmsi
+        )
+      
+      SQL <- paste(
+        SQL, 
+        mmsi_SQL, 
+        sep = " "
+      )
+      
+    }
+    
     flags <- input$flag
     
-    if (!is.null(flags) && !is.na(flags)) {
+    if (!is.null(flags) && !is.na(flags) && ("flag" %in% checked_boxes)) {
       
       flag_SQL <- "AND ("
       
@@ -236,7 +235,7 @@ server <- function(input,output,session) {
     
     gears <- input$geartype
     
-    if (!is.null(gears) && !is.na(gears)){
+    if (!is.null(gears) && !is.na(gears) && ("geartype" %in% checked_boxes)){
       
       geartype_SQL <- "AND ("
       
@@ -385,7 +384,15 @@ server <- function(input,output,session) {
   
   observe(my_data())
   
-  output$uploaded_csv_viz <- renderTable({head(my_data())})
+  output$uploaded_csv_viz <- renderTable({
+    
+    header <- head(my_data())
+    
+    header$date <- as.character(as.Date(header$date, "%Y-%m-%d"))
+    
+    return(header)
+    
+    })
 
   observeEvent(input$summarize_button, {
     
@@ -428,13 +435,13 @@ server <- function(input,output,session) {
                 "Mean fishing" = mean(fishing_hours), 
                 "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
                 "Max. fishing" = max(fishing_hours),
-                "Total vessel" = sum(vessel_hours),
-                "Min. vessel" = min(vessel_hours),
-                "1st Qu. vessel" = quantile(vessel_hours, 0.25),
-                "Median vessel" = median(vessel_hours), 
-                "Mean vessel" = mean(vessel_hours), 
-                "3rd Qu. vessel" = quantile(vessel_hours, 0.75),
-                "Max. vessel" = max(vessel_hours)
+                "Total hours" = sum(hours),
+                "Min. hours" = min(hours),
+                "1st Qu. hours" = quantile(hours, 0.25),
+                "Median hours" = median(hours), 
+                "Mean hours" = mean(hours), 
+                "3rd Qu. hours" = quantile(hours, 0.75),
+                "Max. hours" = max(hours)
       )
       
       
@@ -448,20 +455,20 @@ server <- function(input,output,session) {
                                  "Mean fishing" = mean(fishing_hours), 
                                  "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
                                  "Max. fishing" = max(fishing_hours),
-                                 "Total vessel" = sum(vessel_hours),
-                                 "Min. vessel" = min(vessel_hours),
-                                 "1st Qu. vessel" = quantile(vessel_hours, 0.25),
-                                 "Median vessel" = median(vessel_hours), 
-                                 "Mean vessel" = mean(vessel_hours), 
-                                 "3rd Qu. vessel" = quantile(vessel_hours, 0.75),
-                                 "Max. vessel" = max(vessel_hours)
+                                 "Total hours" = sum(hours),
+                                 "Min. hours" = min(hours),
+                                 "1st Qu. hours" = quantile(hours, 0.25),
+                                 "Median hours" = median(hours), 
+                                 "Mean hours" = mean(hours), 
+                                 "3rd Qu. hours" = quantile(hours, 0.75),
+                                 "Max. hours" = max(hours)
       )
     }
     
     columns_to_append <- c("Total fishing", #this is to limit the amount of fields
                            "Mean fishing", #displayed on screen, since one could
-                           "Total vessel", #group by every single field and obtain
-                           "Mean vessel") #over 20 columns
+                           "Total hours", #group by every single field and obtain
+                           "Mean hours") #over 20 columns
     
     columns_to_show <- append(choice, columns_to_append) 
     
@@ -543,22 +550,9 @@ server <- function(input,output,session) {
     
     col_names_conv <- colnames(df)
     
-    if (isTRUE(all.equal(col_names_conv,column_100th))){
-      
-      rez <- 100
-      
-    } else if (isTRUE(all.equal(col_names_conv,column_10th))) {
-      
-      rez <- 10
-      
-    }
-    
-    df$lat_bin <- df$lat_bin/rez
-    df$lon_bin <- df$lon_bin/rez
-    
     sdf <- st_as_sf(df,
-                    coords = c("lon_bin",
-                               "lat_bin")
+                    coords = c("cell_ll_lon",
+                               "cell_ll_lat")
                     )
     
     colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" #this happens because 
@@ -737,10 +731,10 @@ server <- function(input,output,session) {
         group_by(lon, lat) %>%
         
         summarise("Total fishing hours" = sum(fishing_hours),
-                  "Total vessel hours" = sum(vessel_hours),
+                  "Total hours" = sum(hours),
                   "Total MMSI present" = sum(mmsi_present),
                   "Mean fishing hours" = mean(fishing_hours),
-                  "Mean vessel hours" = mean(vessel_hours),
+                  "Mean hours" = mean(hours),
                   "Mean MMSI present" = mean(mmsi_present))
  
     } else if (isTRUE(all.equal(col_names_sdf,sf_column_10th))) {
@@ -769,7 +763,9 @@ server <- function(input,output,session) {
         group_by(lon, lat) %>%
         
         summarise("Total fishing hours" = sum(fishing_hours),
-                  "Mean fishing hours" = mean(fishing_hours))
+                  "Total hours" = sum(hours),
+                  "Mean fishing hours" = mean(fishing_hours),
+                  "Mean hours" = mean(hours))
     
     }
     
