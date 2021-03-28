@@ -37,14 +37,14 @@ ui <- fluidPage(
                                           start = "2012-01-01",
                                           end = "2012-01-02",
                                           min = "2012-01-01",
-                                          max = "2017-01-01",
+                                          max = "2021-01-01",
                                           autoclose = FALSE
                                         )
                                       ),
                                       
                                       disabled(
                                         numericRangeInput(
-                                          inputId = "lat_bin",
+                                          inputId = "cell_ll_lat",
                                           label = "Latitude range:",
                                           value = c(-90, 90)
                                         )
@@ -52,7 +52,7 @@ ui <- fluidPage(
                                       
                                       disabled(
                                         numericRangeInput(
-                                          inputId = "lon_bin",
+                                          inputId = "cell_ll_lon",
                                           label = "Longitude range:",
                                           value = c(-180, 180)
                                         )
@@ -60,9 +60,9 @@ ui <- fluidPage(
                                       
                                       disabled(
                                         numericRangeInput(
-                                          inputId = "vessel_hours",
+                                          inputId = "hours",
                                           label = "Vessel hours range:",
-                                          value = c(0, 2000)
+                                          value = c(0, 100000)
                                         )
                                       ),
                                       
@@ -70,7 +70,7 @@ ui <- fluidPage(
                                         numericRangeInput(
                                           inputId = "fishing_hours",
                                           label = "Fishing hours range:",
-                                          value = c(0, 200)
+                                          value = c(0, 100000)
                                         )
                                       ),
                                       
@@ -78,15 +78,7 @@ ui <- fluidPage(
                                         numericRangeInput(
                                           inputId = "mmsi_present",
                                           label = "MMSI present range:",
-                                          value = c(0, 600)
-                                        )
-                                      ),
-                                      
-                                      disabled(
-                                        numericRangeInput(
-                                          inputId = "mmsi",
-                                          label = "MMSI range:",
-                                          value = c(0, 1111111111)
+                                          value = c(0, 10000)
                                         )
                                       )
                              )
@@ -108,6 +100,13 @@ ui <- fluidPage(
                                  label = "Geartype",
                                  choices = geartype_elements,
                                  multiple = TRUE
+                               )
+                             ),
+                             
+                             disabled(
+                               textInput(
+                                 inputId = "mmsi",
+                                 label = "MMSI"
                                )
                              )
                     ),
