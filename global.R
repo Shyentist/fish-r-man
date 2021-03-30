@@ -11,6 +11,7 @@ library(sf)
 library(maps)
 library(ggplot2)
 library(viridis)
+library(shinyBS)
 
 options(shiny.maxRequestSize = 20*1024*1024^2) #this should take care of the majority of the gpkg sizes
 
