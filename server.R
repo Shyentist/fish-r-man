@@ -384,13 +384,17 @@ server <- function(input,output,session) {
   
   observe(my_data())
   
-  output$uploaded_csv_viz <- renderTable({
+  output$uploaded_csv_viz <- renderTable({ #renderTable must have had an update 
     
-    header <- head(my_data())
+    df <- my_data() #that is messing with the date format and, in an attempt to
+    
+    if (length(df$date) != 0){ #solve that, even with the header, so this is my
+    
+    header <- head(my_data()) #solution for now
     
     header$date <- as.character(as.Date(header$date, "%Y-%m-%d"))
     
-    return(header)
+    return(header)}
     
     })
 

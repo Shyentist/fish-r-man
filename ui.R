@@ -80,7 +80,19 @@ ui <- fluidPage(
                                           label = "MMSI present range:",
                                           value = c(0, 10000)
                                         )
-                                      )
+                                      ),
+                                      
+                                      bsTooltip(id = list("mmsi_present",
+                                                          "fishing_hours",
+                                                          "hours",
+                                                          "cell_ll_lon",
+                                                          "cell_ll_lat",
+                                                          "date"),
+                                                title = "Minimum (left) is included.<br>Maximum (right) is not.",
+                                                placement = "right",
+                                                trigger = "hover",
+                                                options = list(container = "body"))
+                                      
                              )
                     ),
                     
@@ -107,7 +119,10 @@ ui <- fluidPage(
                                textInput(
                                  inputId = "mmsi",
                                  label = "MMSI"
-                               )
+                               ),
+                               bsTooltip(id = "mmsi",
+                                         title = "Type 123 to search for MMSI number 123, exactly.<br>Type %123 to search for MMSIs ending with 123.<br>Type 123% to search for MMSIs starting with 123.<br>Type %123% to search for MMSIs containing 123.", placement = "right", trigger = "hover",
+                                         options = list(container = "body"))
                              )
                     ),
                     
