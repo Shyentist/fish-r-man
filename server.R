@@ -583,7 +583,7 @@ server <- function(input,output,session) {
       col_names_gpkg <- colnames(sdf)
       
       
-      if (isFALSE(all.equal(col_names_gpkg,sf_column_100th)) & isFALSE(all.equal(col_names_gpkg,sf_column_10th))){
+      if (isFALSE(all.equal(col_names_gpkg,sf_column_100th)) && isFALSE(all.equal(col_names_gpkg,sf_column_10th))){
         
         sdf <- NULL
         
@@ -595,6 +595,9 @@ server <- function(input,output,session) {
       
       enable(id = "download_gpkg_button")
       enable(id = "visualize_button")
+      enable(id = "second_uploaded_gpkg")
+    
+      st_crs(sdf) <- 4326
       
     }
     
@@ -644,6 +647,116 @@ server <- function(input,output,session) {
     }
   )
   
+  observeEvent(input$second_uploaded_gpkg, {
+    
+    showModal(
+      modalDialog(
+        "Uploading GeoPackage...",
+        footer=NULL
+      )
+    )
+    
+    layers <- st_layers(input$second_uploaded_gpkg$datapath)
+    
+    layers_name <- layers$name
+    
+    enable(id = "second_gpkg_layer")
+    
+    updateSelectInput(inputId = "second_gpkg_layer",
+                      choices = layers_name)
+    
+    removeModal()
+ 
+  })
+  
+  observeEvent(input$second_gpkg_layer, {
+    
+    chosen_layer <- input$second_gpkg_layer
+    
+    dsn <- input$second_uploaded_gpkg$datapath
+    
+    if ((!is.null(dsn)) && (!is.na(dsn))){
+      
+      area_of_interest <- st_read(
+        dsn = dsn,
+        layer = chosen_layer)
+      
+      geom_type <- st_geometry(area_of_interest) %>%
+        class()
+      
+      if (("sfc_POLYGON" %in% geom_type) || ("sfc_MULTIPOLYGON" %in% geom_type)){
+        
+        if (st_crs(sf_data()) == st_crs(area_of_interest)){
+        
+        enable(id = "clip")
+          
+        } else {
+            
+          disable(id = "clip")
+          
+          showModal(
+            modalDialog(
+              "CRS does not match. Please upload a file with CRS 'EPSG 4326'"
+            )
+          )
+          
+          }
+        
+      } else { 
+        
+        disable(id = "clip")
+        
+        showModal(
+          modalDialog(
+            "Geometry type is invalid. Please upload a file with geometry type 'POLYGON' or 'MULTIPOLYGON'"
+          )
+        )}
+      
+    }
+    
+  })
+  
+  clipped_sf_data <- eventReactive(input$clip, {
+    
+    whether_to_clip <- input$clip
+    
+    if (whether_to_clip){
+    
+    chosen_layer <- input$second_gpkg_layer
+    
+    dsn <- input$second_uploaded_gpkg$datapath
+    
+    points <- sf_data()
+    
+    area_of_interest <- st_read(
+      dsn = dsn,
+      layer = chosen_layer)
+    
+    clipped_points <- st_intersection(points, area_of_interest)
+    
+    if (length(clipped_points$geom) != 0){
+      
+      clipped_points <- subset(clipped_points, select = -c(ID) )
+      
+      return(clipped_points)
+      
+    } else {
+        
+      showModal(
+        modalDialog(
+          "The two datasets do not intersect."
+        )
+      )
+      
+      return(NULL)
+      
+      }
+    
+    }
+  })
+  
+  observe(clipped_sf_data())
+  
   which_viz_event <- reactiveValues(
     origin = FALSE, 
     reviz = FALSE
@@ -682,9 +795,17 @@ server <- function(input,output,session) {
         footer=NULL
       )
     )
-    
-    sdf <- sf_data()
-    
+      
+    if (isTRUE(input$clip) && !is.null(clipped_sf_data())) {
+      
+      sdf <- clipped_sf_data()
+      
+    } else {
+        
+      sdf <- sf_data()
+      
+      } 
+      
     colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" 
     
     st_geometry(sdf) <- "geom"
