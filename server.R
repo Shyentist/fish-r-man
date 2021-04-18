@@ -102,6 +102,13 @@ server <- function(input,output,session) {
     disable(id = "convert_to_spatial_button")
     disable(id = "summarize_button")
     
+    updatePrettyCheckbox(
+      session = session,
+      inputId = "clip",
+      value = FALSE) #uploading a new csv or running a new query "overwrites"
+                      # the "clip" mode, so that the summaries and analyses shown
+                    #are always related to the latest loaded data
+    
     if (which_event$query){
     
     showModal(
@@ -409,8 +416,10 @@ server <- function(input,output,session) {
     choice <- input$summaries
     
     if (length(choice) < 8){
+      
+      whether_to_clip <- input$clip
     
-    df <- my_data()
+    if (whether_to_clip) {df <- clipped_data()} else {df <- my_data()}
     
     if (!is.null(choice)){
     
@@ -741,6 +750,11 @@ server <- function(input,output,session) {
       return(clipped_points)
       
     } else {
+      
+      updatePrettyCheckbox(
+        session = session,
+        inputId = "clip",
+        value = FALSE)
         
       showModal(
         modalDialog(
@@ -755,7 +769,52 @@ server <- function(input,output,session) {
     }
   })
   
+  clipped_data <- reactive({
+    
+    sdf <- clipped_sf_data()
+    
+    if (!is.null(sdf) && !is.na(sdf)){
+    
+    df <- sdf %>%
+      dplyr::mutate(cell_ll_lon = sf::st_coordinates(.)[,1],
+                    cell_ll_lat = sf::st_coordinates(.)[,2]) %>%
+      as.data.frame()
+    
+    df <- select(df, -c(geom))
+    
+    print(length(colnames(df)))
+    
+    print(colnames(df))
+    
+    if (length(colnames(df)) == 8) { #this is to preserve the same order for
+      
+      df <- select(df, column_100th) #colnames, to avoid eventual inconsistencies
+      
+      summaries <- available_summaries_100th
+      
+    } else if (length(colnames(df)) == 6) {
+      
+      df <- select(df, column_10th)
+      
+      summaries <- available_summaries_10th
+      
+    }
+    
+    updatePrettyCheckboxGroup(
+      session,
+      inputId = 'summaries',
+      choices = summaries
+    )
+    
+    return(df)
+    
+    }
+    
+  })
+  
   observe(clipped_sf_data())
+  
+  observe(clipped_data())
   
   which_viz_event <- reactiveValues(
     origin = FALSE, 
@@ -806,7 +865,7 @@ server <- function(input,output,session) {
       
       } 
       
-    colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" 
+    colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" #this is somewhat redundant, but better safe than sorry
     
     st_geometry(sdf) <- "geom"
     

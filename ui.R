@@ -345,7 +345,7 @@ fluidRow(
                                 style = "color:#000000"),
                          tags$br(),
                          "Data by 'Global Fishing Watch. [2021].",
-                         tags$a("www.globalfishingwatch.org'",
+                         tags$a("https://globalfishingwatch.org/'",
                                 target="_blank",
                                 rel = "noreferrer noopener",
                                 href = "https://globalfishingwatch.org/",
