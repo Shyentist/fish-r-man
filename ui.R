@@ -187,7 +187,42 @@ tabPanel("Analysis",
                                                )
                                                
                                     )
-                                    )),
+                                    ),
+                                    
+                                    tags$div(class = "sidebar",
+                                             "Area of interest",
+                                             disabled(
+                                             tipify(fileInput("second_uploaded_gpkg", "Choose GPKG File",
+                                              multiple = FALSE,
+                                              accept = ".gpkg"),
+                                                       title = "File must have same CRS as GFW data (EPSG: 4326)", 
+                                              placement = "right", 
+                                              trigger = "hover",
+                                              options = list(container = "body"))),
+                                    
+                                    disabled(
+                                      selectInput(
+                                        inputId = "second_gpkg_layer",
+                                        label = "Layer",
+                                        choices = NULL,
+                                        multiple = FALSE
+                                      )
+                                    ),
+                                    
+                                    disabled(
+                                      tipify(
+                                        prettyCheckbox(
+                                          inputId = "clip",
+                                          label = "Use only data contained in the area?",
+                                          value = FALSE
+                                          ),
+                                        title = "When ticked, analyses are performed only in the area of interest",
+                                        placement = "right",
+                                        trigger = "hover",
+                                        options = list(container = "body"))
+                                    )
+                                    )
+                                    ),
                            
                            tags$div(class = "sidebar",
                                     "Available analyses",
@@ -310,7 +345,7 @@ fluidRow(
                                 style = "color:#000000"),
                          tags$br(),
                          "Data by 'Global Fishing Watch. [2021].",
-                         tags$a("www.globalfishingwatch.org'",
+                         tags$a("https://globalfishingwatch.org/'",
                                 target="_blank",
                                 rel = "noreferrer noopener",
                                 href = "https://globalfishingwatch.org/",

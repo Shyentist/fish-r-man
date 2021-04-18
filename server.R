@@ -102,6 +102,13 @@ server <- function(input,output,session) {
     disable(id = "convert_to_spatial_button")
     disable(id = "summarize_button")
     
+    updatePrettyCheckbox(
+      session = session,
+      inputId = "clip",
+      value = FALSE) #uploading a new csv or running a new query "overwrites"
+                      # the "clip" mode, so that the summaries and analyses shown
+                    #are always related to the latest loaded data
+    
     if (which_event$query){
     
     showModal(
@@ -409,8 +416,10 @@ server <- function(input,output,session) {
     choice <- input$summaries
     
     if (length(choice) < 8){
+      
+      whether_to_clip <- input$clip
     
-    df <- my_data()
+    if (whether_to_clip) {df <- clipped_data()} else {df <- my_data()}
     
     if (!is.null(choice)){
     
@@ -583,7 +592,7 @@ server <- function(input,output,session) {
       col_names_gpkg <- colnames(sdf)
       
       
-      if (isFALSE(all.equal(col_names_gpkg,sf_column_100th)) & isFALSE(all.equal(col_names_gpkg,sf_column_10th))){
+      if (isFALSE(all.equal(col_names_gpkg,sf_column_100th)) && isFALSE(all.equal(col_names_gpkg,sf_column_10th))){
         
         sdf <- NULL
         
@@ -595,6 +604,9 @@ server <- function(input,output,session) {
       
       enable(id = "download_gpkg_button")
       enable(id = "visualize_button")
+      enable(id = "second_uploaded_gpkg")
+    
+      st_crs(sdf) <- 4326
       
     }
     
@@ -644,6 +656,166 @@ server <- function(input,output,session) {
     }
   )
   
+  observeEvent(input$second_uploaded_gpkg, {
+    
+    showModal(
+      modalDialog(
+        "Uploading GeoPackage...",
+        footer=NULL
+      )
+    )
+    
+    layers <- st_layers(input$second_uploaded_gpkg$datapath)
+    
+    layers_name <- layers$name
+    
+    enable(id = "second_gpkg_layer")
+    
+    updateSelectInput(inputId = "second_gpkg_layer",
+                      choices = layers_name)
+    
+    removeModal()
+ 
+  })
+  
+  observeEvent(input$second_gpkg_layer, {
+    
+    chosen_layer <- input$second_gpkg_layer
+    
+    dsn <- input$second_uploaded_gpkg$datapath
+    
+    if ((!is.null(dsn)) && (!is.na(dsn))){
+      
+      area_of_interest <- st_read(
+        dsn = dsn,
+        layer = chosen_layer)
+      
+      geom_type <- st_geometry(area_of_interest) %>%
+        class()
+      
+      if (("sfc_POLYGON" %in% geom_type) || ("sfc_MULTIPOLYGON" %in% geom_type)){
+        
+        if (st_crs(sf_data()) == st_crs(area_of_interest)){
+        
+        enable(id = "clip")
+          
+        } else {
+            
+          disable(id = "clip")
+          
+          showModal(
+            modalDialog(
+              "CRS does not match. Please upload a file with CRS 'EPSG 4326'"
+            )
+          )
+          
+          }
+        
+      } else { 
+        
+        disable(id = "clip")
+        
+        showModal(
+          modalDialog(
+            "Geometry type is invalid. Please upload a file with geometry type 'POLYGON' or 'MULTIPOLYGON'"
+          )
+        )}
+      
+    }
+    
+  })
+  
+  clipped_sf_data <- eventReactive(input$clip, {
+    
+    whether_to_clip <- input$clip
+    
+    if (whether_to_clip){
+    
+    chosen_layer <- input$second_gpkg_layer
+    
+    dsn <- input$second_uploaded_gpkg$datapath
+    
+    points <- sf_data()
+    
+    area_of_interest <- st_read(
+      dsn = dsn,
+      layer = chosen_layer)
+    
+    clipped_points <- st_intersection(points, area_of_interest)
+    
+    if (length(clipped_points$geom) != 0){
+      
+      clipped_points <- subset(clipped_points, select = -c(ID) )
+      
+      return(clipped_points)
+      
+    } else {
+      
+      updatePrettyCheckbox(
+        session = session,
+        inputId = "clip",
+        value = FALSE)
+        
+      showModal(
+        modalDialog(
+          "The two datasets do not intersect."
+        )
+      )
+      
+      return(NULL)
+      
+      }
+    
+    }
+  })
+  
+  clipped_data <- reactive({
+    
+    sdf <- clipped_sf_data()
+    
+    if (!is.null(sdf) && !is.na(sdf)){
+    
+    df <- sdf %>%
+      dplyr::mutate(cell_ll_lon = sf::st_coordinates(.)[,1],
+                    cell_ll_lat = sf::st_coordinates(.)[,2]) %>%
+      as.data.frame()
+    
+    df <- select(df, -c(geom))
+    
+    print(length(colnames(df)))
+    
+    print(colnames(df))
+    
+    if (length(colnames(df)) == 8) { #this is to preserve the same order for
+      
+      df <- select(df, column_100th) #colnames, to avoid eventual inconsistencies
+      
+      summaries <- available_summaries_100th
+      
+    } else if (length(colnames(df)) == 6) {
+      
+      df <- select(df, column_10th)
+      
+      summaries <- available_summaries_10th
+      
+    }
+    
+    updatePrettyCheckboxGroup(
+      session,
+      inputId = 'summaries',
+      choices = summaries
+    )
+    
+    return(df)
+    
+    }
+    
+  })
+  
+  observe(clipped_sf_data())
+  
+  observe(clipped_data())
+  
   which_viz_event <- reactiveValues(
     origin = FALSE, 
     reviz = FALSE
@@ -682,10 +854,18 @@ server <- function(input,output,session) {
         footer=NULL
       )
     )
-    
-    sdf <- sf_data()
-    
-    colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" 
+      
+    if (isTRUE(input$clip) && !is.null(clipped_sf_data())) {
+      
+      sdf <- clipped_sf_data()
+      
+    } else {
+        
+      sdf <- sf_data()
+      
+      } 
+      
+    colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" #this is somewhat redundant, but better safe than sorry
     
     st_geometry(sdf) <- "geom"
     

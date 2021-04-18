@@ -106,7 +106,8 @@ ul.nav-tabs li.active a {
     font-size: 12px;
     width: 100%;
     padding: 5.5px 12px;
-
+    height: 30px;
+    
 }
 
 .form-control[disabled] {
