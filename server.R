@@ -97,18 +97,13 @@ server <- function(input,output,session) {
 
   my_data <- eventReactive(possibleInputs(), {
     
-    summaries <- NULL
+    df <- NULL
     
-    disable(id = "convert_to_spatial_button")
-    disable(id = "summarize_button")
-    
-    updatePrettyCheckbox(
-      session = session,
-      inputId = "clip",
-      value = FALSE) #uploading a new csv or running a new query "overwrites"
-                      # the "clip" mode, so that the summaries and analyses shown
-                    #are always related to the latest loaded data
-    
+    updatePrettyCheckbox( #uploading a new csv or running a new query "overwrites"
+      session = session, # the "clip" mode, so that the summaries and analyses shown
+      inputId = "clip", #are always related to the latest loaded data
+      value = FALSE) 
+                      
     if (which_event$query){
     
     showModal(
@@ -121,16 +116,6 @@ server <- function(input,output,session) {
     output$queried_table <- renderDataTable({})
     
     table_name_ui <- input$table_name_ui
-    
-    if (table_name_ui == "Fishing effort at 100th degree"){
-      
-      summaries <- available_summaries_100th
-      
-    } else if (table_name_ui == "Fishing effort at 10th degree") {
-      
-      summaries <- available_summaries_10th
-      
-    }
     
     table_full_name <- paste(
       project, 
@@ -317,24 +302,15 @@ server <- function(input,output,session) {
           sep=""
         )
       },
+      
       content = function(con) {
         write.csv(
           df,
           con,
           row.names = F
-          )
+        )
       }
     )
-    
-    if (table_name_ui == "Fishing effort at 100th degree"){
-    
-    summaries <- available_summaries_100th
-    
-    } else if (table_name_ui == "Fishing effort at 10th degree"){
-      
-    summaries <- available_summaries_10th
-      
-    }
     
     removeModal()
     
@@ -354,23 +330,53 @@ server <- function(input,output,session) {
       
       col_names_csv <- colnames(df)
       
-      if (isTRUE(all.equal(col_names_csv,column_100th))){
+      if ((isFALSE(all.equal(col_names_csv,column_100th))) && (isFALSE(all.equal(col_names_csv,column_10th)))){
         
-        summaries <- available_summaries_100th
-        
-      } else if (isTRUE(all.equal(col_names_csv,column_10th))) {
-        
-        summaries <- available_summaries_10th
-        
-      } else {
-        
-        df <- my_data()
+        df <- NULL
         
       }
       
       removeModal()
       
-      } else { df <- NULL }
+      }
+    
+    return(df)
+    
+    }
+  )
+  
+  observe({
+    
+    df <- my_data()
+    
+    whether_to_clip <- input$clip
+    
+    if (whether_to_clip) {df <- clipped_data()}
+    
+    col_names_df <- colnames(df)
+    
+    if (isTRUE(all.equal(col_names_df,column_100th))){
+      
+      summaries <- available_summaries_100th
+      
+      enable(id = "summarize_button")
+      enable(id = "convert_to_spatial_button")
+      
+    } else if (isTRUE(all.equal(col_names_df,column_10th))) {
+      
+      summaries <- available_summaries_10th
+      
+      enable(id = "summarize_button")
+      enable(id = "convert_to_spatial_button")
+      
+    } else {
+      
+      summaries <- NULL
+      
+      disable(id = "summarize_button")
+      disable(id = "convert_to_spatial_button")
+      
+    }
     
     updatePrettyCheckboxGroup(
       session,
@@ -378,18 +384,7 @@ server <- function(input,output,session) {
       choices = summaries
     )
     
-    if (!is.null(df)){
-      
-      enable(id = "convert_to_spatial_button")
-      enable(id = "summarize_button")
-      
-    }
-    
-    return(df)
-    }
-  )
-  
-  observe(my_data())
+    })
   
   output$uploaded_csv_viz <- renderTable({ #renderTable must have had an update 
     
@@ -419,26 +414,28 @@ server <- function(input,output,session) {
       
       whether_to_clip <- input$clip
     
-    if (whether_to_clip) {df <- clipped_data()} else {df <- my_data()}
+      if (whether_to_clip) { df <- clipped_data() } else { df <- my_data() }
     
-    if (!is.null(choice)){
+      if (!is.null(choice)){
     
-    
-    if ("month" %in% choice) {
-      df$month <- substr(
-        df$date, 
-        start = 1, 
-        stop = 7
-      )
+        if ("month" %in% choice) {
+          
+          df$month <- substr(
+            df$date, 
+            start = 1, 
+            stop = 7
+          )
+          
         }
       
-    if ("year" %in% choice) {
-      df$year <- substr(
-        df$date, 
-        start = 1, 
-        stop = 4
-      )
-    }
+        if ("year" %in% choice) {
+          
+          df$year <- substr(
+            df$date, 
+            start = 1, 
+            stop = 4
+          )
+        }
     
     summarized <- group_by_at(df, vars(one_of(choice))) %>%
       summarize("Total fishing" = sum(fishing_hours),
@@ -497,6 +494,7 @@ server <- function(input,output,session) {
           sep=""
         )
       },
+      
       content = function(file) {
         write.csv(summarized,
                   file,
@@ -507,7 +505,8 @@ server <- function(input,output,session) {
     
     enable(id = "download_analyses_button") 
     
-    removeModal()} else {
+    removeModal() } else {
+      
       showModal(
       modalDialog(
         "Maximum 7 fields")
@@ -545,10 +544,12 @@ server <- function(input,output,session) {
   
   sf_data <- eventReactive(possibleSpatialInputs(), {
     
-    sdf <- NULL
+    updatePrettyCheckbox( #uploading or converting into a new gpkg "overwrites"
+      session = session, # the "clip" mode, so that the checks can be run again
+      inputId = "clip", 
+      value = FALSE) 
     
-    disable(id = "visualize_button")
-    disable(id = "download_gpkg_button")
+    sdf <- NULL
     
     if (which_sf_event$converted){
     
@@ -575,6 +576,10 @@ server <- function(input,output,session) {
     
     st_geometry(sdf) <- "geom" #otherwise the sf object would still look for "geometry" for its geometry
     
+    st_crs(sdf) <- 4326
+    
+    removeModal()
+    
     } else if (which_sf_event$gpkg){
       
       showModal(
@@ -584,38 +589,57 @@ server <- function(input,output,session) {
         )
       )
       
-      
       sdf <- st_read(input$uploaded_gpkg$datapath,
               layer = "GFW",
               geometry_column = "geom")
       
       col_names_gpkg <- colnames(sdf)
       
+      removeModal()
       
-      if (isFALSE(all.equal(col_names_gpkg,sf_column_100th)) && isFALSE(all.equal(col_names_gpkg,sf_column_10th))){
+      if (((isFALSE(all.equal(col_names_gpkg, sf_column_100th)) && isFALSE(all.equal(col_names_gpkg, sf_column_10th)))) || (st_crs(sdf) != st_crs(4326))){
         
         sdf <- NULL
         
-      }}
+        showModal(
+          modalDialog(
+            "Please upload a file originating from fishRman"
+          )
+        )
+        
+      }
+      
+      }
     
+   return(sdf)
     
+  })
+                           
+  observe({
+    
+    sdf <- sf_data()
+    
+    whether_to_clip <- input$clip
+    
+    if (whether_to_clip) {sdf <- clipped_sf_data()}
     
     if ((!is.null(sdf)) && (length(sdf$geom) > 0)) {
       
       enable(id = "download_gpkg_button")
       enable(id = "visualize_button")
       enable(id = "second_uploaded_gpkg")
-    
-      st_crs(sdf) <- 4326
+      enable(id = "clip")
+      
+    } else {
+      
+      disable(id = "download_gpkg_button")
+      disable(id = "visualize_button")
+      disable(id = "second_uploaded_gpkg")
+      disable(id = "clip")
       
     }
     
-    removeModal()
-    
-    return(sdf)
   })
-                           
-  observe(sf_data())
   
   output$download_gpkg_button <- downloadHandler(
     
@@ -627,9 +651,12 @@ server <- function(input,output,session) {
         sep=""
       )
     },
+    
     content = function(file) {
       
-      sdf <- sf_data()
+      whether_to_clip <- input$clip
+      
+      if (whether_to_clip) {sdf <- clipped_sf_data()} else {sdf <- sf_data()}
       
       world_sf <- sf::st_as_sf(
         maps::map(
@@ -668,11 +695,11 @@ server <- function(input,output,session) {
     layers <- st_layers(input$second_uploaded_gpkg$datapath)
     
     layers_name <- layers$name
-    
-    enable(id = "second_gpkg_layer")
-    
+
     updateSelectInput(inputId = "second_gpkg_layer",
                       choices = layers_name)
+    
+    enable(id = "second_gpkg_layer")
     
     removeModal()
  
@@ -683,6 +710,8 @@ server <- function(input,output,session) {
     chosen_layer <- input$second_gpkg_layer
     
     dsn <- input$second_uploaded_gpkg$datapath
+    
+    sdf <- sf_data
     
     if ((!is.null(dsn)) && (!is.na(dsn))){
       
@@ -717,7 +746,7 @@ server <- function(input,output,session) {
         
         showModal(
           modalDialog(
-            "Geometry type is invalid. Please upload a file with geometry type 'POLYGON' or 'MULTIPOLYGON'"
+            "Geometry type is invalid. Please choose a layer with geometry type 'POLYGON' or 'MULTIPOLYGON'"
           )
         )}
       
@@ -782,39 +811,21 @@ server <- function(input,output,session) {
     
     df <- select(df, -c(geom))
     
-    print(length(colnames(df)))
-    
-    print(colnames(df))
-    
     if (length(colnames(df)) == 8) { #this is to preserve the same order for
       
       df <- select(df, column_100th) #colnames, to avoid eventual inconsistencies
       
-      summaries <- available_summaries_100th
-      
-    } else if (length(colnames(df)) == 6) {
+      } else if (length(colnames(df)) == 6) {
       
       df <- select(df, column_10th)
       
-      summaries <- available_summaries_10th
-      
-    }
-    
-    updatePrettyCheckboxGroup(
-      session,
-      inputId = 'summaries',
-      choices = summaries
-    )
+      }
     
     return(df)
     
     }
     
   })
-  
-  observe(clipped_sf_data())
-  
-  observe(clipped_data())
   
   which_viz_event <- reactiveValues(
     origin = FALSE, 
@@ -855,20 +866,10 @@ server <- function(input,output,session) {
       )
     )
       
-    if (isTRUE(input$clip) && !is.null(clipped_sf_data())) {
+      whether_to_clip <- input$clip
       
-      sdf <- clipped_sf_data()
+      if (whether_to_clip){sdf <- clipped_sf_data()} else {sdf <- sf_data()} 
       
-    } else {
-        
-      sdf <- sf_data()
-      
-      } 
-      
-    colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" #this is somewhat redundant, but better safe than sorry
-    
-    st_geometry(sdf) <- "geom"
-    
     col_names_sdf <- colnames(sdf)
     
     #what happens here with bbox is so that the plot can "zoom in" on the area
