@@ -295,6 +295,18 @@ tabPanel("Analysis",
                                     choices = NULL
                                   ),
                                   
+                                  numericRangeInput(
+                                    inputId = "xrange",
+                                    label = "Longitude range:",
+                                    value = c(-180, 180)
+                                  ),
+                                  
+                                  numericRangeInput(
+                                    inputId = "yrange",
+                                    label = "Latitude range:",
+                                    value = c(-90, 90)
+                                  ),
+                                  
                                   numericInput(
                                     inputId = "map_rez",
                                     label = "Map resolution",

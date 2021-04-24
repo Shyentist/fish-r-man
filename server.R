@@ -69,13 +69,15 @@ server <- function(input,output,session) {
   
   which_event <- reactiveValues(
     query = FALSE, 
-    csv = FALSE
+    csv = FALSE,
+    gpkg = FALSE
     )
   
   observeEvent(input$filter_button, { 
     
     which_event$query <- TRUE
     which_event$csv <- FALSE
+    which_event$gpkg <- FALSE
     
   })
   
@@ -83,14 +85,19 @@ server <- function(input,output,session) {
     
     which_event$query <- FALSE
     which_event$csv <- TRUE
+    which_event$gpkg <- FALSE
     
   })
+  
+  #the switch for which_event$gpkg is in sf_data(), when the spatial dataframe 
+  #passes the checks and is successfully loaded
   
   possibleInputs <- reactive({
     
     list(
       input$filter_button,
-      input$uploaded_csv
+      input$uploaded_csv,
+      which_event$gpkg
     )
     
   })
@@ -338,6 +345,35 @@ server <- function(input,output,session) {
       
       removeModal()
       
+    } else if (which_event$gpkg){
+      
+      sdf <- sf_data()
+      
+      if (!is.null(sdf) && !is.na(sdf)){
+        
+        df <- sdf %>%
+          dplyr::mutate(cell_ll_lon = sf::st_coordinates(.)[,1],
+                        cell_ll_lat = sf::st_coordinates(.)[,2]) %>%
+          as.data.frame()
+        
+        df <- select(df, -c(geom))
+        
+        if (length(colnames(df)) == 8) { #this is to preserve the same order for
+          
+          df <- select(df, column_100th) #colnames, to avoid eventual inconsistencies
+          
+        } else if (length(colnames(df)) == 6) {
+          
+          df <- select(df, column_10th)
+          
+        }
+        
+      } else {
+        
+        df <- NULL  
+        
+        }
+
       }
     
     return(df)
@@ -544,6 +580,8 @@ server <- function(input,output,session) {
   
   sf_data <- eventReactive(possibleSpatialInputs(), {
     
+    shinyjs::hide(id = "map") #to avoid users messing with revisualisation, possibly skipping the checks
+    
     updatePrettyCheckbox( #uploading or converting into a new gpkg "overwrites"
       session = session, # the "clip" mode, so that the checks can be run again
       inputId = "clip", 
@@ -589,6 +627,12 @@ server <- function(input,output,session) {
         )
       )
       
+      layers <- st_layers(input$uploaded_gpkg$datapath)
+      
+      layers_name <- layers$name
+      
+      if ("GFW" %in% layers_name){
+      
       sdf <- st_read(input$uploaded_gpkg$datapath,
               layer = "GFW",
               geometry_column = "geom")
@@ -608,6 +652,23 @@ server <- function(input,output,session) {
         )
         
       }
+      
+      which_event$gpkg <- TRUE #this part of the switch had to be moved here
+      which_event$query <- FALSE #to avoid making repetitive checks just for
+      which_event$csv <- FALSE #these boolean values
+      
+      } else {
+        
+        sdf <- NULL
+        
+        showModal(
+          modalDialog(
+            "Please upload a file originating from fishRman"
+          )
+        )
+        
+      }
+      
       
       }
     
@@ -629,6 +690,7 @@ server <- function(input,output,session) {
       enable(id = "visualize_button")
       enable(id = "second_uploaded_gpkg")
       enable(id = "clip")
+      enable(id = "re_visualize_button")
       
     } else {
       
@@ -636,6 +698,7 @@ server <- function(input,output,session) {
       disable(id = "visualize_button")
       disable(id = "second_uploaded_gpkg")
       disable(id = "clip")
+      disable(id = "re_visualize_button")
       
     }
     
@@ -855,6 +918,102 @@ server <- function(input,output,session) {
     
   })
   
+  #what happens here with bbox/plot_range is so that the plot can "zoom in" on the area
+  #of interest, with a padding of 5% of the x and y range on either side of
+  #the range
+  
+  plot_range <- reactiveValues()
+  
+  observeEvent(possibleVizInputs(), {
+    
+    whether_to_clip <- input$clip
+    
+    if (whether_to_clip){sdf <- clipped_sf_data()} else {sdf <- sf_data()} 
+    
+    if ((!is.null(sdf)) && (length(sdf$geom) > 0)) {
+    
+      bbox <- st_bbox(sdf)
+      
+      xmin <- bbox$xmin
+      xmax <- bbox$xmax
+      ymin <- bbox$ymin
+      ymax <- bbox$ymax
+      
+      if (((which_viz_event$reviz)) && (!is.na(input$xrange[1])) && (!is.na(input$xrange[2]) && (!is.na(input$yrange[1])) && (!is.na(input$yrange[2])))){
+        
+        xmin <- input$xrange[1]
+        xmax <- input$xrange[2]
+        ymin <- input$yrange[1]
+        ymax <- input$yrange[2]
+        
+        } 
+      
+      xbuff <- (xmax - xmin)*0.05
+      ybuff <- (ymax - ymin)*0.05
+      
+      plot_range$lowx <- xmin - xbuff
+      plot_range$highx <- xmax + xbuff
+      plot_range$lowy <- ymin - ybuff 
+      plot_range$highy <- ymax + ybuff
+      
+      updateNumericRangeInput(session,
+                              inputId = "xrange",
+                              value = c(xmin, xmax))
+      
+      updateNumericRangeInput(session,
+                              inputId = "yrange",
+                              value = c(ymin, ymax))
+      
+      
+    }
+
+  })
+  
+  rez <- reactive({
+    
+    whether_to_clip <- input$clip
+    
+    if (whether_to_clip){sdf <- clipped_sf_data()} else {sdf <- sf_data()} 
+    
+    col_names_sdf <- colnames(sdf)
+    
+    df <- sdf %>%
+      dplyr::mutate(lon = sf::st_coordinates(.)[,1],
+                    lat = sf::st_coordinates(.)[,2]) #lat and lon are easier to work with than "geom"
+    
+    if (which_viz_event$origin){
+      
+      if (isTRUE(all.equal(col_names_sdf,sf_column_100th))){
+        
+        updateNumericInput(session,
+                           inputId = "map_rez",
+                           min = 0.01,
+                           max = 1,
+                           value = 0.01)
+        rez <- 0.01
+        
+      } else if (isTRUE(all.equal(col_names_sdf,sf_column_100th))){
+        
+        updateNumericInput(session,
+                           inputId = "map_rez",
+                           min = 0.1,
+                           max = 1,
+                           value = 0.1)
+        
+        rez <- 0.1
+        
+      }
+        
+    } else if (which_viz_event$reviz){
+      
+      rez <- input$map_rez
+      
+    }
+    
+    return(rez)
+    
+  })
+  
   observeEvent(possibleVizInputs(), {
     
     if (which_viz_event$origin || which_viz_event$reviz){
@@ -872,38 +1031,16 @@ server <- function(input,output,session) {
       
     col_names_sdf <- colnames(sdf)
     
-    #what happens here with bbox is so that the plot can "zoom in" on the area
-    #of interest, with a padding of 5% of the x and y range on either side of
-    #the range
-    
-    bbox <- st_bbox(sdf)
-    
-    xbuff <- (bbox$xmax - bbox$xmin)*0.05
-    ybuff <- (bbox$ymax - bbox$ymin)*0.05
-    
-    lowx <- bbox$xmin - xbuff
-    highx <- bbox$xmax + xbuff
-    lowy <- bbox$ymin - ybuff 
-    highy <- bbox$ymax + ybuff
-
     df <- sdf %>%
       dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                     lat = sf::st_coordinates(.)[,2]) #lat and lon are easier to work with than "geom"
     
+    rez <- rez()
+    
     if (isTRUE(all.equal(col_names_sdf,sf_column_100th))){
       
-      if (which_viz_event$origin){
-        
-        updateNumericInput(session,
-                           inputId = "map_rez",
-                           min = 0.01,
-                           max = 1,
-                           value = 0.01)
-        rez <- 0.01
-        
-      } else {rez <- input$map_rez}
-      
       if (is.numeric(rez) && rez > 0.01 && rez <= 1) {
+        
         df <- df %>% 
         mutate(
           lat = floor(lat/rez) * rez + 0.5 * rez, 
@@ -924,45 +1061,43 @@ server <- function(input,output,session) {
  
     } else if (isTRUE(all.equal(col_names_sdf,sf_column_10th))) {
       
-      if (which_viz_event$origin){
+      if (is.numeric(rez) && rez > 0.1 && rez <= 1) {
         
-        updateNumericInput(session,
-                           inputId = "map_rez",
-                           min = 0.1,
-                           max = 1,
-                           value = 0.1)
+        df <- df %>% 
+          mutate(
+            lat = floor(lat/rez) * rez + 0.5 * rez, 
+            lon = floor(lon/rez) * rez + 0.5 * rez)}
         
-        rez <- 0.1
-       
-      } else {rez <- input$map_rez}
-      
-      if (is.numeric(rez) && rez > 0.1 && rez <= 1) {df <- df %>% 
-        mutate(
-          lat = floor(lat/rez) * rez + 0.5 * rez, 
-          lon = floor(lon/rez) * rez + 0.5 * rez)}
-      
-      grouped_df <- df %>%
-        
-        as.data.frame() %>%
-        
-        group_by(lon, lat) %>%
-        
-        summarise("Total fishing hours" = sum(fishing_hours),
-                  "Total hours" = sum(hours),
-                  "Mean fishing hours" = mean(fishing_hours),
-                  "Mean hours" = mean(hours))
+        grouped_df <- df %>%
+          
+          as.data.frame() %>%
+          
+          group_by(lon, lat) %>%
+          
+          summarise("Total fishing hours" = sum(fishing_hours),
+                    "Total hours" = sum(hours),
+                    "Mean fishing hours" = mean(fishing_hours),
+                    "Mean hours" = mean(hours))
     
     }
     
-    if (which_viz_event$origin) {col_names_grouped <- colnames(grouped_df)
+    if (which_viz_event$origin) {
+      
+      col_names_grouped <- colnames(grouped_df)
     
-    col_names_grouped_no_geo <- col_names_grouped[! col_names_grouped %in% c("lat", "lon")]
-    
-    updateSelectInput(session,
-                      inputId = "mapped_column",
-                      choices = col_names_grouped_no_geo)
-    
-    to_fill <- "Total fishing hours"} else {to_fill <- input$mapped_column} #basically, if it's the first plot, it defaults to "Total fishing hours" to fill, otherwise, it is the chosen field
+      col_names_grouped_no_geo <- col_names_grouped[! col_names_grouped %in% c("lat", "lon")]
+      
+      updateSelectInput(session,
+                        inputId = "mapped_column",
+                        choices = col_names_grouped_no_geo)
+      
+      to_fill <- "Total fishing hours"
+      
+    } else {
+      
+      to_fill <- input$mapped_column
+      
+      } #basically, if it's the first plot, it defaults to "Total fishing hours" to fill, otherwise, it is the chosen field
     
     world_sf <- sf::st_as_sf( #world map to give some reference 
       maps::map(
@@ -971,6 +1106,11 @@ server <- function(input,output,session) {
         fill = TRUE
       )
     )
+    
+    lowx <- plot_range$lowx
+    highx <- plot_range$highx
+    lowy <- plot_range$lowy
+    highy <- plot_range$highy
     
     map <- ggplot() +
       
