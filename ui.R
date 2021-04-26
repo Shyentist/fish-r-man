@@ -167,13 +167,22 @@ tabPanel("Analysis",
                            tags$div(class = "sidebar",
                                     tabsetPanel(type = "tabs",
                                                 tabPanel("CSV",
-                                                         fileInput("uploaded_csv", "Choose CSV File",
-                                                                   multiple = FALSE,
-                                                                   accept = ".csv")
+                                                         tipify(
+                                                           fileInput("uploaded_csv", "Choose CSV File",
+                                                                     accept = ".csv"),
+                                                           title = "Only upload CSV files downloaded from fishRman", 
+                                                           placement = "right", 
+                                                           trigger = "hover",
+                                                           options = list(container = "body")),
                                     ),tabPanel("GPKG",
+                                               tipify(
                                                fileInput("uploaded_gpkg", "Choose GPKG File",
                                                          multiple = FALSE,
                                                          accept = ".gpkg"),
+                                               title = "Only upload GPKG files downloaded from fishRman (EPSG: 4326)", 
+                                               placement = "right", 
+                                               trigger = "hover",
+                                               options = list(container = "body")),
                                                "Or use the current data",
                                                disabled(actionButton(
                                                  inputId = "convert_to_spatial_button",
@@ -192,7 +201,8 @@ tabPanel("Analysis",
                                     tags$div(class = "sidebar",
                                              "Area of interest",
                                              disabled(
-                                             tipify(fileInput("second_uploaded_gpkg", "Choose GPKG File",
+                                             tipify(
+                                               fileInput("second_uploaded_gpkg", "Choose GPKG File",
                                               multiple = FALSE,
                                               accept = ".gpkg"),
                                                        title = "File must have same CRS as GFW data (EPSG: 4326)", 
@@ -295,6 +305,19 @@ tabPanel("Analysis",
                                     choices = NULL
                                   ),
                                   
+                                  tipify(
+                                  sliderInput(
+                                    inputId = "cumul_distr_percent",
+                                    label = "% of cumulative distribution",
+                                    min = 1,
+                                    max = 100,
+                                    value = 100
+                                  ),
+                                  title = "Show the top X% of the distribution",
+                                  placement = "left",
+                                  trigger = "hover",
+                                  options = list(container = "body")),
+                                  
                                   numericRangeInput(
                                     inputId = "xrange",
                                     label = "Longitude range:",
@@ -307,11 +330,16 @@ tabPanel("Analysis",
                                     value = c(-90, 90)
                                   ),
                                   
+                                  tipify(
                                   numericInput(
                                     inputId = "map_rez",
                                     label = "Map resolution",
                                     value = NULL
                                   ),
+                                  title = "Length of the side of each grid cell, in degrees of latitude and longitude",
+                                  placement = "left",
+                                  trigger = "hover",
+                                  options = list(container = "body")),
                                   
                                   actionButton(
                                     inputId = "re_visualize_button",
