@@ -71,7 +71,7 @@ server <- function(input,output,session) {
     query = FALSE, 
     csv = FALSE,
     gpkg = FALSE
-    )
+  )
   
   observeEvent(input$filter_button, { 
     
@@ -101,7 +101,7 @@ server <- function(input,output,session) {
     )
     
   })
-
+  
   my_data <- eventReactive(possibleInputs(), {
     
     df <- NULL
@@ -110,226 +110,226 @@ server <- function(input,output,session) {
       session = session, # the "clip" mode, so that the summaries and analyses shown
       inputId = "clip", #are always related to the latest loaded data
       value = FALSE) 
-                      
+    
     if (which_event$query){
-    
-    showModal(
-      modalDialog(
-        "Constructing SQL Query...", 
-        footer=NULL
+      
+      showModal(
+        modalDialog(
+          "Constructing SQL Query...", 
+          footer=NULL
         )
       )
-    
-    output$queried_table <- renderDataTable({})
-    
-    table_name_ui <- input$table_name_ui
-    
-    table_full_name <- paste(
-      project, 
-      dataset, 
-      tables_list[match(
-        table_name_ui,
-        tables_list_ui)], 
-      sep = "."
-    )
-    
-    SQL <- "SELECT * FROM {`table_full_name`}"
-    
-    first_date <- input$date[1]
-    second_date <- input$date[2]
-    
-    checked_boxes <- input$filter_columns_ui
-    
-    table_name_ui <- input$table_name_ui
-    
-    if ((!is.null(first_date) && !is.na(first_date)) && (!is.null(second_date)&& !is.na(second_date))) {
       
-      date_SQL <- "AND date >= {first_date} AND date < {second_date}"
+      output$queried_table <- renderDataTable({})
       
-      SQL <- paste(
-        SQL,
-        date_SQL,
-        sep = " "
+      table_name_ui <- input$table_name_ui
+      
+      table_full_name <- paste(
+        project, 
+        dataset, 
+        tables_list[match(
+          table_name_ui,
+          tables_list_ui)], 
+        sep = "."
       )
-    }
-    
-    for (field in checked_boxes){
       
-      if (field == "date" || field == "flag" || field == "geartype" || field == "mmsi"){ 
+      SQL <- "SELECT * FROM {`table_full_name`}"
+      
+      first_date <- input$date[1]
+      second_date <- input$date[2]
+      
+      checked_boxes <- input$filter_columns_ui
+      
+      table_name_ui <- input$table_name_ui
+      
+      if ((!is.null(first_date) && !is.na(first_date)) && (!is.null(second_date)&& !is.na(second_date))) {
         
-        next } else { 
+        date_SQL <- "AND date >= {first_date} AND date < {second_date}"
+        
+        SQL <- paste(
+          SQL,
+          date_SQL,
+          sep = " "
+        )
+      }
+      
+      for (field in checked_boxes){
+        
+        if (field == "date" || field == "flag" || field == "geartype" || field == "mmsi"){ 
           
-          first_field <- input[[field]][1]
-          second_field <- input[[field]][2]
+          next } else { 
+            
+            first_field <- input[[field]][1]
+            second_field <- input[[field]][2]
+            
+            if (
+              
+              (!is.null(first_field) && !is.na(first_field)) && 
+              (!is.null(second_field) && !is.na(second_field))) {
+              
+              next_SQL <- sprintf(
+                "AND %s >= {%s} AND %s < {%s}", 
+                field, 
+                first_field, 
+                field, 
+                second_field
+              )
+              
+              SQL <- paste(
+                SQL, 
+                next_SQL, 
+                sep = " "
+              )}}
+      }
+      
+      mmsi <- input$mmsi
+      
+      if ("mmsi" %in% checked_boxes) {
+        
+        mmsi_SQL <- sprintf(
+          "AND mmsi LIKE '%s'",
+          mmsi
+        )
+        
+        SQL <- paste(
+          SQL, 
+          mmsi_SQL, 
+          sep = " "
+        )
+        
+      }
+      
+      flags <- input$flag
+      
+      if (!is.null(flags) && !is.na(flags) && ("flag" %in% checked_boxes)) {
+        
+        flag_SQL <- "AND ("
+        
+        for (isocode in flags) {
           
-          if (
-            
-            (!is.null(first_field) && !is.na(first_field)) && 
-            (!is.null(second_field) && !is.na(second_field))) {
-            
-            next_SQL <- sprintf(
-              "AND %s >= {%s} AND %s < {%s}", 
-              field, 
-              first_field, 
-              field, 
-              second_field
-            )
-            
-            SQL <- paste(
-              SQL, 
-              next_SQL, 
-              sep = " "
-            )}}
-    }
-    
-    mmsi <- input$mmsi
-    
-    if ("mmsi" %in% checked_boxes) {
-      
-      mmsi_SQL <- sprintf(
-        "AND mmsi LIKE '%s'",
-        mmsi
-        )
-      
-      SQL <- paste(
-        SQL, 
-        mmsi_SQL, 
-        sep = " "
-      )
-      
-    }
-    
-    flags <- input$flag
-    
-    if (!is.null(flags) && !is.na(flags) && ("flag" %in% checked_boxes)) {
-      
-      flag_SQL <- "AND ("
-      
-      for (isocode in flags) {
+          next_flag_SQL <- sprintf(
+            "flag = '%s' OR", 
+            isocode
+          )
+          
+          flag_SQL <- paste(
+            flag_SQL, 
+            next_flag_SQL, 
+            sep = " "
+          )
+        }
         
-        next_flag_SQL <- sprintf(
-          "flag = '%s' OR", 
-          isocode
-        )
-        
-        flag_SQL <- paste(
+        flag_SQL <- stri_replace_last_fixed(
           flag_SQL, 
-          next_flag_SQL, 
+          ' OR', 
+          ')'
+        )
+        
+        SQL <- paste(
+          SQL, 
+          flag_SQL, 
           sep = " "
         )
       }
       
-      flag_SQL <- stri_replace_last_fixed(
-        flag_SQL, 
-        ' OR', 
-        ')'
-      )
+      gears <- input$geartype
       
-      SQL <- paste(
-        SQL, 
-        flag_SQL, 
-        sep = " "
-      )
-    }
-    
-    gears <- input$geartype
-    
-    if (!is.null(gears) && !is.na(gears) && ("geartype" %in% checked_boxes)){
-      
-      geartype_SQL <- "AND ("
-      
-      for (gear in gears) {
+      if (!is.null(gears) && !is.na(gears) && ("geartype" %in% checked_boxes)){
         
-        next_geartype_SQL <- sprintf(
-          "geartype = '%s' OR", 
-          gear
-        )
+        geartype_SQL <- "AND ("
         
-        geartype_SQL <- paste(
+        for (gear in gears) {
+          
+          next_geartype_SQL <- sprintf(
+            "geartype = '%s' OR", 
+            gear
+          )
+          
+          geartype_SQL <- paste(
+            geartype_SQL, 
+            next_geartype_SQL, 
+            sep = " "
+          )
+        }
+        
+        geartype_SQL <- stri_replace_last_fixed(
           geartype_SQL, 
-          next_geartype_SQL, 
+          ' OR', 
+          ')'
+        )
+        
+        SQL <- paste(
+          SQL, 
+          geartype_SQL, 
           sep = " "
         )
       }
       
-      geartype_SQL <- stri_replace_last_fixed(
-        geartype_SQL, 
-        ' OR', 
-        ')'
+      SQL <- sub(
+        "AND", 
+        "WHERE", 
+        SQL
       )
       
-      SQL <- paste(
-        SQL, 
-        geartype_SQL, 
-        sep = " "
+      GLUED_SQL <- glue_sql(
+        SQL,
+        .con = BQ_connection
       )
-    }
-    
-    SQL <- sub(
-      "AND", 
-      "WHERE", 
-      SQL
-    )
-    
-    GLUED_SQL <- glue_sql(
-      SQL,
-      .con = BQ_connection
-    )
-    
-    output$sql_query <- renderText({GLUED_SQL})
-    
-    showModal(
-      modalDialog(
-        "Fishing for data...", 
-        footer=NULL)
-      )
-    
-    df <- dbGetQuery(
-      BQ_connection, 
-      GLUED_SQL
-    )
-    
-    showModal(
-      modalDialog(
-        "Building table...",
-        footer=NULL
-        )
-      )
-    
-    output$queried_table <- renderDataTable(df)
-    
-    enable(id = "download_button")
-    
-    output$download_button <- downloadHandler(
-      filename = function() {
-        paste(
-          "data-", 
-          Sys.Date(), 
-          ".csv", 
-          sep=""
-        )
-      },
       
-      content = function(con) {
-        write.csv(
-          df,
-          con,
-          row.names = F
+      output$sql_query <- renderText({GLUED_SQL})
+      
+      showModal(
+        modalDialog(
+          "Fishing for data...", 
+          footer=NULL)
+      )
+      
+      df <- dbGetQuery(
+        BQ_connection, 
+        GLUED_SQL
+      )
+      
+      showModal(
+        modalDialog(
+          "Building table...",
+          footer=NULL
         )
-      }
-    )
-    
-    removeModal()
-    
+      )
+      
+      output$queried_table <- renderDataTable(df)
+      
+      enable(id = "download_button")
+      
+      output$download_button <- downloadHandler(
+        filename = function() {
+          paste(
+            "data-", 
+            Sys.Date(), 
+            ".csv", 
+            sep=""
+          )
+        },
+        
+        content = function(con) {
+          write.csv(
+            df,
+            con,
+            row.names = F
+          )
+        }
+      )
+      
+      removeModal()
+      
     } else if (which_event$csv){
       
       showModal(
         modalDialog(
           "Uploading your data...",
           footer=NULL
-          )
         )
-    
+      )
+      
       df <- read.csv(input$uploaded_csv$datapath,
                      header = TRUE,
                      sep = ",",
@@ -372,15 +372,16 @@ server <- function(input,output,session) {
         
         df <- NULL  
         
-        }
-
       }
+      
+    }
     
     return(df)
     
-    }
+  }
   )
   
+  #function to enable/disable/update inputs related to my_data/clipped_data
   observe({
     
     df <- my_data()
@@ -420,41 +421,41 @@ server <- function(input,output,session) {
       choices = summaries
     )
     
-    })
+  })
   
   output$uploaded_csv_viz <- renderTable({ #renderTable must have had an update 
     
-    df <- my_data() #that is messing with the date format and, in an attempt to
+    df <- my_data() #that is messing with the date format. In an attempt to
     
-    if (length(df$date) != 0){ #solve that, even with the header, so this is my
+    if (length(df$date) != 0){ #solve that, I also had issues with the header, 
+      
+      header <- head(my_data()) #so this is my solution for now
+      
+      header$date <- as.character(as.Date(header$date, "%Y-%m-%d"))
+      
+      return(header)}
     
-    header <- head(my_data()) #solution for now
-    
-    header$date <- as.character(as.Date(header$date, "%Y-%m-%d"))
-    
-    return(header)}
-    
-    })
-
+  })
+  
   observeEvent(input$summarize_button, {
     
     showModal(
       modalDialog(
         "Summarizing...", 
         footer=NULL)
-      )
+    )
     
     choice <- input$summaries
     
     if (length(choice) < 8){
       
       whether_to_clip <- input$clip
-    
+      
       if (whether_to_clip) { df <- clipped_data() } else { df <- my_data() }
-    
+      
       if (!is.null(choice)){
-    
-        if ("month" %in% choice) {
+        
+        if ("month" %in% choice) { #allow users to summarise by month
           
           df$month <- substr(
             df$date, 
@@ -463,8 +464,8 @@ server <- function(input,output,session) {
           )
           
         }
-      
-        if ("year" %in% choice) {
+        
+        if ("year" %in% choice) { #allow users to summarise by year
           
           df$year <- substr(
             df$date, 
@@ -472,82 +473,82 @@ server <- function(input,output,session) {
             stop = 4
           )
         }
-    
-    summarized <- group_by_at(df, vars(one_of(choice))) %>%
-      summarize("Total fishing" = sum(fishing_hours),
-                "Min. fishing" = min(fishing_hours),
-                "1st Qu. fishing" = quantile(fishing_hours, 0.25),
-                "Median fishing" = median(fishing_hours),
-                "Mean fishing" = mean(fishing_hours), 
-                "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
-                "Max. fishing" = max(fishing_hours),
-                "Total hours" = sum(hours),
-                "Min. hours" = min(hours),
-                "1st Qu. hours" = quantile(hours, 0.25),
-                "Median hours" = median(hours), 
-                "Mean hours" = mean(hours), 
-                "3rd Qu. hours" = quantile(hours, 0.75),
-                "Max. hours" = max(hours)
-      )
-      
-      
-    } else {
-      
-      summarized <- summarize(df,
-                                 "Total fishing" = sum(fishing_hours),
-                                 "Min. fishing" = min(fishing_hours),
-                                 "1st Qu. fishing" = quantile(fishing_hours, 0.25),
-                                 "Median fishing" = median(fishing_hours),
-                                 "Mean fishing" = mean(fishing_hours), 
-                                 "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
-                                 "Max. fishing" = max(fishing_hours),
-                                 "Total hours" = sum(hours),
-                                 "Min. hours" = min(hours),
-                                 "1st Qu. hours" = quantile(hours, 0.25),
-                                 "Median hours" = median(hours), 
-                                 "Mean hours" = mean(hours), 
-                                 "3rd Qu. hours" = quantile(hours, 0.75),
-                                 "Max. hours" = max(hours)
-      )
-    }
-    
-    columns_to_append <- c("Total fishing", #this is to limit the amount of fields
-                           "Mean fishing", #displayed on screen, since one could
-                           "Total hours", #group by every single field and obtain
-                           "Mean hours") #over 20 columns
-    
-    columns_to_show <- append(choice, columns_to_append) 
-    
-    output$summary_preview <- renderDataTable ({summarized[,columns_to_show]})
-    
-    output$download_analyses_button <- downloadHandler(
-      
-      filename = function() {
-        paste(
-          "summary-",
-          Sys.Date(), 
-          ".csv", 
-          sep=""
+        
+        summarized <- group_by_at(df, vars(one_of(choice))) %>%
+          summarize("Total fishing" = sum(fishing_hours),
+                    "Min. fishing" = min(fishing_hours),
+                    "1st Qu. fishing" = quantile(fishing_hours, 0.25),
+                    "Median fishing" = median(fishing_hours),
+                    "Mean fishing" = mean(fishing_hours), 
+                    "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
+                    "Max. fishing" = max(fishing_hours),
+                    "Total hours" = sum(hours),
+                    "Min. hours" = min(hours),
+                    "1st Qu. hours" = quantile(hours, 0.25),
+                    "Median hours" = median(hours), 
+                    "Mean hours" = mean(hours), 
+                    "3rd Qu. hours" = quantile(hours, 0.75),
+                    "Max. hours" = max(hours)
+          )
+        
+        
+      } else {
+        
+        summarized <- summarize(df,
+                                "Total fishing" = sum(fishing_hours),
+                                "Min. fishing" = min(fishing_hours),
+                                "1st Qu. fishing" = quantile(fishing_hours, 0.25),
+                                "Median fishing" = median(fishing_hours),
+                                "Mean fishing" = mean(fishing_hours), 
+                                "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
+                                "Max. fishing" = max(fishing_hours),
+                                "Total hours" = sum(hours),
+                                "Min. hours" = min(hours),
+                                "1st Qu. hours" = quantile(hours, 0.25),
+                                "Median hours" = median(hours), 
+                                "Mean hours" = mean(hours), 
+                                "3rd Qu. hours" = quantile(hours, 0.75),
+                                "Max. hours" = max(hours)
         )
-      },
-      
-      content = function(file) {
-        write.csv(summarized,
-                  file,
-                  row.names = F
-                  )
       }
-      )
-    
-    enable(id = "download_analyses_button") 
-    
-    removeModal() } else {
       
-      showModal(
-      modalDialog(
-        "Maximum 7 fields")
-    )}
-   
+      columns_to_append <- c("Total fishing", #this is to limit the amount of fields
+                             "Mean fishing", #displayed on screen, since one could
+                             "Total hours", #group by every single field and obtain
+                             "Mean hours") #over 20 columns
+      
+      columns_to_show <- append(choice, columns_to_append) 
+      
+      output$summary_preview <- renderDataTable ({summarized[,columns_to_show]})
+      
+      output$download_analyses_button <- downloadHandler(
+        
+        filename = function() {
+          paste(
+            "summary-",
+            Sys.Date(), 
+            ".csv", 
+            sep=""
+          )
+        },
+        
+        content = function(file) {
+          write.csv(summarized,
+                    file,
+                    row.names = F
+          )
+        }
+      )
+      
+      enable(id = "download_analyses_button") 
+      
+      removeModal() } else {
+        
+        showModal(
+          modalDialog(
+            "Maximum 7 fields")
+        )}
+    
   })
   
   which_sf_event <- reactiveValues(
@@ -587,37 +588,41 @@ server <- function(input,output,session) {
       inputId = "clip", 
       value = FALSE) 
     
+    disable(id = "clip") #to avoid users purposefully loading a gpkg that might 
+    #break the clip function without first passing the due checks
+    
     sdf <- NULL
     
     if (which_sf_event$converted){
-    
-    showModal(
-      modalDialog(
-        "Converting data to GeoPackage...",
-        footer=NULL
+      
+      showModal(
+        modalDialog(
+          "Converting data to GeoPackage...",
+          footer=NULL
         )
       )
-    
-    df <- my_data()
-    
-    col_names_conv <- colnames(df)
-    
-    sdf <- st_as_sf(df,
-                    coords = c("cell_ll_lon",
-                               "cell_ll_lat")
-                    )
-    
-    colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" #this happens because 
-                                              #st_write creates a column "geom",
-                                      #but st_as_sf names it "geometry", messing
-                                            #with my system of checking colnames
-    
-    st_geometry(sdf) <- "geom" #otherwise the sf object would still look for "geometry" for its geometry
-    
-    st_crs(sdf) <- 4326
-    
-    removeModal()
-    
+      
+      df <- my_data()
+      
+      col_names_conv <- colnames(df)
+      
+      sdf <- st_as_sf(df,
+                      coords = c("cell_ll_lon",
+                                 "cell_ll_lat")
+      )
+      
+      colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" #this happens because 
+      #st_write creates a column "geom",
+      #but st_as_sf names it "geometry", messing
+      #with my system of checking colnames
+      
+      st_geometry(sdf) <- "geom" #otherwise the sf object would still look for "geometry" for its geometry
+      
+      st_crs(sdf) <- 4326 #make sure to set the CRS, which is a very important
+      #check later on
+      
+      removeModal()
+      
     } else if (which_sf_event$gpkg){
       
       showModal(
@@ -631,32 +636,34 @@ server <- function(input,output,session) {
       
       layers_name <- layers$name
       
+      #this is to check for the presence of "GFW" layer before asking 
+      #the code to actually read that layer
       if ("GFW" %in% layers_name){
-      
-      sdf <- st_read(input$uploaded_gpkg$datapath,
-              layer = "GFW",
-              geometry_column = "geom")
-      
-      col_names_gpkg <- colnames(sdf)
-      
-      removeModal()
-      
-      if (((isFALSE(all.equal(col_names_gpkg, sf_column_100th)) && isFALSE(all.equal(col_names_gpkg, sf_column_10th)))) || (st_crs(sdf) != st_crs(4326))){
         
-        sdf <- NULL
+        sdf <- st_read(input$uploaded_gpkg$datapath,
+                       layer = "GFW",
+                       geometry_column = "geom")
         
-        showModal(
-          modalDialog(
-            "Please upload a file originating from fishRman"
+        col_names_gpkg <- colnames(sdf)
+        
+        removeModal()
+        
+        if (((isFALSE(all.equal(col_names_gpkg, sf_column_100th)) && isFALSE(all.equal(col_names_gpkg, sf_column_10th)))) || (st_crs(sdf) != st_crs(4326))){
+          
+          sdf <- NULL
+          
+          showModal(
+            modalDialog(
+              "Please upload a file originating from fishRman"
+            )
           )
-        )
+          
+        }
         
-      }
-      
-      which_event$gpkg <- TRUE #this part of the switch had to be moved here
-      which_event$query <- FALSE #to avoid making repetitive checks just for
-      which_event$csv <- FALSE #these boolean values
-      
+        which_event$gpkg <- TRUE #this part of the switch had to be moved here
+        which_event$query <- FALSE #to avoid making repetitive checks just for
+        which_event$csv <- FALSE #these boolean values
+        
       } else {
         
         sdf <- NULL
@@ -670,12 +677,14 @@ server <- function(input,output,session) {
       }
       
       
-      }
+    }
     
-   return(sdf)
+    return(sdf)
     
   })
-                           
+  
+  #all inputs relying on sdf are enabled/disabled here depending on the fact
+  #that sdf exists and has at least one point
   observe({
     
     sdf <- sf_data()
@@ -689,7 +698,6 @@ server <- function(input,output,session) {
       enable(id = "download_gpkg_button")
       enable(id = "visualize_button")
       enable(id = "second_uploaded_gpkg")
-      enable(id = "clip")
       enable(id = "re_visualize_button")
       
     } else {
@@ -697,13 +705,13 @@ server <- function(input,output,session) {
       disable(id = "download_gpkg_button")
       disable(id = "visualize_button")
       disable(id = "second_uploaded_gpkg")
-      disable(id = "clip")
       disable(id = "re_visualize_button")
       
     }
     
   })
   
+  #to download either clipped or unclipped data
   output$download_gpkg_button <- downloadHandler(
     
     filename = function() {
@@ -726,15 +734,15 @@ server <- function(input,output,session) {
           "world", 
           plot = FALSE, 
           fill = TRUE
-          )
         )
+      )
       
       st_write(
         sdf, 
         file, 
         layer = "GFW", 
         driver = "GPKG"
-        )
+      )
       
       st_write(
         world_sf, 
@@ -742,10 +750,12 @@ server <- function(input,output,session) {
         layer = "Land", 
         driver = "GPKG", 
         append = TRUE
-        )
+      )
     }
   )
   
+  #function to update list for selection of layer for clipping
+  #first of a series of checks to make the process as safe as possible
   observeEvent(input$second_uploaded_gpkg, {
     
     showModal(
@@ -758,16 +768,18 @@ server <- function(input,output,session) {
     layers <- st_layers(input$second_uploaded_gpkg$datapath)
     
     layers_name <- layers$name
-
+    
     updateSelectInput(inputId = "second_gpkg_layer",
                       choices = layers_name)
     
     enable(id = "second_gpkg_layer")
     
     removeModal()
- 
+    
   })
   
+  #function to just CHECK whether the chosen layer of the uploaded geopackage is
+  #in CRS EPSG 4326 and is a POLYGON/MULTIPOLYGON, thus suitable for st_intersection
   observeEvent(input$second_gpkg_layer, {
     
     chosen_layer <- input$second_gpkg_layer
@@ -788,11 +800,11 @@ server <- function(input,output,session) {
       if (("sfc_POLYGON" %in% geom_type) || ("sfc_MULTIPOLYGON" %in% geom_type)){
         
         if (st_crs(sf_data()) == st_crs(area_of_interest)){
-        
-        enable(id = "clip")
+          
+          enable(id = "clip")
           
         } else {
-            
+          
           disable(id = "clip")
           
           showModal(
@@ -801,7 +813,7 @@ server <- function(input,output,session) {
             )
           )
           
-          }
+        }
         
       } else { 
         
@@ -817,75 +829,78 @@ server <- function(input,output,session) {
     
   })
   
+  #function to get the insersection between GFW points and uploaded polygons
+  #de facto executing a clip of the points falling in the polygons
   clipped_sf_data <- eventReactive(input$clip, {
     
     whether_to_clip <- input$clip
     
     if (whether_to_clip){
-    
-    chosen_layer <- input$second_gpkg_layer
-    
-    dsn <- input$second_uploaded_gpkg$datapath
-    
-    points <- sf_data()
-    
-    area_of_interest <- st_read(
-      dsn = dsn,
-      layer = chosen_layer)
-    
-    clipped_points <- st_intersection(points, area_of_interest)
-    
-    if (length(clipped_points$geom) != 0){
       
-      clipped_points <- subset(clipped_points, select = -c(ID) )
+      chosen_layer <- input$second_gpkg_layer
       
-      return(clipped_points)
+      dsn <- input$second_uploaded_gpkg$datapath
       
-    } else {
+      points <- sf_data()
       
-      updatePrettyCheckbox(
-        session = session,
-        inputId = "clip",
-        value = FALSE)
+      area_of_interest <- st_read(
+        dsn = dsn,
+        layer = chosen_layer)
+      
+      clipped_points <- st_intersection(points, area_of_interest)
+      
+      if (length(clipped_points$geom) != 0){
         
-      showModal(
-        modalDialog(
-          "The two datasets do not intersect."
+        clipped_points <- subset(clipped_points, select = -c(ID) )
+        
+        return(clipped_points)
+        
+      } else {
+        
+        updatePrettyCheckbox(
+          session = session,
+          inputId = "clip",
+          value = FALSE)
+        
+        showModal(
+          modalDialog(
+            "The two datasets do not intersect."
+          )
         )
-      )
-      
-      return(NULL)
-      
+        
+        return(NULL)
+        
       }
-    
+      
     }
   })
   
+  #function to get csv-like data from clipped spatial data
   clipped_data <- reactive({
     
     sdf <- clipped_sf_data()
     
     if (!is.null(sdf) && !is.na(sdf)){
-    
-    df <- sdf %>%
-      dplyr::mutate(cell_ll_lon = sf::st_coordinates(.)[,1],
-                    cell_ll_lat = sf::st_coordinates(.)[,2]) %>%
-      as.data.frame()
-    
-    df <- select(df, -c(geom))
-    
-    if (length(colnames(df)) == 8) { #this is to preserve the same order for
       
-      df <- select(df, column_100th) #colnames, to avoid eventual inconsistencies
+      df <- sdf %>%
+        dplyr::mutate(cell_ll_lon = sf::st_coordinates(.)[,1],
+                      cell_ll_lat = sf::st_coordinates(.)[,2]) %>%
+        as.data.frame()
       
+      df <- select(df, -c(geom))
+      
+      if (length(colnames(df)) == 8) { #this is to preserve the same order for
+        
+        df <- select(df, column_100th) #colnames, to avoid eventual inconsistencies
+        
       } else if (length(colnames(df)) == 6) {
-      
-      df <- select(df, column_10th)
-      
+        
+        df <- select(df, column_10th)
+        
       }
-    
-    return(df)
-    
+      
+      return(df)
+      
     }
     
   })
@@ -931,7 +946,7 @@ server <- function(input,output,session) {
     if (whether_to_clip){sdf <- clipped_sf_data()} else {sdf <- sf_data()} 
     
     if ((!is.null(sdf)) && (length(sdf$geom) > 0)) {
-    
+      
       bbox <- st_bbox(sdf)
       
       xmin <- bbox$xmin
@@ -946,7 +961,7 @@ server <- function(input,output,session) {
         ymin <- input$yrange[1]
         ymax <- input$yrange[2]
         
-        } 
+      } 
       
       xbuff <- (xmax - xmin)*0.05
       ybuff <- (ymax - ymin)*0.05
@@ -964,12 +979,11 @@ server <- function(input,output,session) {
                               inputId = "yrange",
                               value = c(ymin, ymax))
       
-      
     }
-
+    
   })
   
-  rez <- reactive({
+  rez <- reactive({ #assign resolution values on clipped and not clipped spatial data
     
     whether_to_clip <- input$clip
     
@@ -992,7 +1006,7 @@ server <- function(input,output,session) {
                            value = 0.01)
         rez <- 0.01
         
-      } else if (isTRUE(all.equal(col_names_sdf,sf_column_100th))){
+      } else if (isTRUE(all.equal(col_names_sdf,sf_column_10th))){
         
         updateNumericInput(session,
                            inputId = "map_rez",
@@ -1003,7 +1017,7 @@ server <- function(input,output,session) {
         rez <- 0.1
         
       }
-        
+      
     } else if (which_viz_event$reviz){
       
       rez <- input$map_rez
@@ -1017,56 +1031,57 @@ server <- function(input,output,session) {
   observeEvent(possibleVizInputs(), {
     
     if (which_viz_event$origin || which_viz_event$reviz){
-    
-    showModal(
-      modalDialog(
-        "Visualizing your data...",
-        footer=NULL
+      
+      showModal(
+        modalDialog(
+          "Visualizing your data...",
+          footer=NULL
+        )
       )
-    )
       
       whether_to_clip <- input$clip
       
       if (whether_to_clip){sdf <- clipped_sf_data()} else {sdf <- sf_data()} 
       
-    col_names_sdf <- colnames(sdf)
-    
-    df <- sdf %>%
-      dplyr::mutate(lon = sf::st_coordinates(.)[,1],
-                    lat = sf::st_coordinates(.)[,2]) #lat and lon are easier to work with than "geom"
-    
-    rez <- rez()
-    
-    if (isTRUE(all.equal(col_names_sdf,sf_column_100th))){
+      col_names_sdf <- colnames(sdf)
       
-      if (is.numeric(rez) && rez > 0.01 && rez <= 1) {
-        
-        df <- df %>% 
-        mutate(
-          lat = floor(lat/rez) * rez + 0.5 * rez, 
-          lon = floor(lon/rez) * rez + 0.5 * rez)} #this sets new lat and lon for the new aggregation
+      df <- sdf %>%
+        dplyr::mutate(lon = sf::st_coordinates(.)[,1],
+                      lat = sf::st_coordinates(.)[,2]) #lat and lon are easier to work with than "geom"
       
-      grouped_df <- df %>% #aggregation starts here
-        
-        as.data.frame() %>%
-        
-        group_by(lon, lat) %>%
-        
-        summarise("Total fishing hours" = sum(fishing_hours),
-                  "Total hours" = sum(hours),
-                  "Total MMSI present" = sum(mmsi_present),
-                  "Mean fishing hours" = mean(fishing_hours),
-                  "Mean hours" = mean(hours),
-                  "Mean MMSI present" = mean(mmsi_present))
- 
-    } else if (isTRUE(all.equal(col_names_sdf,sf_column_10th))) {
+      rez <- rez()
       
-      if (is.numeric(rez) && rez > 0.1 && rez <= 1) {
+      #if statements to reaggregate data according to rez
+      if (isTRUE(all.equal(col_names_sdf,sf_column_100th))){
         
-        df <- df %>% 
-          mutate(
-            lat = floor(lat/rez) * rez + 0.5 * rez, 
-            lon = floor(lon/rez) * rez + 0.5 * rez)}
+        if (is.numeric(rez) && rez > 0.01 && rez <= 1) {
+          
+          df <- df %>% 
+            mutate(
+              lat = floor(lat/rez) * rez + 0.5 * rez, 
+              lon = floor(lon/rez) * rez + 0.5 * rez)} #this sets new lat and lon for the new aggregation
+        
+        grouped_df <- df %>% #aggregation starts here
+          
+          as.data.frame() %>%
+          
+          group_by(lon, lat) %>%
+          
+          summarise("Total fishing hours" = sum(fishing_hours),
+                    "Total hours" = sum(hours),
+                    "Total MMSI present" = sum(mmsi_present),
+                    "Mean fishing hours" = mean(fishing_hours),
+                    "Mean hours" = mean(hours),
+                    "Mean MMSI present" = mean(mmsi_present))
+        
+      } else if (isTRUE(all.equal(col_names_sdf,sf_column_10th))) {
+        
+        if (is.numeric(rez) && rez > 0.1 && rez <= 1) {
+          
+          df <- df %>% 
+            mutate(
+              lat = floor(lat/rez) * rez + 0.5 * rez, 
+              lon = floor(lon/rez) * rez + 0.5 * rez)}
         
         grouped_df <- df %>%
           
@@ -1078,81 +1093,100 @@ server <- function(input,output,session) {
                     "Total hours" = sum(hours),
                     "Mean fishing hours" = mean(fishing_hours),
                     "Mean hours" = mean(hours))
-    
-    }
-    
-    if (which_viz_event$origin) {
-      
-      col_names_grouped <- colnames(grouped_df)
-    
-      col_names_grouped_no_geo <- col_names_grouped[! col_names_grouped %in% c("lat", "lon")]
-      
-      updateSelectInput(session,
-                        inputId = "mapped_column",
-                        choices = col_names_grouped_no_geo)
-      
-      to_fill <- "Total fishing hours"
-      
-    } else {
-      
-      to_fill <- input$mapped_column
-      
-      } #basically, if it's the first plot, it defaults to "Total fishing hours" to fill, otherwise, it is the chosen field
-    
-    world_sf <- sf::st_as_sf( #world map to give some reference 
-      maps::map(
-        "world", 
-        plot = FALSE, 
-        fill = TRUE
-      )
-    )
-    
-    lowx <- plot_range$lowx
-    highx <- plot_range$highx
-    lowy <- plot_range$lowy
-    highy <- plot_range$highy
-    
-    map <- ggplot() +
-      
-      geom_tile(data = grouped_df, aes(x = lon, y = lat, fill = .data[[to_fill]])) +
-      
-      scale_fill_viridis() +
-      
-      geom_sf(data = world_sf, 
-              fill = '#BABABA', 
-              color = '#0A1738',
-              size = 0.1) +
-      
-      coord_sf(xlim = c(lowx, highx), #these are the zoom in coordinates
-               ylim = c(lowy, highy), #I mentioned earlier
-               expand = FALSE)
-    
-    output$viz_map <- renderPlot({return(map)})
-    
-    shinyjs::show("map") #the map output is always present on screen, it is only
-    #shown when in use in order to have a cleaner UI
-    
-    output$download_map_button <- downloadHandler(
-      
-      filename = function() {
-        paste(
-          to_fill,
-          Sys.Date(), 
-          ".png", 
-          sep=""
-        )
-      },
-      
-      content = function(file) {
-        
-        ggsave(map, filename = file)
         
       }
-    )
+      
+      #if statement to assign to_fill on origin and on revisualize
+      if (which_viz_event$origin) {
+        
+        col_names_grouped <- colnames(grouped_df)
+        
+        col_names_grouped_no_geo <- col_names_grouped[! col_names_grouped %in% c("lat", "lon")]
+        
+        updateSelectInput(session,
+                          inputId = "mapped_column",
+                          choices = col_names_grouped_no_geo)
+        
+        to_fill <- "Total fishing hours"
+        
+      } else {
+        
+        to_fill <- input$mapped_column
+        
+      } #basically, if it's the first plot, it defaults to "Total fishing hours" to fill, otherwise, it is the chosen field
+      
+      #sort table according to to_fill, decreasing
+      grouped_df <- grouped_df[order(-grouped_df[to_fill]),]
+      
+      cumul_distr_percent <- input$cumul_distr_percent
+      
+      #calculate sum of the entire column to_fill
+      summed <- sum(grouped_df[to_fill])*(cumul_distr_percent/100)
+      
+      #vectorize the column, to be able to use the length.until function
+      to_fill_column <- grouped_df %>%
+        pull(to_fill)
+      
+      #how many rows are needed to reach the cumul_distr_percent% of the total for to_fill?
+      cumul_distr_length <- length.until(to_fill_column, summed)
+      
+      #subsetting grouped_df accordingly to cumul_distr_percent
+      grouped_df <- grouped_df[c(1:cumul_distr_length$length),]
+      
+      world_sf <- sf::st_as_sf( #world map to give some reference 
+        maps::map(
+          "world", 
+          plot = FALSE, 
+          fill = TRUE
+        )
+      )
+      
+      lowx <- plot_range$lowx
+      highx <- plot_range$highx
+      lowy <- plot_range$lowy
+      highy <- plot_range$highy
+      
+      map <- ggplot() +
+        
+        geom_tile(data = grouped_df, aes(x = lon, y = lat, fill = .data[[to_fill]])) +
+        
+        scale_fill_viridis() +
+        
+        geom_sf(data = world_sf, 
+                fill = '#BABABA', 
+                color = '#0A1738',
+                size = 0.1) +
+        
+        coord_sf(xlim = c(lowx, highx), #these are the zoom in coordinates
+                 ylim = c(lowy, highy), #I mentioned earlier
+                 expand = FALSE)
+      
+      output$viz_map <- renderPlot({return(map)})
+      
+      shinyjs::show("map") #the map output is always present on screen, it is only
+      #shown when in use in order to have a cleaner UI
+      
+      output$download_map_button <- downloadHandler(
+        
+        filename = function() {
+          paste(
+            to_fill,
+            "-",
+            Sys.Date(), 
+            ".png", 
+            sep=""
+          )
+        },
+        
+        content = function(file) {
+          
+          ggsave(map, filename = file)
+          
+        }
+      )
+      
+      removeModal()}
     
-    removeModal()}
-    
-    })
-
-  }
- 
+  })
+  
+}
