@@ -271,13 +271,39 @@ server <- function(input,output,session) {
         SQL
       )
       
+      SQL_count <- sub(
+        "SELECT ", 
+        "SELECT COUNT(", 
+        SQL
+      )
+      
+      SQL_count <- sub(
+        " FROM", 
+        ") as count_col FROM", 
+        SQL_count
+      )
+      
       GLUED_SQL <- glue_sql(
         SQL,
         .con = BQ_connection
       )
       
+      GLUED_SQL_count <- glue_sql(
+        SQL_count,
+        .con = BQ_connection
+      )
+      
       output$sql_query <- renderText({GLUED_SQL})
       
+      count <- dbGetQuery(
+        BQ_connection, 
+        GLUED_SQL_count
+      )
+      
+      max_rows <- 1000000 #add more 0s if you don't care for speed and need to perform large analyses
+      
+      if (count$count_col <= max_rows){ 
+        
       showModal(
         modalDialog(
           "Fishing for data...", 
@@ -320,6 +346,25 @@ server <- function(input,output,session) {
       )
       
       removeModal()
+      
+      } else {
+        
+        message <- sprintf(
+          "Your query would return more than %s rows (%s to be precise), too many for the server. Please, be more specific in your query or run the source code from your own machine.",
+          max_rows,
+          count$count_col
+        )
+        
+        
+        showModal(
+          modalDialog(
+            message
+          )
+        )
+        
+      }
+      
+      
       
     } else if (which_event$csv){
       
