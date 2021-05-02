@@ -13,7 +13,9 @@ library(ggplot2)
 library(viridis)
 library(shinyBS)
 
-options(shiny.maxRequestSize = 20*1024*1024^2) #this should take care of the majority of the gpkg sizes
+options(scipen = 999)
+
+options(shiny.maxRequestSize = 150*1024^2) #maximum upload size is 150 MB, edit if you need more than that
 
 project <- "global-fishing-watch"
 dataset <- "gfw_public_data"

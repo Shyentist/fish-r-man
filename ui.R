@@ -170,7 +170,7 @@ tabPanel("Analysis",
                                                          tipify(
                                                            fileInput("uploaded_csv", "Choose CSV File",
                                                                      accept = ".csv"),
-                                                           title = "Only upload CSV files downloaded from fishRman", 
+                                                           title = "Only upload CSV files downloaded from fishRman. Maximum 150 Mb.", 
                                                            placement = "right", 
                                                            trigger = "hover",
                                                            options = list(container = "body")),
@@ -179,7 +179,7 @@ tabPanel("Analysis",
                                                fileInput("uploaded_gpkg", "Choose GPKG File",
                                                          multiple = FALSE,
                                                          accept = ".gpkg"),
-                                               title = "Only upload GPKG files downloaded from fishRman (EPSG: 4326)", 
+                                               title = "Only upload GPKG files downloaded from fishRman (EPSG: 4326). Maximum 150 Mb.", 
                                                placement = "right", 
                                                trigger = "hover",
                                                options = list(container = "body")),
@@ -189,10 +189,15 @@ tabPanel("Analysis",
                                                  label = "Convert"
                                                )),
                                                disabled(
+                                                 tipify(
                                                  downloadButton(
                                                    outputId = "download_gpkg_button",
                                                    label = "Download .gpkg"
-                                                 )
+                                                 ),
+                                                 title = "Download may take a couple of minutes for larger dataframes, please wait.", 
+                                                 placement = "right", 
+                                                 trigger = "hover",
+                                                 options = list(container = "body"))
                                                )
                                                
                                     )
@@ -205,7 +210,7 @@ tabPanel("Analysis",
                                                fileInput("second_uploaded_gpkg", "Choose GPKG File",
                                               multiple = FALSE,
                                               accept = ".gpkg"),
-                                                       title = "File must have same CRS as GFW data (EPSG: 4326)", 
+                                                       title = "File must have same CRS as GFW data (EPSG: 4326). Maximum 150 Mb.", 
                                               placement = "right", 
                                               trigger = "hover",
                                               options = list(container = "body"))),
