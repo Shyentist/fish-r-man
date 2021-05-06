@@ -102,8 +102,12 @@ server <- function(input,output,session) {
     
   })
   
+  
+  
   my_data <- eventReactive(possibleInputs(), {
     
+    tryCatch({
+     
     df <- NULL
     
     updatePrettyCheckbox( #uploading a new csv or running a new query "overwrites"
@@ -419,9 +423,15 @@ server <- function(input,output,session) {
         
       }
       
-    }
+    }}, error = function(err) {
+      
+      showModal(
+        modalDialog(
+          paste("The error '", err, "' arose while loading the dataframe. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+    })
     
     return(df)
+    
     
   }
   )
@@ -429,46 +439,55 @@ server <- function(input,output,session) {
   #function to enable/disable/update inputs related to my_data/clipped_data
   observe({
     
-    df <- my_data()
-    
-    whether_to_clip <- input$clip
-    
-    if (whether_to_clip) {df <- clipped_data()}
-    
-    col_names_df <- colnames(df)
-    
-    if (isTRUE(all.equal(col_names_df,column_100th))){
+    tryCatch({
       
-      summaries <- available_summaries_100th
+      df <- my_data()
       
-      enable(id = "summarize_button")
-      enable(id = "convert_to_spatial_button")
+      whether_to_clip <- input$clip
       
-    } else if (isTRUE(all.equal(col_names_df,column_10th))) {
+      if (whether_to_clip) {df <- clipped_data()}
       
-      summaries <- available_summaries_10th
+      col_names_df <- colnames(df)
       
-      enable(id = "summarize_button")
-      enable(id = "convert_to_spatial_button")
+      if (isTRUE(all.equal(col_names_df,column_100th))){
+        
+        summaries <- available_summaries_100th
+        
+        enable(id = "summarize_button")
+        enable(id = "convert_to_spatial_button")
+        
+      } else if (isTRUE(all.equal(col_names_df,column_10th))) {
+        
+        summaries <- available_summaries_10th
+        
+        enable(id = "summarize_button")
+        enable(id = "convert_to_spatial_button")
+        
+      } else {
+        
+        summaries <- NULL
+        
+        disable(id = "summarize_button")
+        disable(id = "convert_to_spatial_button")
+        
+      }
       
-    } else {
-      
-      summaries <- NULL
-      
-      disable(id = "summarize_button")
-      disable(id = "convert_to_spatial_button")
-      
-    }
-    
-    updatePrettyCheckboxGroup(
-      session,
-      inputId = 'summaries',
-      choices = summaries
-    )
+      updatePrettyCheckboxGroup(
+        session,
+        inputId = 'summaries',
+        choices = summaries
+      )}, error = function(err) {
+        
+        showModal(
+          modalDialog(
+            paste("The error '", err, "' arose while updating the summaries. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+      })
     
   })
   
-  output$uploaded_csv_viz <- renderTable({ #renderTable must have had an update 
+  output$uploaded_csv_viz <- renderTable({ 
+    
+    tryCatch({                    #renderTable must have had an update 
     
     df <- my_data() #that is messing with the date format. In an attempt to
     
@@ -478,11 +497,21 @@ server <- function(input,output,session) {
       
       header$date <- as.character(as.Date(header$date, "%Y-%m-%d"))
       
-      return(header)}
+      return(header)
+      
+      
+    }}, error = function(err) {
+      
+      showModal(
+        modalDialog(
+          paste("The error '", err, "' arose while rendering the preview table. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+    })
     
   })
   
   observeEvent(input$summarize_button, {
+    
+    tryCatch({   
     
     showModal(
       modalDialog(
@@ -592,7 +621,13 @@ server <- function(input,output,session) {
         showModal(
           modalDialog(
             "Maximum 7 fields")
-        )}
+        
+          )}}, error = function(err) {
+          
+          showModal(
+            modalDialog(
+              paste("The error '", err, "' arose while producing the summaries. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+        })
     
   })
   
@@ -626,6 +661,10 @@ server <- function(input,output,session) {
   
   sf_data <- eventReactive(possibleSpatialInputs(), {
     
+    sdf <- NULL
+    
+    tryCatch({ 
+    
     shinyjs::hide(id = "map") #to avoid users messing with revisualisation, possibly skipping the checks
     
     updatePrettyCheckbox( #uploading or converting into a new gpkg "overwrites"
@@ -635,8 +674,6 @@ server <- function(input,output,session) {
     
     disable(id = "clip") #to avoid users purposefully loading a gpkg that might 
     #break the clip function without first passing the due checks
-    
-    sdf <- NULL
     
     if (which_sf_event$converted){
       
@@ -722,7 +759,12 @@ server <- function(input,output,session) {
       }
       
       
-    }
+    }}, error = function(err) {
+      
+      showModal(
+        modalDialog(
+          paste("The error '", err, "' arose while loading the spatial dataframe. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+    })
     
     return(sdf)
     
@@ -731,6 +773,8 @@ server <- function(input,output,session) {
   #all inputs relying on sdf are enabled/disabled here depending on the fact
   #that sdf exists and has at least one point
   observe({
+    
+    tryCatch({
     
     sdf <- sf_data()
     
@@ -752,12 +796,17 @@ server <- function(input,output,session) {
       disable(id = "second_uploaded_gpkg")
       disable(id = "re_visualize_button")
       
-    }
+    }}, error = function(err) {
+      
+      showModal(
+        modalDialog(
+          paste("The error '", err, "' arose while enabling/disabling spatial inputs. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+    })
     
   })
   
   #to download either clipped or unclipped data
-  output$download_gpkg_button <- downloadHandler(
+  output$download_gpkg_button <- tryCatch({downloadHandler(
     
     filename = function() {
       paste(
@@ -797,11 +846,18 @@ server <- function(input,output,session) {
         append = TRUE
       )
     }
-  )
+  )}, error = function(err) {
+    
+    showModal(
+      modalDialog(
+        paste("The error '", err, "' arose while downloading spatial data. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+  })
   
   #function to update list for selection of layer for clipping
   #first of a series of checks to make the process as safe as possible
   observeEvent(input$second_uploaded_gpkg, {
+    
+    tryCatch({
     
     showModal(
       modalDialog(
@@ -819,13 +875,20 @@ server <- function(input,output,session) {
     
     enable(id = "second_gpkg_layer")
     
-    removeModal()
+    removeModal()}, error = function(err) {
+      
+      showModal(
+        modalDialog(
+          paste("The error '", err, "' arose while checking the layers of the area to clip. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+    })
     
   })
   
   #function to just CHECK whether the chosen layer of the uploaded geopackage is
   #in CRS EPSG 4326 and is a POLYGON/MULTIPOLYGON, thus suitable for st_intersection
   observeEvent(input$second_gpkg_layer, {
+    
+    tryCatch({
     
     chosen_layer <- input$second_gpkg_layer
     
@@ -870,13 +933,20 @@ server <- function(input,output,session) {
           )
         )}
       
-    }
+    }}, error = function(err) {
+      
+      showModal(
+        modalDialog(
+          paste("The error '", err, "' arose while loading the area to clip. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+    })
     
   })
   
   #function to get the insersection between GFW points and uploaded polygons
   #de facto executing a clip of the points falling in the polygons
   clipped_sf_data <- eventReactive(input$clip, {
+    
+    tryCatch({
     
     whether_to_clip <- input$clip
     
@@ -917,11 +987,21 @@ server <- function(input,output,session) {
         
       }
       
-    }
+    }}, error = function(err) {
+      
+      showModal(
+        modalDialog(
+          paste("The error '", err, "' arose while clipping the data. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+    })
+    
   })
   
   #function to get csv-like data from clipped spatial data
   clipped_data <- reactive({
+    
+    tryCatch({
+      
+      df <- NULL
     
     sdf <- clipped_sf_data()
     
@@ -944,9 +1024,14 @@ server <- function(input,output,session) {
         
       }
       
-      return(df)
+    }}, error = function(err) {
       
-    }
+      showModal(
+        modalDialog(
+          paste("The error '", err, "' arose while retrieving a dataframe from clipped data. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+    })
+    
+    return(df)
     
   })
   
@@ -986,6 +1071,8 @@ server <- function(input,output,session) {
   
   observeEvent(possibleVizInputs(), {
     
+    tryCatch({
+    
     whether_to_clip <- input$clip
     
     if (whether_to_clip){sdf <- clipped_sf_data()} else {sdf <- sf_data()} 
@@ -1024,11 +1111,20 @@ server <- function(input,output,session) {
                               inputId = "yrange",
                               value = c(ymin, ymax))
       
-    }
+    }}, error = function(err) {
+      
+      showModal(
+        modalDialog(
+          paste("The error '", err, "' arose while handling the bbox. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+    })
     
   })
   
   rez <- reactive({ #assign resolution values on clipped and not clipped spatial data
+    
+    rez <- 0.1
+    
+    tryCatch({
     
     whether_to_clip <- input$clip
     
@@ -1067,13 +1163,20 @@ server <- function(input,output,session) {
       
       rez <- input$map_rez
       
-    }
+    }}, error = function(err) {
+      
+      showModal(
+        modalDialog(
+          paste("The error '", err, "' arose while handling the resolution of the plot. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+    })
     
     return(rez)
     
   })
   
   observeEvent(possibleVizInputs(), {
+    
+    tryCatch({
     
     if (which_viz_event$origin || which_viz_event$reviz){
       
@@ -1230,7 +1333,12 @@ server <- function(input,output,session) {
         }
       )
       
-      removeModal()}
+      removeModal()}}, error = function(err) {
+        
+        showModal(
+          modalDialog(
+            paste("The error '", err, "' arose while producing the plot. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")))
+      })
     
   })
   
