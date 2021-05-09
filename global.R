@@ -15,20 +15,23 @@ library(shinyBS)
 
 options(scipen = 999)
 
-options(shiny.maxRequestSize = 150*1024^2) #maximum upload size is 150 MB, edit if you need more than that
+options(shiny.maxRequestSize = 150 * 1024^2) # maximum upload size is 150 MB, edit if you need more than that
 
 project <- "global-fishing-watch"
 dataset <- "gfw_public_data"
 billing <- "fish-r-man" # your billing account name
 
-bq_auth(email = "fishrman-user@fish-r-man.iam.gserviceaccount.com", #comment these out
-        path = "www/appDir/fish-r-man-ec45cfe426c8.json") #to access your own account
+bq_auth(
+  email = "fishrman-user@fish-r-man.iam.gserviceaccount.com", # comment these out
+  path = "www/appDir/fish-r-man-ec45cfe426c8.json"
+) # to access your own account
 
-BQ_connection <-  dbConnect(bigquery(), 
-                            project = project,
-                            dataset = dataset, 
-                            billing = billing, 
-                            use_legacy_sql = FALSE) # specify we are using Standard SQL
+BQ_connection <- dbConnect(bigquery(),
+  project = project,
+  dataset = dataset,
+  billing = billing,
+  use_legacy_sql = FALSE
+) # specify we are using Standard SQL
 
 tables_list <- dbListTables(BQ_connection)
 
@@ -45,13 +48,13 @@ list_togglable_ids <- list(
 )
 
 tables_list_ui <- c(
-  "Fishing effort at 10th degree", 
+  "Fishing effort at 10th degree",
   "Fishing effort at 100th degree"
 )
 
 column_list_fe100_ui <- c(
-  "Date", 
-  "Latitude", 
+  "Date",
+  "Latitude",
   "Longitude",
   "Flag",
   "Geartype",
@@ -61,8 +64,8 @@ column_list_fe100_ui <- c(
 )
 
 column_list_fe10_ui <- c(
-  "Date", 
-  "Latitude", 
+  "Date",
+  "Latitude",
   "Longitude",
   "MMSI",
   "Vessel hours",
@@ -112,9 +115,9 @@ geartype_names <- c(
   "Fishing"
 )
 
-names(geartype_elements) <- geartype_names #to have a cleaner UI, will change with newer version of the tables
+names(geartype_elements) <- geartype_names # to have a cleaner UI, will change with newer version of the tables
 
-column_100th <- c( #the col names are here so I can check against them for validity of uploaded files
+column_100th <- c( # the col names are here so I can check against them for validity of uploaded files
   "date",
   "cell_ll_lat",
   "cell_ll_lon",
@@ -123,7 +126,7 @@ column_100th <- c( #the col names are here so I can check against them for valid
   "hours",
   "fishing_hours",
   "mmsi_present"
-  )
+)
 
 column_10th <- c(
   "date",
@@ -132,43 +135,43 @@ column_10th <- c(
   "mmsi",
   "hours",
   "fishing_hours"
-  )
+)
 
-month_year_vector <- c("month","year") #to append to colnames, to have a cleaner UI and two more options for summaries
+month_year_vector <- c("month", "year") # to append to colnames, to have a cleaner UI and two more options for summaries
 
-available_summaries_10th <- append(column_10th,month_year_vector, after = 1)
+available_summaries_10th <- append(column_10th, month_year_vector, after = 1)
 
-available_summaries_100th <- append(column_100th,month_year_vector, after = 1)
+available_summaries_100th <- append(column_100th, month_year_vector, after = 1)
 
-sf_column_100th <- column_100th[! column_100th %in% c("cell_ll_lat", "cell_ll_lon")] %>% #to later check the validity of spatial data uploaded (they must have same colnames as these vectors)
-                      append("geom")
-  
-sf_column_10th <- column_10th[! column_10th %in% c("cell_ll_lat", "cell_ll_lon")] %>%
+sf_column_100th <- column_100th[!column_100th %in% c("cell_ll_lat", "cell_ll_lon")] %>% # to later check the validity of spatial data uploaded (they must have same colnames as these vectors)
   append("geom")
 
-#what follow is a function to count the length of a vector necessary until it reaches an amount
-#used for cumulative distribution
-##source: https://stackoverflow.com/questions/8540143/add-consecutive-elements-of-a-vector-until-a-value
+sf_column_10th <- column_10th[!column_10th %in% c("cell_ll_lat", "cell_ll_lon")] %>%
+  append("geom")
 
-length.until <- function(x, max=10) {
+# what follow is a function to count the length of a vector necessary until it reaches an amount
+# used for cumulative distribution
+## source: https://stackoverflow.com/questions/8540143/add-consecutive-elements-of-a-vector-until-a-value
+
+length.until <- function(x, max = 10) {
   s <- 0
-  len <- length(x) #modified this to avoid function looping forever in case of bad
-  #rounding or similar minor issues. This way, length is, at most, equal to the entire dataset
+  len <- length(x) # modified this to avoid function looping forever in case of bad
+  # rounding or similar minor issues. This way, length is, at most, equal to the entire dataset
   start <- 1
   j <- 1
   for (i in seq_along(x)) {
     s <- s + x[i]
     while (s >= max) {
-      if (i-j+1 < len) {
-        len <- i-j+1
+      if (i - j + 1 < len) {
+        len <- i - j + 1
         start <- j
       }
       s <- s - x[j]
       j <- j + 1
     }
   }
-  
-  list(start=start, length=len)
+
+  list(start = start, length = len)
   # uncomment the line below if you don't need the start index...
-  #len
+  # len
 }
