@@ -20,6 +20,12 @@ div.sidebar {
 
 }
 
+div.sidebar#area_of_interest {
+
+    background-color: rgba(255, 255, 255, 0.40);
+    
+}
+
 div.tab-content {
 
     background-color: rgba(255, 255, 255, 0.40);
