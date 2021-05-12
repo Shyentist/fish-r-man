@@ -124,8 +124,8 @@ server <- function(input, output, session) {
 
           SQL <- "SELECT * FROM {`table_full_name`}"
 
-          first_date <- input$date[1]
-          second_date <- input$date[2]
+          first_date <- min(input$date)
+          second_date <- max(input$date)
 
           checked_boxes <- input$filter_columns_ui
 
@@ -145,8 +145,8 @@ server <- function(input, output, session) {
             if (field == "date" || field == "flag" || field == "geartype" || field == "mmsi") {
               next
             } else {
-              first_field <- input[[field]][1]
-              second_field <- input[[field]][2]
+              first_field <- min(input[[field]])
+              second_field <- max(input[[field]])
 
               if (
 
@@ -1041,11 +1041,13 @@ server <- function(input, output, session) {
           ymin <- bbox$ymin
           ymax <- bbox$ymax
 
-          if (((which_viz_event$reviz)) && (!is.na(input$xrange[1])) && (!is.na(input$xrange[2]) && (!is.na(input$yrange[1])) && (!is.na(input$yrange[2])))) {
-            xmin <- input$xrange[1]
-            xmax <- input$xrange[2]
-            ymin <- input$yrange[1]
-            ymax <- input$yrange[2]
+          if (((which_viz_event$reviz)) && (!is.na(input$xrange[1])) && (!is.na(input$xrange[2]) && (!is.na(input$yrange[1])) && (!is.na(input$yrange[2])) && (input$xrange[1] != input$xrange[2]) && (input$yrange[1] != input$yrange[2]))) {
+            xmin <- min(input$xrange)
+            xmax <- max(input$xrange)
+            ymin <- min(input$yrange)
+            ymax <- max(input$yrange)
+            
+            
           }
 
           xbuff <- (xmax - xmin) * 0.05

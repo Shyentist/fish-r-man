@@ -85,7 +85,7 @@ ui <- fluidPage(
                     "cell_ll_lat",
                     "date"
                   ),
-                  title = "Minimum (left) is included.<br>Maximum (right) is not.",
+                  title = "Minimum is included.<br>Maximum is not.<br>Minimum must be less than maximum.",
                   placement = "right",
                   trigger = "hover",
                   options = list(container = "body")
