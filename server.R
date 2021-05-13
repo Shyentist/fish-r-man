@@ -170,8 +170,13 @@ server <- function(input, output, session) {
           }
 
           mmsi <- input$mmsi
+          
+          print(is.null(mmsi))
+          print(is.na(mmsi))
+          print(mmsi)
+          print(class(mmsi))
 
-          if ("mmsi" %in% checked_boxes) {
+          if (("mmsi" %in% checked_boxes) && (mmsi != "")) {
             mmsi_SQL <- sprintf(
               "AND mmsi LIKE '%s'",
               mmsi
@@ -1106,7 +1111,7 @@ server <- function(input, output, session) {
             updateNumericInput(session,
               inputId = "map_rez",
               min = 0.01,
-              max = 1,
+              max = 2,
               value = 0.01
             )
             rez <- 0.01
@@ -1114,7 +1119,7 @@ server <- function(input, output, session) {
             updateNumericInput(session,
               inputId = "map_rez",
               min = 0.1,
-              max = 1,
+              max = 2,
               value = 0.1
             )
 
@@ -1167,7 +1172,7 @@ server <- function(input, output, session) {
 
           # if statements to reaggregate data according to rez
           if (isTRUE(all.equal(col_names_sdf, sf_column_100th))) {
-            if (is.numeric(rez) && rez > 0.01 && rez <= 1) {
+            if (is.numeric(rez) && rez > 0.01 && rez <= 2) {
               df <- df %>%
                 mutate(
                   lat = floor(lat / rez) * rez + 0.5 * rez,
@@ -1189,7 +1194,7 @@ server <- function(input, output, session) {
                 "Mean MMSI present" = mean(mmsi_present)
               )
           } else if (isTRUE(all.equal(col_names_sdf, sf_column_10th))) {
-            if (is.numeric(rez) && rez > 0.1 && rez <= 1) {
+            if (is.numeric(rez) && rez > 0.1 && rez <= 2) {
               df <- df %>%
                 mutate(
                   lat = floor(lat / rez) * rez + 0.5 * rez,

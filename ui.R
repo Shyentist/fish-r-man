@@ -350,7 +350,7 @@ ui <- fluidPage(
                     label = "Map resolution",
                     value = NULL
                   ),
-                  title = "Length of the side of each grid cell, in degrees of latitude and longitude",
+                  title = "Length of the side of each grid cell, in degrees of latitude and longitude. Maximum 2.",
                   placement = "left",
                   trigger = "hover",
                   options = list(container = "body")
