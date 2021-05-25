@@ -171,11 +171,6 @@ server <- function(input, output, session) {
 
           mmsi <- input$mmsi
           
-          print(is.null(mmsi))
-          print(is.na(mmsi))
-          print(mmsi)
-          print(class(mmsi))
-
           if (("mmsi" %in% checked_boxes) && (mmsi != "")) {
             mmsi_SQL <- sprintf(
               "AND mmsi LIKE '%s'",
