@@ -165,6 +165,7 @@ ui <- fluidPage(
             tags$div(
               class = "sidebar",
               tabsetPanel(
+                id = "filetype_tabs",
                 type = "tabs",
                 tabPanel(
                   "CSV",
@@ -251,6 +252,7 @@ ui <- fluidPage(
               class = "sidebar",
               "Available analyses",
               tabsetPanel(
+                id = "analyses_types_tabs",
                 type = "tabs",
                 tabPanel(
                   "Descriptive",
