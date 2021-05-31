@@ -326,12 +326,12 @@ ui <- fluidPage(
                 tipify(
                   sliderInput(
                     inputId = "cumul_distr_percent",
-                    label = "% of cumulative distribution",
+                    label = "Top % of dataframe",
                     min = 1,
                     max = 100,
                     value = 100
                   ),
-                  title = "Show the top X% of the distribution",
+                  title = "Show the top X% of the dataframe",
                   placement = "left",
                   trigger = "hover",
                   options = list(container = "body")
