@@ -50,5 +50,6 @@ to no proficiency in programming, data analysis, or both. More experienced users
 also benefit from the software to avoid writing lines of code for what has already
 been implemented in the dashboard, in order to focus on other aspects of their research,
 or even customize the source code to better meet their specific needs.
-\nocite{*}
+
 # References
+\nocite{*}
