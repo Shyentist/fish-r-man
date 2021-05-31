@@ -19,6 +19,7 @@ bibliography: paper.bib
 # Summary
 One of the burdens of fisheries scientists is the scarcity or lack of consistent, 
 extensive data on the subject. When such data do exist, they are often only available:
+
 - To universities or other research institutions;
 - Through bureaucratic ordeals;
 - For a fee.
