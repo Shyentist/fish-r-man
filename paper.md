@@ -37,12 +37,13 @@ Overcoming the major barriers described in the summary, `fishRman` configures it
 a web-based, one-stop solution that provides an intuitive user interface for querying, 
 downloading, analyzing, and visualizing Global Fishing Watch data on fishing effort.
 
-The user-friendly interface allows users to easily interact with the SQL query 
-constructor, building and running queries with ease. In a few clicks, users are able to 
-analyze and visualize retrieved data in several different ways, such as subsetting the 
-top n-th percentile for any percentage, calculating the fishing effort exerted by 
-specific countries via certain geartypes, and producing time series of fishing effort 
-with a daily, monthly, or yearly frequency [@dplyr; @sf; @ggplot].
+The user-friendly interface [@shiny; @shinyBS; @shinyjs; @shinyWidgets] allows users to 
+easily interact with the SQL query constructor, building [@glue; @stringi; @countrycode]
+and running queries [@bigrquery; @DBI] with ease. In a few clicks, users are able to 
+analyze retrieved data in several different ways, such as visualizing the top n-th 
+percentile of the dataframe for any percentage [@viridis; @maps; @ggplot], calculating 
+the fishing effort exerted by specific countries via certain geartypes, and producing 
+time series of fishing effort with a daily, monthly, or yearly frequency [@dplyr; @sf; @tidyverse].
 
 Designed with ease of use in mind, `fishRman` is intended for a public of researchers,
 students, managers, and stakeholders in the field of fisheries management with little
@@ -52,4 +53,3 @@ been implemented in the dashboard, in order to focus on other aspects of their r
 or even customize the source code to better meet their specific needs.
 
 # References
-\nocite{*}
