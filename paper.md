@@ -19,9 +19,9 @@ bibliography: paper.bib
 # Summary
 One of the burdens of fisheries scientists is the scarcity or lack of consistent, 
 extensive data on the subject. When such data do exist, they are often only available:
-•	To universities or other research institutions;
-•	Through bureaucratic ordeals;
-•	For a fee.
+- To universities or other research institutions;
+- Through bureaucratic ordeals;
+- For a fee.
 
 This issue has been tackled by Global Fishing Watch[@GFW], an independent, international 
 non-profit organization promoting ocean sustainability through greater transparency, 
