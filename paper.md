@@ -10,10 +10,11 @@ tags:
   - dashboard
   - shiny
 authors:
-  - name: Pasquale Buonomo^[first author]
+  - name: Pasquale Buonomo
     orcid: 0000-0002-1848-9313
 date: 30 May 2021
 bibliography: paper.bib
+---
 
 # Summary
 One of the burdens of fisheries scientists is the scarcity or lack of consistent, 
@@ -40,7 +41,7 @@ constructor, building and running queries with ease. In a few clicks, users are 
 analyze and visualize retrieved data in several different ways, such as subsetting the 
 top n-th percentile for any percentage, calculating the fishing effort exerted by 
 specific countries via certain geartypes, and producing time series of fishing effort 
-with a daily, monthly, or yearly frequency [@dplyr, @sf, @ggplot].
+with a daily, monthly, or yearly frequency [@dplyr; @sf; @ggplot].
 
 Designed with ease of use in mind, `fishRman` is intended for a public of researchers,
 students, managers, and stakeholders in the field of fisheries management with little
