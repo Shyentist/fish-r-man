@@ -12,6 +12,10 @@ tags:
 authors:
   - name: Pasquale Buonomo
     orcid: 0000-0002-1848-9313
+	affiliation: 1
+affiliations:
+ - name: Independent researcher
+   index: 1
 date: 31 May 2021
 bibliography: paper.bib
 ---
