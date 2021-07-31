@@ -922,13 +922,15 @@ server <- function(input, output, session) {
             dsn = dsn,
             layer = chosen_layer
           )
+          
+          area_of_interest <- area_of_interest["geom"]
 
           clipped_points <- st_intersection(points, area_of_interest)
 
           if (length(clipped_points$geom) != 0) {
-            clipped_points <- subset(clipped_points, select = -c(ID))
 
             return(clipped_points)
+            
           } else {
             updatePrettyCheckbox(
               session = session,
