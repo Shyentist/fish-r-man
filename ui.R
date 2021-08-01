@@ -97,7 +97,12 @@ ui <- fluidPage(
               disabled(
                 selectInput(
                   inputId = "flag",
-                  label = "Flag",
+                  label = tags$p("Flag", tags$a("(List of ISO Alpha-3 Country Codes)",
+                                               target = "_blank",
+                                               rel = "noreferrer noopener",
+                                               href = "https://www.nationsonline.org/oneworld/country_code_list.htm",
+                                               style = "color:gray; text-decoration: underline; font-size: 0.7vw;"
+                  )),
                   choices = na.omit(codelist$iso3c),
                   multiple = TRUE
                 )
