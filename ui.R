@@ -21,9 +21,7 @@ ui <- fluidPage(
               prettyCheckboxGroup(
                 inputId = "filter_columns_ui",
                 label = "Filter by",
-                choices = NULL,
-                shape = "curve",
-                animation = "pulse"
+                choices = NULL
               )
             ),
             tags$div(
@@ -264,9 +262,7 @@ ui <- fluidPage(
                   prettyCheckboxGroup(
                     inputId = "summaries",
                     label = "Summarize by (max 7)",
-                    choices = NULL,
-                    shape = "curve",
-                    animation = "pulse"
+                    choices = NULL
                   ),
                   disabled(
                     actionButton(
@@ -286,9 +282,7 @@ ui <- fluidPage(
                   prettyCheckboxGroup(
                     inputId = "spatial_analyses",
                     label = "Visualization options",
-                    choices = NULL,
-                    shape = "curve",
-                    animation = "pulse"
+                    choices = NULL
                   ),
                   disabled(
                     actionButton(
@@ -323,6 +317,11 @@ ui <- fluidPage(
               ),
               column(
                 3,
+                prettyCheckboxGroup(
+                  inputId = "add_layer",
+                  label = "Also show global",
+                  choices = add_layer_choices_backend
+                ),
                 selectInput(
                   inputId = "mapped_column",
                   label = "Map by",
