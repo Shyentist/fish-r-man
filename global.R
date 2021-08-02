@@ -153,6 +153,12 @@ sf_column_10th <- column_10th[!column_10th %in% c("cell_ll_lat", "cell_ll_lon")]
 # used for cumulative distribution
 ## source: https://stackoverflow.com/questions/8540143/add-consecutive-elements-of-a-vector-until-a-value
 
+add_layer_choices_backend <- c("eez_boundaries_v11.gpkg", "eez_24nm_v3_boundaries.gpkg", "eez_12nm_v3_boundaries.gpkg")
+
+add_layer_choices_ui <- c("EEZ", "24 Nautical Miles Zones", "12 Nautical Miles Zones")
+
+names(add_layer_choices_backend) <- add_layer_choices_ui
+
 length.until <- function(x, max = 10) {
   s <- 0
   len <- length(x) # modified this to avoid function looping forever in case of bad

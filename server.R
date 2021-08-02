@@ -1251,6 +1251,29 @@ server <- function(input, output, session) {
               fill = TRUE
             )
           )
+          
+          layers_added <- input$add_layer
+          
+          if ("eez_boundaries_v11.gpkg" %in% layers_added) {
+            
+            world_eez <- st_read("./www/geo/eez_boundaries_v11.gpkg", 
+                                 layer = "eez_boundaries_v11",
+                                 geometry_column = "geom"
+            )}
+          
+          if ("eez_24nm_v3_boundaries.gpkg" %in% layers_added) {
+            
+            world_24nm <- st_read("./www/geo/eez_24nm_v3_boundaries.gpkg", 
+                                 layer = "eez_24nm_v3_boundaries",
+                                 geometry_column = "geom"
+            )}
+          
+          if ("eez_12nm_v3_boundaries.gpkg" %in% layers_added) {
+            
+            world_12nm <- st_read("./www/geo/eez_12nm_v3_boundaries.gpkg", 
+                                 layer = "eez_12nm_v3_boundaries",
+                                 geometry_column = "geom"
+            )}
 
           lowx <- plot_range$lowx
           highx <- plot_range$highx
@@ -1265,12 +1288,37 @@ server <- function(input, output, session) {
               fill = "#BABABA",
               color = "#0A1738",
               size = 0.1
-            ) +
-            coord_sf(
-              xlim = c(lowx, highx), # these are the zoom in coordinates
-              ylim = c(lowy, highy), # I mentioned earlier
-              expand = FALSE
-            )
+            ) 
+          
+          if (exists("world_eez")) {
+            map = map + geom_sf(
+              data = world_eez,
+              fill = "#BABABA",
+              color = "#BABABA",
+              size = 0.1
+            ) }
+          
+          if (exists("world_24nm")) {
+            map = map + geom_sf(
+                data = world_24nm,
+                fill = "#BABABA",
+                color = "#BABABA",
+                size = 0.1
+              ) }
+          
+          if (exists("world_12nm")) {
+            map = map + geom_sf(
+                data = world_12nm,
+                fill = "#BABABA",
+                color = "#BABABA",
+                size = 0.1
+            ) }
+          
+          map = map + coord_sf(
+            xlim = c(lowx, highx), # these are the zoom in coordinates
+            ylim = c(lowy, highy), # I mentioned earlier
+            expand = FALSE
+          ) 
 
           output$viz_map <- renderPlot({
             return(map)
