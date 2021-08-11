@@ -852,7 +852,7 @@ server <- function(input, output, session) {
   })
 
   # function to just CHECK whether the chosen layer of the uploaded geopackage is
-  # in CRS EPSG 4326 and is a POLYGON/MULTIPOLYGON, thus suitable for st_intersection
+  # in CRS EPSG 4326 and is a POLYGON/MULTIPOLYGON, thus suitable for st_intersects
   observeEvent(input$second_gpkg_layer, {
     tryCatch(
       {
@@ -912,6 +912,14 @@ server <- function(input, output, session) {
         whether_to_clip <- input$clip
 
         if (whether_to_clip) {
+          
+          showModal(
+            modalDialog(
+              "Clipping data...",
+              footer = NULL
+            )
+          )
+          
           chosen_layer <- input$second_gpkg_layer
 
           dsn <- input$second_uploaded_gpkg$datapath
@@ -924,10 +932,12 @@ server <- function(input, output, session) {
           )
           
           area_of_interest <- area_of_interest["geom"]
-
-          clipped_points <- st_intersection(points, area_of_interest)
-
+          
+          clipped_points <- points[st_intersects(points, area_of_interest) %>% lengths > 0,]
+          
           if (length(clipped_points$geom) != 0) {
+            
+            removeModal()
 
             return(clipped_points)
             
@@ -940,7 +950,7 @@ server <- function(input, output, session) {
 
             showModal(
               modalDialog(
-                "The two datasets do not intersect."
+                "The two dataframes do not intersect."
               )
             )
 
