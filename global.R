@@ -48,8 +48,8 @@ list_togglable_ids <- list(
 )
 
 tables_list_ui <- c(
-  "Fishing effort at 10th degree",
-  "Fishing effort at 100th degree"
+  "AIS data at 10th degree",
+  "AIS data at 100th degree"
 )
 
 column_list_fe100_ui <- c(
