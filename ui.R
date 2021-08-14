@@ -341,14 +341,14 @@ ui <- fluidPage(
                   options = list(container = "body")
                 ),
                 numericRangeInput(
-                  inputId = "xrange",
-                  label = "Longitude range:",
-                  value = c(-180, 180)
-                ),
-                numericRangeInput(
                   inputId = "yrange",
                   label = "Latitude range:",
                   value = c(-90, 90)
+                ),
+                numericRangeInput(
+                  inputId = "xrange",
+                  label = "Longitude range:",
+                  value = c(-180, 180)
                 ),
                 tipify(
                   numericInput(

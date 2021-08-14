@@ -1305,7 +1305,7 @@ server <- function(input, output, session) {
               data = world_eez,
               fill = "#BABABA",
               color = "#BABABA",
-              size = 0.1
+              size = 0.5
             ) }
           
           if (exists("world_24nm")) {
@@ -1313,7 +1313,7 @@ server <- function(input, output, session) {
                 data = world_24nm,
                 fill = "#BABABA",
                 color = "#BABABA",
-                size = 0.1
+                size = 0.5
               ) }
           
           if (exists("world_12nm")) {
@@ -1321,7 +1321,7 @@ server <- function(input, output, session) {
                 data = world_12nm,
                 fill = "#BABABA",
                 color = "#BABABA",
-                size = 0.1
+                size = 0.5
             ) }
           
           map = map + coord_sf(
