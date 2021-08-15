@@ -180,7 +180,7 @@ ui <- fluidPage(
                     placement = "right",
                     trigger = "hover",
                     options = list(container = "body")
-                  ),
+                  )
                 ), tabPanel(
                   "GPKG",
                   tipify(
@@ -374,7 +374,17 @@ ui <- fluidPage(
           ))
         )
       )
-    )
+    ),
+    tabPanel(
+      "Handbook",
+      fluidRow(
+        column(
+          12,
+          tags$div(
+            class = "queried-table",
+            id = "documentation",
+            uiOutput("pdfview")
+          ))))
   ),
   fluidRow(
     column(
