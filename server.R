@@ -1364,4 +1364,8 @@ server <- function(input, output, session) {
       }
     )
   })
+  
+  output$pdfview <- renderUI({
+    tags$iframe(style="height:90vh; width:100%; margin-top: 6px", src="doc/Handbook.pdf")
+  })
 }

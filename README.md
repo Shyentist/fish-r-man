@@ -1,6 +1,6 @@
 # Welcome to fishRman
 ## The Handbook: a full guide to fishRman
-https://raw.githubusercontent.com/Shyentist/fish-r-man/main/fishRman_Handbook_v1.0.0.pdf
+https://raw.githubusercontent.com/Shyentist/fish-r-man/main/www/doc/Handbook.pdf
 ## The Dashboard
 https://shyentist.shinyapps.io/fish-r-man/
 
