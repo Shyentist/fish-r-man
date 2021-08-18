@@ -35,6 +35,8 @@ BQ_connection <- dbConnect(bigquery(),
 
 tables_list <- dbListTables(BQ_connection)
 
+# these are the IDs for the filter checkboxes, so that later
+# functions can iterate through it
 list_togglable_ids <- list(
   "date",
   "cell_ll_lat",
@@ -47,11 +49,13 @@ list_togglable_ids <- list(
   "geartype"
 )
 
+# front-end names of the tables
 tables_list_ui <- c(
   "AIS data at 10th degree",
   "AIS data at 100th degree"
 )
 
+# front-end names of the columns for the 100th degree table
 column_list_fe100_ui <- c(
   "Date",
   "Latitude",
@@ -63,6 +67,7 @@ column_list_fe100_ui <- c(
   "MMSI present"
 )
 
+# front-end names of the columns for the 10th degree table
 column_list_fe10_ui <- c(
   "Date",
   "Latitude",
@@ -72,11 +77,14 @@ column_list_fe10_ui <- c(
   "Fishing hours"
 )
 
+# list of vectors with the column names for both tables to later
+# iterate through/match index in order to have the right list
 tables_columns_list_ui <- list(
   column_list_fe10_ui,
   column_list_fe100_ui
 )
 
+# back-end names of the geartypes
 geartype_elements <- c(
   "dredge_fishing",
   "drifting_longlines",
@@ -96,6 +104,7 @@ geartype_elements <- c(
   "fishing"
 )
 
+# front-end names of the geartypes
 geartype_names <- c(
   "Dredge fishing",
   "Drifting longlines",
@@ -115,9 +124,12 @@ geartype_names <- c(
   "Fishing"
 )
 
-names(geartype_elements) <- geartype_names # to have a cleaner UI, will change with newer version of the tables
+# to have a cleaner UI, the geartype names are noew named, so a user selecting
+# a front-end name, gets automatically processed as having selected the back-end one
+names(geartype_elements) <- geartype_names 
 
-column_100th <- c( # the col names are here so I can check against them for validity of uploaded files
+# the col names are here so I can check against them for validity of uploaded files
+column_100th <- c( 
   "date",
   "cell_ll_lat",
   "cell_ll_lon",
