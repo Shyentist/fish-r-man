@@ -1,6 +1,12 @@
 server <- function(input, output, session) {
+  
   observeEvent(input$table_name_ui, {
     table_name_ui <- input$table_name_ui
+    
+    # this function checks which table the user decided to query, via its
+    # front-end name, and finds its back-end name with the match() 
+    # function for the back-end names. This is done so that dbListFields
+    # can return the (back-end) names of the fields (columns) of that table
 
     fields_list <- dbListFields(
       BQ_connection,
@@ -9,12 +15,17 @@ server <- function(input, output, session) {
         tables_list_ui
       )]
     )
+    
+    # here, I use the match() function to pick the front-end names of the
+    # same table
 
     fields_list_names <- tables_columns_list_ui[[match(
       table_name_ui,
       tables_list_ui
     )]]
-
+    
+    # now the fields list is "named", meaning that I don't need to match()
+    # any longer. The front-end option is associated with a back-end input
     names(fields_list) <- fields_list_names
 
     updatePrettyCheckboxGroup( # this way, the checkboxes are always named after the table fields
@@ -27,18 +38,7 @@ server <- function(input, output, session) {
   # what follow enables and disables the input boxes from the "filter sidebar"
   # I do this so that I can later check on which boxes are ticked, instead of
   # checking directly for the inputs, and I can build the SQL Query based on
-  # which inputs are enabled. The logic is simple, for inputs of type numeric range
-  # the query adds AND, as in "WHERE cell_ll_lat > 10 AND cell_ll_lat < 20 ", since the
-  # two things must be true at the same time. For categories, such as flag and
-  # geartype, I add OR, as in " flag = 'ITA' OR flag = 'FRA' ", since we are
-  # looking for entries that match any of these categories
-
-  # for MMSI, the SQL created is a simple 'like', but one can use the '%'
-  # character to search things starting/ending/containing the input
-
-  # The query starts without a WHERE, only AND, then, I substitute the first AND
-  # of the query with a WHERE. I am sure someone else can come up with something
-  # more elegant, but I figured this was the best option at the time of coding
+  # which inputs are enabled. 
 
   observeEvent(input$filter_columns_ui,
     {
@@ -61,9 +61,9 @@ server <- function(input, output, session) {
   # value, which is qualitatively the same for both sources
 
   which_event <- reactiveValues(
-    query = FALSE,
-    csv = FALSE,
-    gpkg = FALSE
+    query = FALSE, # activated when new data is queried
+    csv = FALSE, # activated when new data is uploaded via csv
+    gpkg = FALSE # activated when new data is uploaded via gpkg
   )
 
   observeEvent(input$filter_button, {
@@ -81,6 +81,9 @@ server <- function(input, output, session) {
   # the switch for which_event$gpkg is in sf_data(), when the spatial dataframe
   # passes the checks and is successfully loaded
 
+  # I used the possibleInputs list to have reactive events start at any
+  # change of the list, then check which of the previously mentioned
+  # switches was turned on (TRUE)
   possibleInputs <- reactive({
     list(
       input$filter_button,
@@ -89,6 +92,9 @@ server <- function(input, output, session) {
     )
   })
 
+  # this function takes different paths depending on the input
+  # if "Filter" button is pressed, it creates an SQL Query runs it
+  # if csv or gpkg files are uploaded, it assign the dataframe to "my_data"
   my_data <- eventReactive(possibleInputs(), {
     tryCatch(
       {
@@ -108,9 +114,23 @@ server <- function(input, output, session) {
             )
           )
 
-          output$queried_table <- renderDataTable({})
+          output$queried_table <- renderDataTable({}) #empty the table before starting the function
 
           table_name_ui <- input$table_name_ui
+          
+          # The logic for the SQL constructor is simple: every query starts with
+          # SELECT * FROM {'table_full_name'}. For inputs of type numeric range
+          # the query adds AND, as in "WHERE cell_ll_lat > 10 AND cell_ll_lat < 20 ", since the
+          # two things must be true at the same time. For categories, such as flag and
+          # geartype, I add OR, as in " flag = 'ITA' OR flag = 'FRA' ", since we are
+          # looking for entries that match any of these categories
+          
+          # for MMSI, the SQL created is a simple 'like', but one can use the '%'
+          # character to search things starting/ending/containing the input
+          
+          # The query starts without a WHERE, only AND, then, I substitute the first AND
+          # of the query with a WHERE. I am sure someone else can come up with something
+          # more elegant, but I figured this was the best option at the time of coding
 
           table_full_name <- paste(
             project,
@@ -126,11 +146,17 @@ server <- function(input, output, session) {
 
           first_date <- min(input$date)
           second_date <- max(input$date)
-
+          
+          # I must check which filter boxes are checked because otherwise
+          # one could i.e. select the 100th degree table, which has a flag
+          # and a geartype column, check those boxes, input something and
+          # then switch to the 10th degree table, which does not have the
+          # columns. The inputs are only greyed out and not deleted though,
+          # so the query would have them all the same
           checked_boxes <- input$filter_columns_ui
 
-          table_name_ui <- input$table_name_ui
-
+          # every field is checked with is.null, is.na and, if it is not,
+          # it is added to the query as explained earlier
           if ((!is.null(first_date) && !is.na(first_date)) && (!is.null(second_date) && !is.na(second_date))) {
             date_SQL <- "AND date >= {first_date} AND date < {second_date}"
 
@@ -141,6 +167,9 @@ server <- function(input, output, session) {
             )
           }
 
+          # apart from the flag field (already in the query) and the flag, mmsi,
+          # and geartype filter, which can be lists, all fields are numeric fields
+          # and are added as such
           for (field in checked_boxes) {
             if (field == "date" || field == "flag" || field == "geartype" || field == "mmsi") {
               next
@@ -202,6 +231,8 @@ server <- function(input, output, session) {
               )
             }
 
+            # this is so that the last flag in the query does not retain
+            # the ending OR, but a ")" to close the section of the query
             flag_SQL <- stri_replace_last_fixed(
               flag_SQL,
               " OR",
@@ -233,6 +264,8 @@ server <- function(input, output, session) {
               )
             }
 
+            # just like for the flag, this is so that the last gear in the query 
+            # does not retain the ending OR, but a ")" to close the section
             geartype_SQL <- stri_replace_last_fixed(
               geartype_SQL,
               " OR",
@@ -252,6 +285,10 @@ server <- function(input, output, session) {
             SQL
           )
 
+          # this parallel SQL query named SQL_count needs to be run
+          # before the actual query, to count the number of rows the
+          # resulting table will have, so I can put a cap to avoid
+          # long waiting time for huge queries
           SQL_count <- sub(
             "SELECT ",
             "SELECT COUNT(",
@@ -285,6 +322,9 @@ server <- function(input, output, session) {
 
           max_rows <- 1000000 # add more 0s if you don't care for speed and need to perform large analyses
 
+          # and here is where the count from SQL_count is used
+          # to check the number of rows the query would retrieve
+          # against max_rows just above
           if (count$count_col <= max_rows) {
             showModal(
               modalDialog(
@@ -305,9 +345,9 @@ server <- function(input, output, session) {
               )
             )
 
-            output$queried_table <- renderDataTable(df)
+            output$queried_table <- renderDataTable(df) #now the table can be repopulated
 
-            enable(id = "download_button")
+            enable(id = "download_button") #and the download button enabled
 
             output$download_button <- downloadHandler(
               filename = function() {
@@ -358,6 +398,11 @@ server <- function(input, output, session) {
 
           col_names_csv <- colnames(df)
 
+          # I just check for the col_names to know whether the file
+          # is compatible. Someone could go out of their way to make
+          # a csv with the same col_names and different types of data
+          # to crash the app for the sake of it, but no one else should
+          # have any issue
           if ((isFALSE(all.equal(col_names_csv, column_100th))) && (isFALSE(all.equal(col_names_csv, column_10th)))) {
             df <- NULL
           }
@@ -366,6 +411,9 @@ server <- function(input, output, session) {
         } else if (which_event$gpkg) {
           sdf <- sf_data()
 
+          # if the spatial data is not empty, then I revert the "geom"
+          # column to cell_ll_lon and cell_ll_lat for consistency, before
+          # assigning them to the dataframe
           if (!is.null(sdf) && !is.na(sdf)) {
             df <- sdf %>%
               dplyr::mutate(
@@ -374,13 +422,20 @@ server <- function(input, output, session) {
               ) %>%
               as.data.frame()
 
+            # and here I delete the "geom" column from the database
             df <- select(df, -c(geom))
 
-            if (length(colnames(df)) == 8) { # this is to preserve the same order for
+            # this is to preserve the same order for
+            # colnames, to avoid eventual inconsistencies
+            # if the number of columns does not match
+            # the df is set to NULL, because something went wrong
+            if (length(colnames(df)) == 8) { 
 
-              df <- select(df, column_100th) # colnames, to avoid eventual inconsistencies
-            } else if (length(colnames(df)) == 6) {
-              df <- select(df, column_10th)
+              df <- select(df, column_100th) 
+            
+              } else if (length(colnames(df)) == 6) {
+              
+                df <- select(df, column_10th)
             }
           } else {
             df <- NULL
@@ -400,6 +455,7 @@ server <- function(input, output, session) {
   })
 
   # function to enable/disable/update inputs related to my_data/clipped_data
+  # because I don't want inputs available to the user if that could break the app
   observe({
     tryCatch(
       {
@@ -471,6 +527,7 @@ server <- function(input, output, session) {
     )
   })
 
+  # Summarizing is simple with a few tricks for month and year
   observeEvent(input$summarize_button, {
     tryCatch(
       {
@@ -492,8 +549,10 @@ server <- function(input, output, session) {
             df <- my_data()
           }
 
+          # since there is no month column, the app has to create it now
+          # in order to summarise by it
           if (!is.null(choice)) {
-            if ("month" %in% choice) { # allow users to summarise by month
+            if ("month" %in% choice) { 
 
               df$month <- substr(
                 df$date,
@@ -502,6 +561,8 @@ server <- function(input, output, session) {
               )
             }
 
+            # since there is no month column, the app has to create it now
+            # in order to summarise by it
             if ("year" %in% choice) { # allow users to summarise by year
 
               df$year <- substr(
@@ -511,6 +572,8 @@ server <- function(input, output, session) {
               )
             }
 
+            # although only Total and mean are displayed, the actual table that
+            # can be downloaded has more complete info such as quartiles and median
             summarized <- group_by_at(df, vars(one_of(choice))) %>%
               summarize(
                 "Total fishing" = sum(fishing_hours),
@@ -529,6 +592,8 @@ server <- function(input, output, session) {
                 "Max. hours" = max(hours)
               )
           } else {
+            
+            # if no choice is made for aggregation, the entire dataframe is summarized
             summarized <- summarize(df,
               "Total fishing" = sum(fishing_hours),
               "Min. fishing" = min(fishing_hours),
@@ -556,6 +621,8 @@ server <- function(input, output, session) {
 
           columns_to_show <- append(choice, columns_to_append)
 
+          # the preview-table to show instead of the full one, with only
+          # the aggregation column and the derived results
           output$summary_preview <- renderDataTable({
             summarized[, columns_to_show]
           })
@@ -598,9 +665,12 @@ server <- function(input, output, session) {
     )
   })
 
+  # again, switches, so that the functions depending on a list of them
+  # are triggered by any change in the list. Then, to decide which
+  # route the function should take, we check which switch is on (TRUE)
   which_sf_event <- reactiveValues(
-    gpkg = FALSE,
-    converted = FALSE
+    gpkg = FALSE, # activates when a gpkg file is uploaded, creating a new sf_data
+    converted = FALSE # activates when sf_data is created via the 'Convert' button
   )
 
   observeEvent(input$convert_to_spatial_button, {
@@ -648,6 +718,7 @@ server <- function(input, output, session) {
 
           col_names_conv <- colnames(df)
 
+          # create a geom/geometry column via cell_ll_lat and cell_ll_lon
           sdf <- st_as_sf(df,
             coords = c(
               "cell_ll_lon",
@@ -673,13 +744,13 @@ server <- function(input, output, session) {
               footer = NULL
             )
           )
-
+          
+          # this is to check for the presence of "GFW" layer before asking
+          # the code to actually read that layer
           layers <- st_layers(input$uploaded_gpkg$datapath)
 
           layers_name <- layers$name
 
-          # this is to check for the presence of "GFW" layer before asking
-          # the code to actually read that layer
           if ("GFW" %in% layers_name) {
             sdf <- st_read(input$uploaded_gpkg$datapath,
               layer = "GFW",
@@ -691,6 +762,9 @@ server <- function(input, output, session) {
             removeModal()
 
             if (((isFALSE(all.equal(col_names_gpkg, sf_column_100th)) && isFALSE(all.equal(col_names_gpkg, sf_column_10th)))) || (st_crs(sdf) != st_crs(4326))) {
+              
+              # if the gpkg file, at the GFW layer, does not have the right column
+              # names, the function is aborted and sdf (later sf_data) is set to NULL
               sdf <- NULL
 
               showModal(
@@ -704,6 +778,9 @@ server <- function(input, output, session) {
             which_event$query <- FALSE # to avoid making repetitive checks just for
             which_event$csv <- FALSE # these boolean values
           } else {
+            
+            # if there is no GFW layer at all in the gpkg, the function
+            # is aborted and the sdf (later sf_data) is set to NULL
             sdf <- NULL
 
             showModal(
@@ -828,6 +905,8 @@ server <- function(input, output, session) {
           )
         )
 
+        # look for the names of the layers in the file to fill
+        # the selectInput
         layers <- st_layers(input$second_uploaded_gpkg$datapath)
 
         layers_name <- layers$name
@@ -933,6 +1012,11 @@ server <- function(input, output, session) {
           
           area_of_interest <- area_of_interest["geom"]
           
+          # we use st_intersects() instead of st_intersection because we don't
+          # need to clip a larger geometry to only match another area, we just 
+          # need to filter the points that DO fall within such area. This means
+          # that a filtering by a TRUE-FALSE result such as that of st_intersect()
+          # performs better
           clipped_points <- points[st_intersects(points, area_of_interest) %>% lengths > 0,]
           
           if (length(clipped_points$geom) != 0) {
@@ -968,7 +1052,8 @@ server <- function(input, output, session) {
     )
   })
 
-  # function to get csv-like data from clipped spatial data
+  # function to derive csv-like (non-spatial, turning geom column into 
+  # cell_ll_lat and cell_ll_lon) data from clipped spatial data
   clipped_data <- reactive({
     tryCatch(
       {
@@ -1045,6 +1130,7 @@ server <- function(input, output, session) {
           sdf <- sf_data()
         }
 
+        # first, just use the bbox boundaries to set the coords for the plot
         if ((!is.null(sdf)) && (length(sdf$geom) > 0)) {
           bbox <- st_bbox(sdf)
 
@@ -1053,6 +1139,8 @@ server <- function(input, output, session) {
           ymin <- bbox$ymin
           ymax <- bbox$ymax
 
+          # then, if the plot gets revisualized, probably with new coordinates
+          # assign such coordinates to xmin, xmax, ymin, ymax
           if (((which_viz_event$reviz)) && (!is.na(input$xrange[1])) && (!is.na(input$xrange[2]) && (!is.na(input$yrange[1])) && (!is.na(input$yrange[2])) && (input$xrange[1] != input$xrange[2]) && (input$yrange[1] != input$yrange[2]))) {
             xmin <- min(input$xrange)
             xmax <- max(input$xrange)
@@ -1062,9 +1150,14 @@ server <- function(input, output, session) {
             
           }
 
+          # a little buffer of 5% of the X or Y axis range so it is clear
+          # where the data ends
           xbuff <- (xmax - xmin) * 0.05
           ybuff <- (ymax - ymin) * 0.05
 
+          # now the actual coordinates for the "canvas" of the plot
+          # can be derived from the set coordinates plus or minus
+          # the buffer value
           plot_range$lowx <- xmin - xbuff
           plot_range$highx <- xmax + xbuff
           plot_range$lowy <- ymin - ybuff
@@ -1093,7 +1186,7 @@ server <- function(input, output, session) {
 
   rez <- reactive({ # assign resolution values on clipped and not clipped spatial data
 
-    rez <- 0.1
+    rez <- 0.1 # standard value, since it works for both tables
 
     tryCatch(
       {
@@ -1113,6 +1206,9 @@ server <- function(input, output, session) {
             lat = sf::st_coordinates(.)[, 2]
           ) # lat and lon are easier to work with than "geom"
 
+        # if it is the first time visualizing the plot and the column
+        # names are those of the 0.01 degrees table, rez is 0.01
+        # minimum rez is set to 0.01 too
         if (which_viz_event$origin) {
           if (isTRUE(all.equal(col_names_sdf, sf_column_100th))) {
             updateNumericInput(session,
@@ -1122,7 +1218,12 @@ server <- function(input, output, session) {
               value = 0.01
             )
             rez <- 0.01
+            
+          # if it is the first time visualizing and the col names are
+          # those of the 0.1 table, rez stays 0.1. Minimum rez is set
+          # to 0.1 too
           } else if (isTRUE(all.equal(col_names_sdf, sf_column_10th))) {
+            
             updateNumericInput(session,
               inputId = "map_rez",
               min = 0.1,
@@ -1132,6 +1233,9 @@ server <- function(input, output, session) {
 
             rez <- 0.1
           }
+          
+        # if it is not the first time plotting, then adjust resolution
+        # according to user input
         } else if (which_viz_event$reviz) {
           rez <- input$map_rez
         }
@@ -1200,7 +1304,8 @@ server <- function(input, output, session) {
                 "Mean hours" = mean(hours),
                 "Mean MMSI present" = mean(mmsi_present)
               )
-          } else if (isTRUE(all.equal(col_names_sdf, sf_column_10th))) {
+          
+            } else if (isTRUE(all.equal(col_names_sdf, sf_column_10th))) {
             if (is.numeric(rez) && rez > 0.1 && rez <= 2) {
               df <- df %>%
                 mutate(
@@ -1262,6 +1367,8 @@ server <- function(input, output, session) {
             )
           )
           
+          #  check which global layers (EEZ, contiguous zone and national waters)
+          # the user has decided to plot. Creates a variable for each of those
           layers_added <- input$add_layer
           
           if ("eez_boundaries_v11.gpkg" %in% layers_added) {
@@ -1300,6 +1407,8 @@ server <- function(input, output, session) {
               size = 0.1
             ) 
           
+          # checks which optional global layers exist in order to
+          # add them to the plot function
           if (exists("world_eez")) {
             map = map + geom_sf(
               data = world_eez,
@@ -1365,6 +1474,7 @@ server <- function(input, output, session) {
     )
   })
   
+  # pdfview of the Handbook
   output$pdfview <- renderUI({
     tags$iframe(style="height:90vh; width:100%; margin-top: 6px", src="doc/Handbook.pdf")
   })
