@@ -15,7 +15,7 @@ authors:
     orcid: 0000-0002-1848-9313
     affiliation: 1
 affiliations:
- - name: [Open-Source for Marine and Ocean Sciences (OSMOS)](https://osmos.xyz/)
+ - name: Open-Source for Marine and Ocean Sciences (OSMOS)
    index: 1
 date: 06 September 2021
 bibliography: paper.bib
