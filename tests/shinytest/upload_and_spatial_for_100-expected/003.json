@@ -1,5 +1,6 @@
 {
   "input": {
+    "add_layer": "eez_boundaries_v11.gpkg",
     "analyses_types_tabs": "Spatial",
     "cell_ll_lat": [
       -90,
@@ -42,7 +43,7 @@
     "spatial_analyses": null,
     "summaries": null,
     "summarize_button": 0,
-    "table_name_ui": "Fishing effort at 10th degree",
+    "table_name_ui": "AIS data at 10th degree",
     "tabs": "Analysis",
     "uploaded_csv": null,
     "uploaded_gpkg": {
@@ -72,7 +73,7 @@
   "output": {
     "uploaded_csv_viz": "<table  class = 'table shiny-table table- spacing-s' style = 'width:auto;'>\n<thead> <tr> <th style='text-align: left;'> date <\/th> <th style='text-align: right;'> cell_ll_lat <\/th> <th style='text-align: right;'> cell_ll_lon <\/th> <th style='text-align: left;'> flag <\/th> <th style='text-align: left;'> geartype <\/th> <th style='text-align: right;'> hours <\/th> <th style='text-align: right;'> fishing_hours <\/th> <th style='text-align: right;'> mmsi_present <\/th>  <\/tr> <\/thead> <tbody>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.08 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.28 <\/td> <td align=\"right\"> 1.28 <\/td> <td align=\"right\">   5 <\/td> <\/tr>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.10 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.07 <\/td> <td align=\"right\"> 1.07 <\/td> <td align=\"right\">   4 <\/td> <\/tr>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.06 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.81 <\/td> <td align=\"right\"> 1.81 <\/td> <td align=\"right\">   6 <\/td> <\/tr>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.02 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.43 <\/td> <td align=\"right\"> 1.17 <\/td> <td align=\"right\">   4 <\/td> <\/tr>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.04 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.02 <\/td> <td align=\"right\"> 1.02 <\/td> <td align=\"right\">   3 <\/td> <\/tr>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.03 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.32 <\/td> <td align=\"right\"> 1.32 <\/td> <td align=\"right\">   4 <\/td> <\/tr>\n   <\/tbody> <\/table>",
     "viz_map": {
-      "src": "[image data sha1: fcb4966094df390a1dff1b8028e7bf0986e1954f]",
+      "src": "[image data sha1: 171524804fedb6c31ad5828b47710cbf291a2e7e]",
       "width": 497,
       "height": 400,
       "alt": "Plot object",
