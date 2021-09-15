@@ -1,5 +1,6 @@
 {
   "input": {
+    "add_layer": null,
     "analyses_types_tabs": "Descriptive",
     "cell_ll_lat": [
       -90,
@@ -48,7 +49,7 @@
       "geartype"
     ],
     "summarize_button": 1,
-    "table_name_ui": "Fishing effort at 10th degree",
+    "table_name_ui": "AIS data at 10th degree",
     "tabs": "Analysis",
     "uploaded_csv": {
       "name": [
