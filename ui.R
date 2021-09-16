@@ -392,7 +392,8 @@ ui <- fluidPage(
       tags$div(
         class = "footer",
         column(
-          2,
+          3,
+          tags$p("Software"),
           tags$a(
             target = "_blank",
             rel = "noreferrer noopener",
@@ -401,11 +402,11 @@ ui <- fluidPage(
               height = "auto",
               width = "100%"
             ),
-            href = "https://github.com/Shyentist/fish-r-man" # this is temporary, it will eventually link to fishRman website or similar hub
+            href = "https://github.com/Shyentist/fish-r-man"
           )
         ),
         column(
-          5,
+          6,
           tags$p("References"),
           "Software by 'Buonomo Pasquale. [2021].",
           tags$a("https://github.com/Shyentist/fish-r-man'",
@@ -421,30 +422,30 @@ ui <- fluidPage(
             rel = "noreferrer noopener",
             href = "https://globalfishingwatch.org/",
             style = "color:#000000"
+          ),
+          tags$br(),
+          tags$br(),
+          tags$p("Contacts"),
+          "E-mail:",
+          tags$a("pasqualebuonomo@hotmail.it",
+                 target = "_blank",
+                 rel = "noreferrer noopener",
+                 href = "mailto:pasqualebuonomo@hotmail.it",
+                 style = "color:#000000"
           )
         ),
         column(
           3,
-          tags$p("Contacts"),
-          "E-mail:",
-          tags$a("pasqualebuonomo@hotmail.it",
-            target = "_blank",
-            rel = "noreferrer noopener",
-            href = "mailto:pasqualebuonomo@hotmail.it",
-            style = "color:#000000"
-          )
-        ),
-        column(
-          2,
+          tags$p("Sponsor"),
           tags$a(
             target = "_blank",
             rel = "noreferrer noopener",
             img(
-              src = "img/github_logo.png",
+              src = "img/OSMOS_logo.png",
               height = "auto",
               width = "100%"
             ),
-            href = "https://github.com/Shyentist/fish-r-man"
+            href = "https://osmos.xyz/"
           )
         )
       )
