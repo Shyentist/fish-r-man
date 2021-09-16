@@ -1348,13 +1348,18 @@ server <- function(input, output, session) {
 
           # calculate sum of the entire column to_fill
           summed <- sum(grouped_df[to_fill]) * (cumul_distr_percent / 100)
+          
 
           # vectorize the column, to be able to use the length.until function
           to_fill_column <- grouped_df %>%
             pull(to_fill)
 
           # how many rows are needed to reach the cumul_distr_percent% of the total for to_fill?
-          cumul_distr_length <- length.until(to_fill_column, summed)
+          if (summed != 0) {
+            cumul_distr_length <- length.until(to_fill_column, summed)
+          } else {
+            cumul_distr_length <- list(start = 1, length = nrow(grouped_df))
+          }
 
           # subsetting grouped_df accordingly to cumul_distr_percent
           grouped_df <- grouped_df[c(1:cumul_distr_length$length), ]
