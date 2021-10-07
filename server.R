@@ -1,5 +1,76 @@
 server <- function(input, output, session) {
   
+  #intro message to be shown at launch, the most important links should go here
+  
+  showModal(
+    modalDialog(
+      size = "l",
+      title="Welcome to fishRman",
+      tags$span(
+        
+        tags$b("fishRman"), 
+        
+        "is a dashboard to help you explore and analyse",
+        
+        tags$b("Global Fishing Watch Data."),
+        
+        "Learn more about the software, the data, and the people behind them via:"),
+      
+      tags$br(),
+      tags$br(),
+      
+      tags$ul(
+        
+        tags$li(
+          
+          "fishRman's instructions for use, the ",
+          
+          tags$b(
+            
+            tags$a(
+              
+              "Handbook",
+              target = "_blank",
+              rel = "noreferrer noopener",
+              href = "https://raw.githubusercontent.com/Shyentist/fish-r-man/main/www/doc/Handbook.pdf"
+              )),
+          
+          ", also available at the top of the page;"),
+        
+        tags$li(
+          
+          "fishRman's ",
+          
+          tags$b(
+            
+            tags$a(
+              
+              "GitHub repository",
+              target = "_blank",
+              rel = "noreferrer noopener",
+              href = "https://github.com/Shyentist/fish-r-man"
+            )), 
+          
+          ", also available at the bottom left corner of the page, clicking the logo;"),
+        
+        
+        tags$li(
+          
+          tags$b(
+            
+            tags$a(
+              
+              "Global Fishing Watch's website", 
+              target = "_blank",
+              rel = "noreferrer noopener",
+              href = "https://globalfishingwatch.org/"
+            )),
+          
+          ", also available at the bottom of the page, under 'References'.")
+        )
+      )
+    )
+  
   observeEvent(input$table_name_ui, {
     table_name_ui <- input$table_name_ui
     
@@ -109,6 +180,7 @@ server <- function(input, output, session) {
         if (which_event$query) {
           showModal(
             modalDialog(
+              size="l",
               "Constructing SQL Query...",
               footer = NULL
             )
@@ -328,6 +400,7 @@ server <- function(input, output, session) {
           if (count$count_col <= max_rows) {
             showModal(
               modalDialog(
+                size="l",
                 "Fishing for data...",
                 footer = NULL
               )
@@ -340,6 +413,7 @@ server <- function(input, output, session) {
 
             showModal(
               modalDialog(
+                size="l",
                 "Building table...",
                 footer = NULL
               )
@@ -378,6 +452,7 @@ server <- function(input, output, session) {
 
             showModal(
               modalDialog(
+                size="l",
                 message
               )
             )
@@ -385,6 +460,7 @@ server <- function(input, output, session) {
         } else if (which_event$csv) {
           showModal(
             modalDialog(
+              size="l",
               "Uploading your data...",
               footer = NULL
             )
@@ -445,6 +521,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while loading the dataframe. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -495,6 +572,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while updating the summaries. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -520,6 +598,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while rendering the preview table. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -533,6 +612,7 @@ server <- function(input, output, session) {
       {
         showModal(
           modalDialog(
+            size="l",
             "Summarizing...",
             footer = NULL
           )
@@ -650,6 +730,7 @@ server <- function(input, output, session) {
         } else {
           showModal(
             modalDialog(
+              size="l",
               "Maximum 7 fields"
             )
           )
@@ -658,6 +739,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while producing the summaries. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -709,6 +791,7 @@ server <- function(input, output, session) {
         if (which_sf_event$converted) {
           showModal(
             modalDialog(
+              size="l",
               "Converting data to GeoPackage...",
               footer = NULL
             )
@@ -740,6 +823,7 @@ server <- function(input, output, session) {
         } else if (which_sf_event$gpkg) {
           showModal(
             modalDialog(
+              size="l",
               "Uploading GeoPackage...",
               footer = NULL
             )
@@ -769,6 +853,7 @@ server <- function(input, output, session) {
 
               showModal(
                 modalDialog(
+                  size="l",
                   "Please upload a file originating from fishRman"
                 )
               )
@@ -785,6 +870,7 @@ server <- function(input, output, session) {
 
             showModal(
               modalDialog(
+                size="l",
                 "Please upload a file originating from fishRman"
               )
             )
@@ -794,6 +880,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while loading the spatial dataframe. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -831,6 +918,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while enabling/disabling spatial inputs. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -887,6 +975,7 @@ server <- function(input, output, session) {
     error = function(err) {
       showModal(
         modalDialog(
+          size="l",
           paste("The error '", err, "' arose while downloading spatial data. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
         )
       )
@@ -900,6 +989,7 @@ server <- function(input, output, session) {
       {
         showModal(
           modalDialog(
+            size="l",
             "Uploading GeoPackage...",
             footer = NULL
           )
@@ -923,6 +1013,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while checking the layers of the area to clip. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -958,6 +1049,7 @@ server <- function(input, output, session) {
 
               showModal(
                 modalDialog(
+                  size="l",
                   "CRS does not match. Please upload a file with CRS 'EPSG 4326'"
                 )
               )
@@ -967,6 +1059,7 @@ server <- function(input, output, session) {
 
             showModal(
               modalDialog(
+                size="l",
                 "Geometry type is invalid. Please choose a layer with geometry type 'POLYGON' or 'MULTIPOLYGON'"
               )
             )
@@ -976,6 +1069,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while loading the area to clip. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -994,6 +1088,7 @@ server <- function(input, output, session) {
           
           showModal(
             modalDialog(
+              size="l",
               "Clipping data...",
               footer = NULL
             )
@@ -1034,6 +1129,7 @@ server <- function(input, output, session) {
 
             showModal(
               modalDialog(
+                size="l",
                 "The two dataframes do not intersect."
               )
             )
@@ -1045,6 +1141,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while clipping the data. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1082,6 +1179,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while retrieving a dataframe from clipped data. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1177,6 +1275,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while handling the bbox. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1243,6 +1342,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while handling the resolution of the plot. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1258,6 +1358,7 @@ server <- function(input, output, session) {
         if (which_viz_event$origin || which_viz_event$reviz) {
           showModal(
             modalDialog(
+              size="l",
               "Visualizing your data...",
               footer = NULL
             )
@@ -1472,6 +1573,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
+            size="l",
             paste("The error '", err, "' arose while producing the plot. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )

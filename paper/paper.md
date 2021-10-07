@@ -17,7 +17,7 @@ authors:
 affiliations:
  - name: Open-Source for Marine and Ocean Sciences (OSMOS)
    index: 1
-date: 06 September 2021
+date: 08 October 2021
 bibliography: paper.bib
 ---
 
@@ -34,20 +34,23 @@ non-profit organization promoting ocean sustainability through greater transpare
 visualizing, tracking and sharing data about global fishing activity for free[@GFW].
 
 While the datasets are indeed publicly available, they are also rather large and quite 
-difficult to manage, since they require proficiency in the programming language R [@R], 
-in the SQL query language, or both.
+difficult to manage, since they require proficiency in coding. In fact, at present, the 
+most notable reading material instructing on the use of the datasets targets an audience 
+who is proficient in the languages R [@ClavelleR], Python, JavaScript [@ClavelleGEE], or 
+SQL[@Mayorga] to download, filter, summarise, and visualise the data.
+
 
 # Statement of need
 Life sciences will soon need a widespread integration of computational approaches to store, 
-manage, analyze, and visualize datasets that are quickly growing in size and complexity [@carey]. 
+manage, analyse, and visualise datasets that are quickly growing in size and complexity [@carey]. 
 This is rather concerning, given how, although the number of published papers reporting the 
-use of the R statistical language increased fivefold from 2007 to 2018 in the field of ecology 
+use of the R statistical language [@R] increased fivefold from 2007 to 2018 in the field of ecology 
 [@lai],  most life science majors do not offer basic programming courses [@mariano].
 
 Designed with ease of use in mind, `fishRman` is intended for a public of researchers,
 students, managers, and stakeholders in the fields of fisheries science, life sciences, 
 and economics, with little to no proficiency in programming, data analysis, or both, who
-intend to query, download, analyze, and visualize Global Fishing Watch data. 
+intend to query, download, filter, analyse, and visualise Global Fishing Watch data. 
 
 Users who can program in R may also benefit from the software to avoid writing lines of code 
 for  what has already been implemented in the dashboard, in order to focus on other aspects 
@@ -62,10 +65,10 @@ key to the correct usage of the software.
 
 The user-friendly interface [@shiny; @shinyBS; @shinyjs; @shinyWidgets] allows users to 
 easily interact with the SQL query constructor, seamlessly building [@glue; @stringi; @countrycode]
-and running queries [@bigrquery; @DBI]. In a few clicks, users are able to analyze retrieved 
+and running queries [@bigrquery; @DBI]. In a few clicks, users are able to analyse retrieved 
 data in several different ways, such as:
 
-- visualizing the top n-th percentile of the dataframe for any percentage [@viridis; @sf; @maps; @ggplot], 
+- visualising the top n-th percentile of the dataframe for any percentage [@viridis; @sf; @maps; @ggplot], 
 a key passage in assessing how fishing effort overlaps fishing stocks, protected or restricted areas, or 
 another country's jurisdiction. 
 - calculating the fishing effort exerted by specific countries via certain geartypes, in precise areas. This
