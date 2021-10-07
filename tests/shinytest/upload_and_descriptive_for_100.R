@@ -19,6 +19,6 @@ app$setInputs(summaries = c("month", "cell_ll_lat"))
 app$setInputs(summaries = c("month", "cell_ll_lat", "cell_ll_lon"))
 app$setInputs(summaries = c("month", "cell_ll_lat", "cell_ll_lon", "geartype"))
 app$setInputs(summaries = c("month", "cell_ll_lat", "cell_ll_lon", "geartype", "flag"))#choice for summaries are chosen
-app$setInputs(summarize_button = "click", timeout_ = 30000)
+app$setInputs(summarize_button = "click", timeout_ = 60000)
 Sys.sleep(6)
 app$snapshot()
