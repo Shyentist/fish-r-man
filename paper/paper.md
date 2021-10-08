@@ -59,8 +59,7 @@ of their research, or even customize the source code to better meet their specif
 Users with a deeper understanding of statistics and fisheries science, and with prior knowledge 
 of the datasets, only need to get acquainted with the software, while users that are new to the 
 field can easily learn what they need to know via `fishRman`’s official instructions for use, the 
-Handbook. 
-Regardless of the prior knowledge of the user, reading the Handbook, which is available 
+Handbook. Regardless of the prior knowledge of the user, reading the Handbook, which is available 
 in the software itself and in the [GitHub repository](https://github.com/Shyentist/fish-r-man), is 
 key to the correct usage of the software.
 
@@ -80,7 +79,7 @@ is indispensable when searching for patterns to compare to species' life-cycles,
 compliance to maritime and market laws, and overall consistency with data from third-parties.
 
 # Acknowledgements
-Part of this work was carried out within the financial support from [Open-Source for Marine and Ocean Sciences (OSMOS)](https://osmos.xyz/)
+Part of this work was carried out with the financial support from [Open-Source for Marine and Ocean Sciences (OSMOS)](https://osmos.xyz/)
 
 
 # References
