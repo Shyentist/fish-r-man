@@ -29,15 +29,15 @@ extensive data on the subject. When such data do exist, they are often only avai
 - Through bureaucratic ordeals;
 - For a fee.
 
-This issue has been tackled by Global Fishing Watch, an independent, international 
+This issue has been tackled by Global Fishing Watch, an independent, international, 
 non-profit organization promoting ocean sustainability through greater transparency, 
-visualizing, tracking and sharing data about global fishing activity for free[@GFW].
+visualizing, tracking and sharing data about global fishing activity for free [@GFW].
 
 While the datasets are indeed publicly available, they are also rather large and quite 
 difficult to manage, since they require proficiency in coding. In fact, at present, the 
 most notable reading material instructing on the use of the datasets targets an audience 
 who is proficient in the languages R [@ClavelleR], Python, JavaScript [@ClavelleGEE], or 
-SQL[@Mayorga] to download, filter, summarise, and visualise the data.
+SQL [@Mayorga] to download, filter, summarise, and visualise the data.
 
 
 # Statement of need
@@ -59,7 +59,8 @@ of their research, or even customize the source code to better meet their specif
 Users with a deeper understanding of statistics and fisheries science, and with prior knowledge 
 of the datasets, only need to get acquainted with the software, while users that are new to the 
 field can easily learn what they need to know via `fishRman`’s official instructions for use, the 
-Handbook. Regardless of the prior knowledge of the user, reading the Handbook, which is available 
+Handbook. 
+Regardless of the prior knowledge of the user, reading the Handbook, which is available 
 in the software itself and in the [GitHub repository](https://github.com/Shyentist/fish-r-man), is 
 key to the correct usage of the software.
 
