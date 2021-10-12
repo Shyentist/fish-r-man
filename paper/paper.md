@@ -29,15 +29,15 @@ extensive data on the subject. When such data do exist, they are often only avai
 - Through bureaucratic ordeals;
 - For a fee.
 
-This issue has been tackled by Global Fishing Watch, an independent, international 
+This issue has been tackled by Global Fishing Watch, an independent, international, 
 non-profit organization promoting ocean sustainability through greater transparency, 
-visualizing, tracking and sharing data about global fishing activity for free[@GFW].
+visualizing, tracking and sharing data about global fishing activity for free [@GFW].
 
 While the datasets are indeed publicly available, they are also rather large and quite 
 difficult to manage, since they require proficiency in coding. In fact, at present, the 
 most notable reading material instructing on the use of the datasets targets an audience 
 who is proficient in the languages R [@ClavelleR], Python, JavaScript [@ClavelleGEE], or 
-SQL[@Mayorga] to download, filter, summarise, and visualise the data.
+SQL [@Mayorga] to download, filter, summarise, and visualise the data.
 
 
 # Statement of need
@@ -79,7 +79,7 @@ is indispensable when searching for patterns to compare to species' life-cycles,
 compliance to maritime and market laws, and overall consistency with data from third-parties.
 
 # Acknowledgements
-Part of this work was carried out within the financial support from [Open-Source for Marine and Ocean Sciences (OSMOS)](https://osmos.xyz/)
+Part of this work was carried out with the financial support from [Open-Source for Marine and Ocean Sciences (OSMOS)](https://osmos.xyz/)
 
 
 # References
