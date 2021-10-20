@@ -23,6 +23,22 @@ server <- function(input, output, session) {
         
         tags$li(
           
+          "fishRman's ",
+          
+          tags$b(
+            
+            tags$a(
+              
+              "paper",
+              target = "_blank",
+              rel = "noreferrer noopener",
+              href = "https://doi.org/10.21105/joss.03467"
+            )),
+          
+          ", also available at the bottom of the page, under 'References';"),
+        
+        tags$li(
+          
           "fishRman's instructions for use, the ",
           
           tags$b(
@@ -66,10 +82,86 @@ server <- function(input, output, session) {
               href = "https://globalfishingwatch.org/"
             )),
           
-          ", also available at the bottom of the page, under 'References'.")
+          ", also available at the bottom of the page, under 'References';"),
+        
+        
+        tags$li(
+          
+          tags$b(
+            
+            tags$a(
+              
+              "OSMOS's website", 
+              target = "_blank",
+              rel = "noreferrer noopener",
+              href = "https://osmos.xyz/"
+            )),
+          
+          ", also available at the bottom right corner of the page, under 'Sponsor'. Open-Source for Marine and Ocean Sciences (OSMOS) is our wanna-be indie research institute. If you like our projects, and would like a more interactive role, consider joining our",
+          
+          tags$b(
+            
+            tags$a(
+              
+              "Discord server", 
+              target = "_blank",
+              rel = "noreferrer noopener",
+              href = "https://discord.com/invite/W2unKxKbp7"
+            )),
+          
+          "or",
+          
+          tags$b(
+            
+            tags$a(
+              
+              "donating.", 
+              target = "_blank",
+              rel = "noreferrer noopener",
+              href = "https://www.buymeacoffee.com/osmos"
+            ))
+        
+        )
+      ),
+      
+      tags$br(),
+      
+      tags$b("How to quote (References)"),
+      
+      tags$br(),
+      tags$br(),
+      
+      tags$ul(
+        
+        tags$li(
+          
+          "Software: Buonomo P. [2021]. fishRman: A Shiny R Dashboard improving Global Fishing Watch data availability. Journal of Open Source Software.",
+          
+          tags$b(
+            
+            tags$a("https://doi.org/10.21105/joss.03467",
+                 target = "_blank",
+                 rel = "noreferrer noopener",
+                 href = "https://doi.org/10.21105/joss.03467"
+                 
+          ))
+          
+        ),
+        
+        tags$li(
+          "Data: Global Fishing Watch. [2021].",
+          
+          tags$b(
+          
+            tags$a("https://globalfishingwatch.org/",
+                 target = "_blank",
+                 rel = "noreferrer noopener",
+                 href = "https://globalfishingwatch.org/"
+                 
+          )))
         )
       )
-    )
+  )
   
   observeEvent(input$table_name_ui, {
     table_name_ui <- input$table_name_ui
