@@ -1,6 +1,11 @@
 # Welcome to fishRman
+
+## The Paper
+Buonomo P. (2021). fishRman: A Shiny R Dashboard improving Global Fishing Watch data availability. *Journal of Open Source Software*. https://doi.org/10.21105/joss.03467
+
 ## The Handbook: a full guide to fishRman
 https://raw.githubusercontent.com/Shyentist/fish-r-man/main/www/doc/Handbook.pdf
+
 ## The Dashboard
 https://shyentist.shinyapps.io/fish-r-man/
 
