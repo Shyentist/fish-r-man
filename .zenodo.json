@@ -1,0 +1,26 @@
+{
+    "description": "<p>Final version for JOSS paper.\nFirst release on Zenodo.</p>\n<p><strong>Full Changelog</strong>: <a href=\"https://github.com/Shyentist/fish-r-man/commits/v1.0.0\">https://github.com/Shyentist/fish-r-man/commits/v1.0.0</a></p>", 
+    "license": "other-open", 
+    "title": "fishRman: A Shiny R Dashboard improving Global Fishing Watch data availability", 
+    "version": "v1.0.0", 
+    "upload_type": "software", 
+    "publication_date": "2021-10-20", 
+    "creators": [
+        {
+            "name": "Pasquale Buonomo"
+        }
+    ], 
+    "access_right": "open", 
+    "related_identifiers": [
+        {
+            "scheme": "url", 
+            "identifier": "https://github.com/Shyentist/fish-r-man/tree/v1.0.0", 
+            "relation": "isSupplementTo"
+        }, 
+        {
+            "scheme": "doi", 
+            "identifier": "10.5281/zenodo.5582567", 
+            "relation": "isVersionOf"
+        }
+    ]
+}
