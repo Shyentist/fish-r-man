@@ -1,6 +1,6 @@
 library(shinytest)
 
-setwd("C:/Users/pasqu/Documents/GitHub/fish-r-man")#change with path to your repo
+setwd("C:/Users/pasqu/Documents/GitKraken/fish-r-man")#change with path to your repo
 
 #TESTING CSV UPLOAD AND DESCRIPTIVE ANALYSIS FOR "10TH DEGREE" TABLE
 
