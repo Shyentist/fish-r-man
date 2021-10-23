@@ -97,7 +97,7 @@ server <- function(input, output, session) {
               href = "https://osmos.xyz/"
             )),
           
-          ", also available at the bottom right corner of the page, under 'Sponsor'. Open-Source for Marine and Ocean Sciences (OSMOS) is our wanna-be indie research institute. If you like our projects, and would like a more interactive role, consider joining our",
+          ", also available at the bottom right corner of the page, under 'Sponsor'. Open-Source for Marine and Ocean Sciences (OSMOS) is our research group. If you like our projects, and would like a more interactive role, consider joining our",
           
           tags$b(
             
