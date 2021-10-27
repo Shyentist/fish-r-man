@@ -96,10 +96,10 @@ ui <- fluidPage(
                 selectInput(
                   inputId = "flag",
                   label = tags$p("Flag", tags$a("(List of ISO Alpha-3 Country Codes)",
-                                               target = "_blank",
-                                               rel = "noreferrer noopener",
-                                               href = "https://www.nationsonline.org/oneworld/country_code_list.htm",
-                                               style = "color:gray; text-decoration: underline; font-size: 0.7vw;"
+                    target = "_blank",
+                    rel = "noreferrer noopener",
+                    href = "https://www.nationsonline.org/oneworld/country_code_list.htm",
+                    style = "color:gray; text-decoration: underline; font-size: 0.7vw;"
                   )),
                   choices = na.omit(codelist$iso3c),
                   multiple = TRUE
@@ -384,7 +384,10 @@ ui <- fluidPage(
             class = "queried-table",
             id = "documentation",
             uiOutput("pdfview")
-          ))))
+          )
+        )
+      )
+    )
   ),
   fluidRow(
     column(
@@ -429,10 +432,10 @@ ui <- fluidPage(
           tags$p("Contacts"),
           "E-mail:",
           tags$a("pasqualebuonomo@hotmail.it",
-                 target = "_blank",
-                 rel = "noreferrer noopener",
-                 href = "mailto:pasqualebuonomo@hotmail.it",
-                 style = "color:#000000"
+            target = "_blank",
+            rel = "noreferrer noopener",
+            href = "mailto:pasqualebuonomo@hotmail.it",
+            style = "color:#000000"
           )
         ),
         column(
