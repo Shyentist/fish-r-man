@@ -1,173 +1,137 @@
 server <- function(input, output, session) {
-  
-  #intro message to be shown at launch, the most important links should go here
-  
+
+  # intro message to be shown at launch, the most important links should go here
+
   showModal(
     modalDialog(
       size = "l",
-      title="Welcome to fishRman",
+      title = "Welcome to fishRman",
       tags$span(
-        
-        tags$b("fishRman"), 
-        
+        tags$b("fishRman"),
         "is a dashboard to help you explore and analyse",
-        
         tags$b("Global Fishing Watch Data."),
-        
-        "Learn more about the software, the data, and the people behind them via:"),
-      
+        "Learn more about the software, the data, and the people behind them via:"
+      ),
       tags$br(),
       tags$br(),
-      
       tags$ul(
-        
         tags$li(
-          
           "fishRman's ",
-          
           tags$b(
-            
             tags$a(
-              
+
               "paper",
               target = "_blank",
               rel = "noreferrer noopener",
               href = "https://doi.org/10.21105/joss.03467"
-            )),
-          
-          ", also available at the bottom of the page, under 'References';"),
-        
+            )
+          ),
+          ", also available at the bottom of the page, under 'References';"
+        ),
         tags$li(
-          
           "fishRman's instructions for use, the ",
-          
           tags$b(
-            
             tags$a(
-              
+
               "Handbook",
               target = "_blank",
               rel = "noreferrer noopener",
               href = "https://raw.githubusercontent.com/Shyentist/fish-r-man/main/www/doc/Handbook.pdf"
-              )),
-          
-          ", also available at the top of the page;"),
-        
+            )
+          ),
+          ", also available at the top of the page;"
+        ),
         tags$li(
-          
           "fishRman's ",
-          
           tags$b(
-            
             tags$a(
-              
+
               "GitHub repository",
               target = "_blank",
               rel = "noreferrer noopener",
               href = "https://github.com/Shyentist/fish-r-man"
-            )), 
-          
-          ", also available at the bottom left corner of the page, clicking the logo;"),
-        
-        
+            )
+          ),
+          ", also available at the bottom left corner of the page, clicking the logo;"
+        ),
         tags$li(
-          
           tags$b(
-            
             tags$a(
-              
-              "Global Fishing Watch's website", 
+
+              "Global Fishing Watch's website",
               target = "_blank",
               rel = "noreferrer noopener",
               href = "https://globalfishingwatch.org/"
-            )),
-          
-          ", also available at the bottom of the page, under 'References';"),
-        
-        
+            )
+          ),
+          ", also available at the bottom of the page, under 'References';"
+        ),
         tags$li(
-          
           tags$b(
-            
             tags$a(
-              
-              "OSMOS's website", 
+
+              "OSMOS's website",
               target = "_blank",
               rel = "noreferrer noopener",
               href = "https://osmos.xyz/"
-            )),
-          
+            )
+          ),
           ", also available at the bottom right corner of the page, under 'Sponsor'. Open-Source for Marine and Ocean Sciences (OSMOS) is our research group. If you like our projects, and would like a more interactive role, consider joining our",
-          
           tags$b(
-            
             tags$a(
-              
-              "Discord server", 
+
+              "Discord server",
               target = "_blank",
               rel = "noreferrer noopener",
               href = "https://discord.com/invite/W2unKxKbp7"
-            )),
-          
+            )
+          ),
           "or",
-          
           tags$b(
-            
             tags$a(
-              
-              "donating.", 
+
+              "donating.",
               target = "_blank",
               rel = "noreferrer noopener",
               href = "https://www.buymeacoffee.com/osmos"
-            ))
-        
+            )
+          )
         )
       ),
-      
       tags$br(),
-      
       tags$b("How to quote (References)"),
-      
       tags$br(),
       tags$br(),
-      
       tags$ul(
-        
         tags$li(
-          
           "Software: Buonomo P. [2021]. fishRman: A Shiny R Dashboard improving Global Fishing Watch data availability. Journal of Open Source Software.",
-          
           tags$b(
-            
             tags$a("https://doi.org/10.21105/joss.03467",
-                 target = "_blank",
-                 rel = "noreferrer noopener",
-                 href = "https://doi.org/10.21105/joss.03467"
-                 
-          ))
-          
+              target = "_blank",
+              rel = "noreferrer noopener",
+              href = "https://doi.org/10.21105/joss.03467"
+            )
+          )
         ),
-        
         tags$li(
           "Data: Global Fishing Watch. [2021].",
-          
           tags$b(
-          
             tags$a("https://globalfishingwatch.org/",
-                 target = "_blank",
-                 rel = "noreferrer noopener",
-                 href = "https://globalfishingwatch.org/"
-                 
-          )))
+              target = "_blank",
+              rel = "noreferrer noopener",
+              href = "https://globalfishingwatch.org/"
+            )
+          )
         )
       )
+    )
   )
-  
+
   observeEvent(input$table_name_ui, {
     table_name_ui <- input$table_name_ui
-    
+
     # this function checks which table the user decided to query, via its
-    # front-end name, and finds its back-end name with the match() 
+    # front-end name, and finds its back-end name with the match()
     # function for the back-end names. This is done so that dbListFields
     # can return the (back-end) names of the fields (columns) of that table
 
@@ -178,7 +142,7 @@ server <- function(input, output, session) {
         tables_list_ui
       )]
     )
-    
+
     # here, I use the match() function to pick the front-end names of the
     # same table
 
@@ -186,7 +150,7 @@ server <- function(input, output, session) {
       table_name_ui,
       tables_list_ui
     )]]
-    
+
     # now the fields list is "named", meaning that I don't need to match()
     # any longer. The front-end option is associated with a back-end input
     names(fields_list) <- fields_list_names
@@ -201,7 +165,7 @@ server <- function(input, output, session) {
   # what follow enables and disables the input boxes from the "filter sidebar"
   # I do this so that I can later check on which boxes are ticked, instead of
   # checking directly for the inputs, and I can build the SQL Query based on
-  # which inputs are enabled. 
+  # which inputs are enabled.
 
   observeEvent(input$filter_columns_ui,
     {
@@ -218,7 +182,7 @@ server <- function(input, output, session) {
 
   # what is happening down here, with which_event, you will see it often in this
   # code. It is basically a switch, that I can later check in reactive expressions
-  # that must differentiate among the various type of inputs that they can receive
+  # that must differentiate among the various types of inputs that they can receive
   # for instance, both when uploading a csv or querying data, I need the final
   # result to be assigned to 'my_data', so that later on I can just refer to this
   # value, which is qualitatively the same for both sources
@@ -272,29 +236,15 @@ server <- function(input, output, session) {
         if (which_event$query) {
           showModal(
             modalDialog(
-              size="l",
+              size = "l",
               "Constructing SQL Query...",
               footer = NULL
             )
           )
 
-          output$queried_table <- renderDataTable({}) #empty the table before starting the function
+          output$queried_table <- renderDataTable({}) # empty the table before starting the function
 
           table_name_ui <- input$table_name_ui
-          
-          # The logic for the SQL constructor is simple: every query starts with
-          # SELECT * FROM {'table_full_name'}. For inputs of type numeric range
-          # the query adds AND, as in "WHERE cell_ll_lat > 10 AND cell_ll_lat < 20 ", since the
-          # two things must be true at the same time. For categories, such as flag and
-          # geartype, I add OR, as in " flag = 'ITA' OR flag = 'FRA' ", since we are
-          # looking for entries that match any of these categories
-          
-          # for MMSI, the SQL created is a simple 'like', but one can use the '%'
-          # character to search things starting/ending/containing the input
-          
-          # The query starts without a WHERE, only AND, then, I substitute the first AND
-          # of the query with a WHERE. I am sure someone else can come up with something
-          # more elegant, but I figured this was the best option at the time of coding
 
           table_full_name <- paste(
             project,
@@ -306,153 +256,44 @@ server <- function(input, output, session) {
             sep = "."
           )
 
-          SQL <- "SELECT * FROM {`table_full_name`}"
+          # Below, I check which filter boxes are checked, and assign the input
+          # value to a variable named exactly like the input's id. If the checkbox
+          # is unchecked, I assign NULL to the respective variable.
+          # I do this because, otherwise, one could i.e. select the 100th degree
+          # table, which has a flag and a geartype column, check those boxes,
+          # input something and then switch to the 10th degree table, which does
+          # not have the columns. The inputs would only be grayed out, not deleted,
+          # so the query would have them all the same.
 
-          first_date <- min(input$date)
-          second_date <- max(input$date)
-          
-          # I must check which filter boxes are checked because otherwise
-          # one could i.e. select the 100th degree table, which has a flag
-          # and a geartype column, check those boxes, input something and
-          # then switch to the 10th degree table, which does not have the
-          # columns. The inputs are only greyed out and not deleted though,
-          # so the query would have them all the same
           checked_boxes <- input$filter_columns_ui
 
-          # every field is checked with is.null, is.na and, if it is not,
-          # it is added to the query as explained earlier
-          if ((!is.null(first_date) && !is.na(first_date)) && (!is.null(second_date) && !is.na(second_date))) {
-            date_SQL <- "AND date >= {first_date} AND date < {second_date}"
-
-            SQL <- paste(
-              SQL,
-              date_SQL,
-              sep = " "
-            )
-          }
-
-          # apart from the flag field (already in the query) and the flag, mmsi,
-          # and geartype filter, which can be lists, all fields are numeric fields
-          # and are added as such
-          for (field in checked_boxes) {
-            if (field == "date" || field == "flag" || field == "geartype" || field == "mmsi") {
-              next
+          for (id in list_togglable_ids) {
+            if (id %in% checked_boxes) {
+              assign(id, input[[id]])
             } else {
-              first_field <- min(input[[field]])
-              second_field <- max(input[[field]])
-
-              if (
-
-                (!is.null(first_field) && !is.na(first_field)) &&
-                  (!is.null(second_field) && !is.na(second_field))) {
-                next_SQL <- sprintf(
-                  "AND %s >= {%s} AND %s < {%s}",
-                  field,
-                  first_field,
-                  field,
-                  second_field
-                )
-
-                SQL <- paste(
-                  SQL,
-                  next_SQL,
-                  sep = " "
-                )
-              }
+              assign(id, NULL)
             }
           }
 
-          mmsi <- input$mmsi
-          
-          if (("mmsi" %in% checked_boxes) && (mmsi != "")) {
-            mmsi_SQL <- sprintf(
-              "AND mmsi LIKE '%s'",
-              mmsi
-            )
-
-            SQL <- paste(
-              SQL,
-              mmsi_SQL,
-              sep = " "
-            )
-          }
-
-          flags <- input$flag
-
-          if (!is.null(flags) && !is.na(flags) && ("flag" %in% checked_boxes)) {
-            flag_SQL <- "AND ("
-
-            for (isocode in flags) {
-              next_flag_SQL <- sprintf(
-                "flag = '%s' OR",
-                isocode
-              )
-
-              flag_SQL <- paste(
-                flag_SQL,
-                next_flag_SQL,
-                sep = " "
-              )
-            }
-
-            # this is so that the last flag in the query does not retain
-            # the ending OR, but a ")" to close the section of the query
-            flag_SQL <- stri_replace_last_fixed(
-              flag_SQL,
-              " OR",
-              ")"
-            )
-
-            SQL <- paste(
-              SQL,
-              flag_SQL,
-              sep = " "
-            )
-          }
-
-          gears <- input$geartype
-
-          if (!is.null(gears) && !is.na(gears) && ("geartype" %in% checked_boxes)) {
-            geartype_SQL <- "AND ("
-
-            for (gear in gears) {
-              next_geartype_SQL <- sprintf(
-                "geartype = '%s' OR",
-                gear
-              )
-
-              geartype_SQL <- paste(
-                geartype_SQL,
-                next_geartype_SQL,
-                sep = " "
-              )
-            }
-
-            # just like for the flag, this is so that the last gear in the query 
-            # does not retain the ending OR, but a ")" to close the section
-            geartype_SQL <- stri_replace_last_fixed(
-              geartype_SQL,
-              " OR",
-              ")"
-            )
-
-            SQL <- paste(
-              SQL,
-              geartype_SQL,
-              sep = " "
-            )
-          }
-
-          SQL <- sub(
-            "AND",
-            "WHERE",
-            SQL
+          # start the SQL constructor
+          SQL <- sql.construct(
+            table = table_full_name,
+            date = date,
+            cell_ll_lat = cell_ll_lat,
+            cell_ll_lon = cell_ll_lon,
+            hours = hours,
+            fishing_hours = fishing_hours,
+            mmsi_present = mmsi_present,
+            flag = flag,
+            geartype = geartype,
+            mmsi = mmsi
           )
 
           # this parallel SQL query named SQL_count needs to be run
           # before the actual query, to count the number of rows the
           # resulting table will have, so I can put a cap to avoid
           # long waiting time for huge queries
+
           SQL_count <- sub(
             "SELECT ",
             "SELECT COUNT(",
@@ -465,23 +306,13 @@ server <- function(input, output, session) {
             SQL_count
           )
 
-          GLUED_SQL <- glue_sql(
-            SQL,
-            .con = BQ_connection
-          )
-
-          GLUED_SQL_count <- glue_sql(
-            SQL_count,
-            .con = BQ_connection
-          )
-
           output$sql_query <- renderText({
-            GLUED_SQL
+            SQL
           })
 
           count <- dbGetQuery(
             BQ_connection,
-            GLUED_SQL_count
+            SQL_count
           )
 
           max_rows <- 1000000 # add more 0s if you don't care for speed and need to perform large analyses
@@ -492,7 +323,7 @@ server <- function(input, output, session) {
           if (count$count_col <= max_rows) {
             showModal(
               modalDialog(
-                size="l",
+                size = "l",
                 "Fishing for data...",
                 footer = NULL
               )
@@ -500,20 +331,20 @@ server <- function(input, output, session) {
 
             df <- dbGetQuery(
               BQ_connection,
-              GLUED_SQL
+              SQL
             )
 
             showModal(
               modalDialog(
-                size="l",
+                size = "l",
                 "Building table...",
                 footer = NULL
               )
             )
 
-            output$queried_table <- renderDataTable(df) #now the table can be repopulated
+            output$queried_table <- renderDataTable(df) # now the table can be repopulated
 
-            enable(id = "download_button") #and the download button enabled
+            enable(id = "download_button") # and the download button enabled
 
             output$download_button <- downloadHandler(
               filename = function() {
@@ -544,7 +375,7 @@ server <- function(input, output, session) {
 
             showModal(
               modalDialog(
-                size="l",
+                size = "l",
                 message
               )
             )
@@ -552,7 +383,7 @@ server <- function(input, output, session) {
         } else if (which_event$csv) {
           showModal(
             modalDialog(
-              size="l",
+              size = "l",
               "Uploading your data...",
               footer = NULL
             )
@@ -597,13 +428,10 @@ server <- function(input, output, session) {
             # colnames, to avoid eventual inconsistencies
             # if the number of columns does not match
             # the df is set to NULL, because something went wrong
-            if (length(colnames(df)) == 8) { 
-
-              df <- select(df, column_100th) 
-            
-              } else if (length(colnames(df)) == 6) {
-              
-                df <- select(df, column_10th)
+            if (length(colnames(df)) == 8) {
+              df <- select(df, column_100th)
+            } else if (length(colnames(df)) == 6) {
+              df <- select(df, column_10th)
             }
           } else {
             df <- NULL
@@ -613,7 +441,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while loading the dataframe. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -664,7 +492,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while updating the summaries. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -690,7 +518,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while rendering the preview table. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -704,7 +532,7 @@ server <- function(input, output, session) {
       {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             "Summarizing...",
             footer = NULL
           )
@@ -724,8 +552,7 @@ server <- function(input, output, session) {
           # since there is no month column, the app has to create it now
           # in order to summarise by it
           if (!is.null(choice)) {
-            if ("month" %in% choice) { 
-
+            if ("month" %in% choice) {
               df$month <- substr(
                 df$date,
                 start = 1,
@@ -764,7 +591,7 @@ server <- function(input, output, session) {
                 "Max. hours" = max(hours)
               )
           } else {
-            
+
             # if no choice is made for aggregation, the entire dataframe is summarized
             summarized <- summarize(df,
               "Total fishing" = sum(fishing_hours),
@@ -822,7 +649,7 @@ server <- function(input, output, session) {
         } else {
           showModal(
             modalDialog(
-              size="l",
+              size = "l",
               "Maximum 7 fields"
             )
           )
@@ -831,7 +658,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while producing the summaries. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -883,7 +710,7 @@ server <- function(input, output, session) {
         if (which_sf_event$converted) {
           showModal(
             modalDialog(
-              size="l",
+              size = "l",
               "Converting data to GeoPackage...",
               footer = NULL
             )
@@ -915,12 +742,12 @@ server <- function(input, output, session) {
         } else if (which_sf_event$gpkg) {
           showModal(
             modalDialog(
-              size="l",
+              size = "l",
               "Uploading GeoPackage...",
               footer = NULL
             )
           )
-          
+
           # this is to check for the presence of "GFW" layer before asking
           # the code to actually read that layer
           layers <- st_layers(input$uploaded_gpkg$datapath)
@@ -938,14 +765,14 @@ server <- function(input, output, session) {
             removeModal()
 
             if (((isFALSE(all.equal(col_names_gpkg, sf_column_100th)) && isFALSE(all.equal(col_names_gpkg, sf_column_10th)))) || (st_crs(sdf) != st_crs(4326))) {
-              
+
               # if the gpkg file, at the GFW layer, does not have the right column
               # names, the function is aborted and sdf (later sf_data) is set to NULL
               sdf <- NULL
 
               showModal(
                 modalDialog(
-                  size="l",
+                  size = "l",
                   "Please upload a file originating from fishRman"
                 )
               )
@@ -955,14 +782,14 @@ server <- function(input, output, session) {
             which_event$query <- FALSE # to avoid making repetitive checks just for
             which_event$csv <- FALSE # these boolean values
           } else {
-            
+
             # if there is no GFW layer at all in the gpkg, the function
             # is aborted and the sdf (later sf_data) is set to NULL
             sdf <- NULL
 
             showModal(
               modalDialog(
-                size="l",
+                size = "l",
                 "Please upload a file originating from fishRman"
               )
             )
@@ -972,7 +799,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while loading the spatial dataframe. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1010,7 +837,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while enabling/disabling spatial inputs. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1067,7 +894,7 @@ server <- function(input, output, session) {
     error = function(err) {
       showModal(
         modalDialog(
-          size="l",
+          size = "l",
           paste("The error '", err, "' arose while downloading spatial data. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
         )
       )
@@ -1081,7 +908,7 @@ server <- function(input, output, session) {
       {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             "Uploading GeoPackage...",
             footer = NULL
           )
@@ -1105,7 +932,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while checking the layers of the area to clip. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1141,7 +968,7 @@ server <- function(input, output, session) {
 
               showModal(
                 modalDialog(
-                  size="l",
+                  size = "l",
                   "CRS does not match. Please upload a file with CRS 'EPSG 4326'"
                 )
               )
@@ -1151,7 +978,7 @@ server <- function(input, output, session) {
 
             showModal(
               modalDialog(
-                size="l",
+                size = "l",
                 "Geometry type is invalid. Please choose a layer with geometry type 'POLYGON' or 'MULTIPOLYGON'"
               )
             )
@@ -1161,7 +988,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while loading the area to clip. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1177,15 +1004,14 @@ server <- function(input, output, session) {
         whether_to_clip <- input$clip
 
         if (whether_to_clip) {
-          
           showModal(
             modalDialog(
-              size="l",
+              size = "l",
               "Clipping data...",
               footer = NULL
             )
           )
-          
+
           chosen_layer <- input$second_gpkg_layer
 
           dsn <- input$second_uploaded_gpkg$datapath
@@ -1196,22 +1022,20 @@ server <- function(input, output, session) {
             dsn = dsn,
             layer = chosen_layer
           )
-          
+
           area_of_interest <- area_of_interest["geom"]
-          
+
           # we use st_intersects() instead of st_intersection because we don't
-          # need to clip a larger geometry to only match another area, we just 
+          # need to clip a larger geometry to only match another area, we just
           # need to filter the points that DO fall within such area. This means
           # that a filtering by a TRUE-FALSE result such as that of st_intersect()
           # performs better
-          clipped_points <- points[st_intersects(points, area_of_interest) %>% lengths > 0,]
-          
+          clipped_points <- points[st_intersects(points, area_of_interest) %>% lengths() > 0, ]
+
           if (length(clipped_points$geom) != 0) {
-            
             removeModal()
 
             return(clipped_points)
-            
           } else {
             updatePrettyCheckbox(
               session = session,
@@ -1221,7 +1045,7 @@ server <- function(input, output, session) {
 
             showModal(
               modalDialog(
-                size="l",
+                size = "l",
                 "The two dataframes do not intersect."
               )
             )
@@ -1233,7 +1057,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while clipping the data. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1241,7 +1065,7 @@ server <- function(input, output, session) {
     )
   })
 
-  # function to derive csv-like (non-spatial, turning geom column into 
+  # function to derive csv-like (non-spatial, turning geom column into
   # cell_ll_lat and cell_ll_lon) data from clipped spatial data
   clipped_data <- reactive({
     tryCatch(
@@ -1271,7 +1095,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while retrieving a dataframe from clipped data. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1336,8 +1160,6 @@ server <- function(input, output, session) {
             xmax <- max(input$xrange)
             ymin <- min(input$yrange)
             ymax <- max(input$yrange)
-            
-            
           }
 
           # a little buffer of 5% of the X or Y axis range so it is clear
@@ -1367,7 +1189,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while handling the bbox. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1409,12 +1231,11 @@ server <- function(input, output, session) {
               value = 0.01
             )
             rez <- 0.01
-            
-          # if it is the first time visualizing and the col names are
-          # those of the 0.1 table, rez stays 0.1. Minimum rez is set
-          # to 0.1 too
+
+            # if it is the first time visualizing and the col names are
+            # those of the 0.1 table, rez stays 0.1. Minimum rez is set
+            # to 0.1 too
           } else if (isTRUE(all.equal(col_names_sdf, sf_column_10th))) {
-            
             updateNumericInput(session,
               inputId = "map_rez",
               min = 0.1,
@@ -1424,9 +1245,9 @@ server <- function(input, output, session) {
 
             rez <- 0.1
           }
-          
-        # if it is not the first time plotting, then adjust resolution
-        # according to user input
+
+          # if it is not the first time plotting, then adjust resolution
+          # according to user input
         } else if (which_viz_event$reviz) {
           rez <- input$map_rez
         }
@@ -1434,7 +1255,7 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while handling the resolution of the plot. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
@@ -1450,7 +1271,7 @@ server <- function(input, output, session) {
         if (which_viz_event$origin || which_viz_event$reviz) {
           showModal(
             modalDialog(
-              size="l",
+              size = "l",
               "Visualizing your data...",
               footer = NULL
             )
@@ -1497,8 +1318,7 @@ server <- function(input, output, session) {
                 "Mean hours" = mean(hours),
                 "Mean MMSI present" = mean(mmsi_present)
               )
-          
-            } else if (isTRUE(all.equal(col_names_sdf, sf_column_10th))) {
+          } else if (isTRUE(all.equal(col_names_sdf, sf_column_10th))) {
             if (is.numeric(rez) && rez > 0.1 && rez <= 2) {
               df <- df %>%
                 mutate(
@@ -1541,7 +1361,7 @@ server <- function(input, output, session) {
 
           # calculate sum of the entire column to_fill
           summed <- sum(grouped_df[to_fill]) * (cumul_distr_percent / 100)
-          
+
 
           # vectorize the column, to be able to use the length.until function
           to_fill_column <- grouped_df %>%
@@ -1564,31 +1384,31 @@ server <- function(input, output, session) {
               fill = TRUE
             )
           )
-          
+
           #  check which global layers (EEZ, contiguous zone and national waters)
           # the user has decided to plot. Creates a variable for each of those
           layers_added <- input$add_layer
-          
+
           if ("eez_boundaries_v11.gpkg" %in% layers_added) {
-            
-            world_eez <- st_read("./www/geo/eez_boundaries_v11.gpkg", 
-                                 layer = "eez_boundaries_v11",
-                                 geometry_column = "geom"
-            )}
-          
+            world_eez <- st_read("./www/geo/eez_boundaries_v11.gpkg",
+              layer = "eez_boundaries_v11",
+              geometry_column = "geom"
+            )
+          }
+
           if ("eez_24nm_v3_boundaries.gpkg" %in% layers_added) {
-            
-            world_24nm <- st_read("./www/geo/eez_24nm_v3_boundaries.gpkg", 
-                                 layer = "eez_24nm_v3_boundaries",
-                                 geometry_column = "geom"
-            )}
-          
+            world_24nm <- st_read("./www/geo/eez_24nm_v3_boundaries.gpkg",
+              layer = "eez_24nm_v3_boundaries",
+              geometry_column = "geom"
+            )
+          }
+
           if ("eez_12nm_v3_boundaries.gpkg" %in% layers_added) {
-            
-            world_12nm <- st_read("./www/geo/eez_12nm_v3_boundaries.gpkg", 
-                                 layer = "eez_12nm_v3_boundaries",
-                                 geometry_column = "geom"
-            )}
+            world_12nm <- st_read("./www/geo/eez_12nm_v3_boundaries.gpkg",
+              layer = "eez_12nm_v3_boundaries",
+              geometry_column = "geom"
+            )
+          }
 
           lowx <- plot_range$lowx
           highx <- plot_range$highx
@@ -1603,39 +1423,42 @@ server <- function(input, output, session) {
               fill = "#BABABA",
               color = "#0A1738",
               size = 0.1
-            ) 
-          
+            )
+
           # checks which optional global layers exist in order to
           # add them to the plot function
           if (exists("world_eez")) {
-            map = map + geom_sf(
+            map <- map + geom_sf(
               data = world_eez,
               fill = "#BABABA",
               color = "#BABABA",
               size = 0.5
-            ) }
-          
+            )
+          }
+
           if (exists("world_24nm")) {
-            map = map + geom_sf(
-                data = world_24nm,
-                fill = "#BABABA",
-                color = "#BABABA",
-                size = 0.5
-              ) }
-          
+            map <- map + geom_sf(
+              data = world_24nm,
+              fill = "#BABABA",
+              color = "#BABABA",
+              size = 0.5
+            )
+          }
+
           if (exists("world_12nm")) {
-            map = map + geom_sf(
-                data = world_12nm,
-                fill = "#BABABA",
-                color = "#BABABA",
-                size = 0.5
-            ) }
-          
-          map = map + coord_sf(
+            map <- map + geom_sf(
+              data = world_12nm,
+              fill = "#BABABA",
+              color = "#BABABA",
+              size = 0.5
+            )
+          }
+
+          map <- map + coord_sf(
             xlim = c(lowx, highx), # these are the zoom in coordinates
             ylim = c(lowy, highy), # I mentioned earlier
             expand = FALSE
-          ) 
+          )
 
           output$viz_map <- renderPlot({
             return(map)
@@ -1665,16 +1488,16 @@ server <- function(input, output, session) {
       error = function(err) {
         showModal(
           modalDialog(
-            size="l",
+            size = "l",
             paste("The error '", err, "' arose while producing the plot. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
       }
     )
   })
-  
+
   # pdfview of the Handbook
   output$pdfview <- renderUI({
-    tags$iframe(style="height:90vh; width:100%; margin-top: 6px", src="doc/Handbook.pdf")
+    tags$iframe(style = "height:90vh; width:100%; margin-top: 6px", src = "doc/Handbook.pdf")
   })
 }
