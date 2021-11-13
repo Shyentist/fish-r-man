@@ -1,160 +1,30 @@
 server <- function(input, output, session) {
 
-  # intro message to be shown at launch, the most important links should go here
+  intro.message()
 
-  showModal(
-    modalDialog(
-      size = "l",
-      title = "Welcome to fishRman",
-      tags$span(
-        tags$b("fishRman"),
-        "is a dashboard to help you explore and analyse",
-        tags$b("Global Fishing Watch Data."),
-        "Learn more about the software, the data, and the people behind them via:"
-      ),
-      tags$br(),
-      tags$br(),
-      tags$ul(
-        tags$li(
-          "fishRman's ",
-          tags$b(
-            tags$a(
-
-              "paper",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://doi.org/10.21105/joss.03467"
-            )
-          ),
-          ", also available at the bottom of the page, under 'References';"
-        ),
-        tags$li(
-          "fishRman's instructions for use, the ",
-          tags$b(
-            tags$a(
-
-              "Handbook",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://raw.githubusercontent.com/Shyentist/fish-r-man/main/www/doc/Handbook.pdf"
-            )
-          ),
-          ", also available at the top of the page;"
-        ),
-        tags$li(
-          "fishRman's ",
-          tags$b(
-            tags$a(
-
-              "GitHub repository",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://github.com/Shyentist/fish-r-man"
-            )
-          ),
-          ", also available at the bottom left corner of the page, clicking the logo;"
-        ),
-        tags$li(
-          tags$b(
-            tags$a(
-
-              "Global Fishing Watch's website",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://globalfishingwatch.org/"
-            )
-          ),
-          ", also available at the bottom of the page, under 'References';"
-        ),
-        tags$li(
-          tags$b(
-            tags$a(
-
-              "OSMOS's website",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://osmos.xyz/"
-            )
-          ),
-          ", also available at the bottom right corner of the page, under 'Sponsor'. Open-Source for Marine and Ocean Sciences (OSMOS) is our research group. If you like our projects, and would like a more interactive role, consider joining our",
-          tags$b(
-            tags$a(
-
-              "Discord server",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://discord.com/invite/W2unKxKbp7"
-            )
-          ),
-          "or",
-          tags$b(
-            tags$a(
-
-              "donating.",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://www.buymeacoffee.com/osmos"
-            )
-          )
-        )
-      ),
-      tags$br(),
-      tags$b("How to quote (References)"),
-      tags$br(),
-      tags$br(),
-      tags$ul(
-        tags$li(
-          "Software: Buonomo P. [2021]. fishRman: A Shiny R Dashboard improving Global Fishing Watch data availability. Journal of Open Source Software.",
-          tags$b(
-            tags$a("https://doi.org/10.21105/joss.03467",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://doi.org/10.21105/joss.03467"
-            )
-          )
-        ),
-        tags$li(
-          "Data: Global Fishing Watch. [2021].",
-          tags$b(
-            tags$a("https://globalfishingwatch.org/",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://globalfishingwatch.org/"
-            )
-          )
-        )
-      )
-    )
-  )
-
+  #depending on the chosen table, update the input checkboxes
+  
   observeEvent(input$table_name_ui, {
+    
     table_name_ui <- input$table_name_ui
 
-    # this function checks which table the user decided to query, via its
-    # front-end name, and finds its back-end name with the match()
-    # function for the back-end names. This is done so that dbListFields
-    # can return the (back-end) names of the fields (columns) of that table
-
-    fields_list <- dbListFields(
-      BQ_connection,
-      tables_list[match(
-        table_name_ui,
-        tables_list_ui
-      )]
-    )
-
-    # here, I use the match() function to pick the front-end names of the
-    # same table
-
-    fields_list_names <- tables_columns_list_ui[[match(
-      table_name_ui,
-      tables_list_ui
-    )]]
-
-    # now the fields list is "named", meaning that I don't need to match()
-    # any longer. The front-end option is associated with a back-end input
-    names(fields_list) <- fields_list_names
-
+    # check which table the user decided to query, and presents the checkboxes
+    # of the fields (columns) of that table
+    
+    if (table_name_ui == "fishing_effort_byvessel_v2"){
+      
+      fields_list <- column_10th
+      
+      names(fields_list) <- column_list_fe10_ui
+      
+    } else {
+      
+      fields_list <- column_100th
+      
+      names(fields_list) <- column_list_fe100_ui
+      
+    }
+    
     updatePrettyCheckboxGroup( # this way, the checkboxes are always named after the table fields
       session,
       inputId = "filter_columns_ui",
@@ -162,10 +32,11 @@ server <- function(input, output, session) {
     )
   })
 
-  # what follow enables and disables the input boxes from the "filter sidebar"
-  # I do this so that I can later check on which boxes are ticked, instead of
-  # checking directly for the inputs, and I can build the SQL Query based on
-  # which inputs are enabled.
+  # what follow enables the input boxes that have had their respective checkboxes
+  # ticked, disabling the others. This way I can build the SQL query from the
+  # checked boxes, rather than the existing inputs, which could have been input-ed
+  # when it was allowed, then disabled by changing table to one that does not allow
+  # that input
 
   observeEvent(input$filter_columns_ui,
     {
@@ -211,6 +82,7 @@ server <- function(input, output, session) {
   # I used the possibleInputs list to have reactive events start at any
   # change of the list, then check which of the previously mentioned
   # switches was turned on (TRUE)
+  
   possibleInputs <- reactive({
     list(
       input$filter_button,
@@ -222,6 +94,7 @@ server <- function(input, output, session) {
   # this function takes different paths depending on the input
   # if "Filter" button is pressed, it creates an SQL Query runs it
   # if csv or gpkg files are uploaded, it assign the dataframe to "my_data"
+  
   my_data <- eventReactive(possibleInputs(), {
     tryCatch(
       {
@@ -244,15 +117,12 @@ server <- function(input, output, session) {
 
           output$queried_table <- renderDataTable({}) # empty the table before starting the function
 
-          table_name_ui <- input$table_name_ui
+          table <- input$table_name_ui
 
           table_full_name <- paste(
             project,
             dataset,
-            tables_list[match(
-              table_name_ui,
-              tables_list_ui
-            )],
+            table,
             sep = "."
           )
 
@@ -289,26 +159,23 @@ server <- function(input, output, session) {
             mmsi = mmsi
           )
 
-          # this parallel SQL query named SQL_count needs to be run
-          # before the actual query, to count the number of rows the
-          # resulting table will have, so I can put a cap to avoid
-          # long waiting time for huge queries
+          # creating the query to count the number of rows the resulting table 
+          # would have, so I can put a cap to avoid huge queries
 
-          SQL_count <- sub(
-            "SELECT ",
-            "SELECT COUNT(",
-            SQL
-          )
-
-          SQL_count <- sub(
-            " FROM",
-            ") as count_col FROM",
-            SQL_count
-          )
+          SQL_count <- count.sql(SQL)
 
           output$sql_query <- renderText({
             SQL
           })
+          
+          billing <- input$billing
+          
+          BQ_connection <- dbConnect(bigquery(),
+                                     project = project,
+                                     dataset = dataset,
+                                     billing = billing,
+                                     use_legacy_sql = FALSE
+          ) # specify we are using Standard SQL
 
           count <- dbGetQuery(
             BQ_connection,
@@ -320,6 +187,7 @@ server <- function(input, output, session) {
           # and here is where the count from SQL_count is used
           # to check the number of rows the query would retrieve
           # against max_rows just above
+          
           if (count$count_col <= max_rows) {
             showModal(
               modalDialog(
@@ -1371,11 +1239,12 @@ server <- function(input, output, session) {
           if (summed != 0) {
             cumul_distr_length <- length.until(to_fill_column, summed)
           } else {
-            cumul_distr_length <- list(start = 1, length = nrow(grouped_df))
+            cumul_distr_length <- nrow(grouped_df)
           }
 
           # subsetting grouped_df accordingly to cumul_distr_percent
-          grouped_df <- grouped_df[c(1:cumul_distr_length$length), ]
+          
+          grouped_df <- grouped_df[c(1:cumul_distr_length), ]
 
           world_sf <- sf::st_as_sf( # world map to give some reference
             maps::map(
