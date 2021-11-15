@@ -16,7 +16,7 @@ ui <- fluidPage(
               selectInput(
                 inputId = "table_name_ui",
                 label = "Query table",
-                choices = tables_list_ui[1:2]
+                choices = tables_list_names[1:2]
               ),
               prettyCheckboxGroup(
                 inputId = "filter_columns_ui",
@@ -127,6 +127,12 @@ ui <- fluidPage(
             ),
             tags$div(
               class = "sidebar",
+              
+              textInput(
+                inputId = "billing",
+                label = "Billing project",
+                placeholder="fish-r-man"
+              ),
               actionButton(
                 inputId = "filter_button",
                 label = "Filter"

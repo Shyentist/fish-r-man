@@ -12,27 +12,24 @@ library(ggplot2)
 library(viridis)
 library(shinyBS)
 
+source("fun/sql.construct.R")
+source("fun/count.sql.R")
+source("fun/length.until.R")
+source("fun/intro.message.R")
+
 options(scipen = 999)
 
 options(shiny.maxRequestSize = 150 * 1024^2) # maximum upload size is 150 MB, edit if you need more than that
 
 project <- "global-fishing-watch"
 dataset <- "gfw_public_data"
-billing <- "fish-r-man" # your billing account name
 
-bq_auth(
-  email = "fishrman-user@fish-r-man.iam.gserviceaccount.com", # comment these out
-  path = "www/appDir/fish-r-man-ec45cfe426c8.json"
-) # to access your own account
+# uncomment line below for "online distro"
+bq_auth(email = "fishrman-user@fish-r-man.iam.gserviceaccount.com", path = "www/appDir/fish-r-man-ec45cfe426c8.json") 
 
-BQ_connection <- dbConnect(bigquery(),
-  project = project,
-  dataset = dataset,
-  billing = billing,
-  use_legacy_sql = FALSE
-) # specify we are using Standard SQL
+# uncomment line below for "offline distro"
+#bq_auth(email=FALSE, scopes = "https://www.googleapis.com/auth/bigquery") 
 
-tables_list <- dbListTables(BQ_connection)
 
 # these are the IDs for the filter checkboxes, so that later
 # functions can iterate through it
@@ -53,6 +50,13 @@ tables_list_ui <- c(
   "AIS data at 10th degree",
   "AIS data at 100th degree"
 )
+
+#back-end names of the tables
+tables_list_names <- c(
+  "fishing_effort_byvessel_v2", 
+  "fishing_effort_v2")
+
+names(tables_list_names) <- tables_list_ui
 
 # front-end names of the columns for the 100th degree table
 column_list_fe100_ui <- c(
@@ -160,162 +164,9 @@ sf_column_100th <- column_100th[!column_100th %in% c("cell_ll_lat", "cell_ll_lon
 sf_column_10th <- column_10th[!column_10th %in% c("cell_ll_lat", "cell_ll_lon")] %>%
   append("geom")
 
-# what follow is a function to count the length of a vector necessary until it reaches an amount
-# used for cumulative distribution
-## source: https://stackoverflow.com/questions/8540143/add-consecutive-elements-of-a-vector-until-a-value
-
 add_layer_choices_backend <- c("eez_boundaries_v11.gpkg", "eez_24nm_v3_boundaries.gpkg", "eez_12nm_v3_boundaries.gpkg")
 
 add_layer_choices_ui <- c("EEZ", "24 Nautical Miles Zones", "12 Nautical Miles Zones")
 
 names(add_layer_choices_backend) <- add_layer_choices_ui
 
-length.until <- function(x, max = 10) {
-  s <- 0
-  len <- length(x) # modified this to avoid function looping forever in case of bad
-  # rounding or similar minor issues. This way, length is, at most, equal to the entire dataset
-  start <- 1
-  j <- 1
-  for (i in seq_along(x)) {
-    s <- s + x[i]
-    while (s >= max) {
-      if (i - j + 1 < len) {
-        len <- i - j + 1
-        start <- j
-      }
-      s <- s - x[j]
-      j <- j + 1
-    }
-  }
-
-  list(start = start, length = len)
-  # uncomment the line below if you don't need the start index...
-  # len
-}
-
-
-# The logic for the SQL constructor is simple: every query starts with
-# SELECT * FROM {'table'}. For inputs of type numeric range
-# the query adds AND, as in "WHERE cell_ll_lat >= 10 AND cell_ll_lat < 20 ", since the
-# two things must be true at the same time. For categories, such as flag and
-# geartype, I add OR, as in " flag = 'ITA' OR flag = 'FRA' ", since we are
-# looking for entries that match any of these categories
-
-# for MMSI, the SQL created is a simple 'like', but one can use the '%'
-# character to search things starting/ending/containing the input
-
-# The query starts without a WHERE, only AND, then, I substitute the first AND
-# of the query with a WHERE. I am sure someone else can come up with something
-# more elegant, but I figured this was the best option at the time of coding
-
-sql.construct <- function(table = NULL, date = NULL, cell_ll_lat = NULL, cell_ll_lon = NULL, hours = NULL, fishing_hours = NULL, mmsi_present = NULL, flag = NULL, geartype = NULL, mmsi = NULL) {
-  SQL <- sprintf("SELECT * FROM `%s`", table)
-
-  if (all(!is.na(date)) && all(!is.null(date))) {
-    lower_end <- min(date)
-    upper_end <- max(date)
-
-    date_SQL <- sprintf(
-      "AND date >= '%s' AND date < '%s'",
-      lower_end,
-      upper_end
-    )
-
-    SQL <- paste(
-      SQL,
-      date_SQL,
-      sep = " "
-    )
-  }
-
-  range_inputs <- list(cell_ll_lat, cell_ll_lon, hours, fishing_hours, mmsi_present)
-
-  names(range_inputs) <- c("cell_ll_lat", "cell_ll_lon", "hours", "fishing_hours", "mmsi_present")
-
-  list_inputs <- list(flag, geartype)
-
-  names(list_inputs) <- c("flag", "geartype")
-
-  for (range_name in names(range_inputs)) {
-    range_values <- range_inputs[range_name] %>%
-      unlist(recursive = TRUE, use.names = TRUE)
-
-    if (all(!is.null(range_values)) && all(!is.na(range_values))) {
-      lower_end <- min(range_values)
-      upper_end <- max(range_values)
-
-      ranges_SQL <- sprintf(
-        "AND %s >= %s AND %s < %s",
-        range_name,
-        lower_end,
-        range_name,
-        upper_end
-      )
-
-      SQL <- paste(
-        SQL,
-        ranges_SQL,
-        sep = " "
-      )
-    }
-  }
-
-  if (!is.null(mmsi) && !is.na(mmsi)) {
-    if (mmsi != "") {
-      mmsi_SQL <- sprintf(
-        "AND mmsi LIKE '%s'",
-        mmsi
-      )
-
-      SQL <- paste(
-        SQL,
-        mmsi_SQL,
-        sep = " "
-      )
-    }
-  }
-
-  for (list_name in names(list_inputs)) {
-    list_values <- list_inputs[list_name]
-
-    list_values <- unlist(list_values, recursive = TRUE, use.names = TRUE)
-
-    if (all(!is.null(list_values)) && all(!is.na(list_values))) {
-      next_list_SQL <- "AND ("
-
-      for (element in list_values) {
-        next_element_SQL <- sprintf(
-          "%s = '%s' OR ",
-          list_name,
-          element
-        )
-
-        next_list_SQL <- paste(
-          next_list_SQL,
-          next_element_SQL,
-          sep = ""
-        )
-      }
-
-      next_list_SQL <- stri_replace_last_fixed(
-        next_list_SQL,
-        " OR",
-        ")"
-      )
-
-      SQL <- paste(
-        SQL,
-        next_list_SQL,
-        sep = " "
-      )
-    }
-  }
-
-  SQL <- sub(
-    "AND",
-    "WHERE",
-    SQL
-  )
-
-  return(SQL)
-}
