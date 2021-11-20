@@ -101,10 +101,10 @@ sql.construct <- function(table = NULL, date = NULL, cell_ll_lat = NULL, cell_ll
         )
       }
       
-      next_list_SQL <- stri_replace_last_fixed(
-        next_list_SQL,
-        " OR",
-        ")"
+      next_list_SQL <- sub(
+        " OR $",
+        ") ",
+        next_list_SQL
       )
       
       SQL <- paste(
