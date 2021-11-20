@@ -11,11 +11,11 @@ library(sf)
 library(maps)
 library(viridis)
 
-
 source("fun/sql.construct.R")
 source("fun/count.sql.R")
 source("fun/length.until.R")
 source("fun/intro.message.R")
+source("fun/gfw.summarize.R")
 
 options(scipen = 999)
 
