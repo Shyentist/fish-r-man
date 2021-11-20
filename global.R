@@ -1,16 +1,16 @@
 library(shiny)
 library(shinyjs)
+library(shinyBS)
 library(shinyWidgets)
 library(DBI)
 library(bigrquery)
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(countrycode)
-library(stringi)
 library(sf)
 library(maps)
-library(ggplot2)
 library(viridis)
-library(shinyBS)
+
 
 source("fun/sql.construct.R")
 source("fun/count.sql.R")
@@ -30,6 +30,9 @@ bq_auth(email = "fishrman-user@fish-r-man.iam.gserviceaccount.com", path = "www/
 # uncomment line below for "offline distro"
 #bq_auth(email=FALSE, scopes = "https://www.googleapis.com/auth/bigquery") 
 
+max_rows <- 1000000 # max number of rows to be returned for queries
+# add more 0s if you don't care for speed and need to perform large analyses
+# queries larger than this will not be retrieved at all
 
 # these are the IDs for the filter checkboxes, so that later
 # functions can iterate through it
