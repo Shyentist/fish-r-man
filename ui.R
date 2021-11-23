@@ -162,7 +162,8 @@ ui <- fluidPage(
             )
           )
         )
-      )
+      ),
+      footer()
     ),
     tabPanel(
       "Analysis",
@@ -378,9 +379,9 @@ ui <- fluidPage(
               )
             )
           ))
-        )
-      )
-    ),
+        )),
+      footer()
+      ),
     tabPanel(
       "Handbook",
       fluidRow(
