@@ -5,43 +5,65 @@ body {
     rgba(0, 0, 0, 0.10)
   ),url("img/boat1.jpg") no-repeat fixed center;
     background-size: 100% 100%;
-    font-size: 1vw !important;
+    font-size: 3vw;
+
+}
+
+@media (min-width: 768px) {
+    body{
+        font-size: 1vw;
+    }
+}
+
+.container-fluid {
+
+    padding-right: 0.5vw;
+    padding-left: 0.5vw;
 
 }
 
 div.sidebar {
 
-    margin: 12px 0px;
+    margin: 1vw 0;
     width: 100%;
-    padding: 12px;
+    padding: 1vw;
     background-color: rgba(255, 255, 255, 0.850);
     border-radius: 15px;
     text-align:center;
 
 }
 
-div.sidebar#area_of_interest {
-
-    background-color: rgba(255, 255, 255, 0.40);
+div.sidebar.hide-overflow{
     
+    overflow: hidden;
+
+}
+
+.sidebar p a {
+    font-size: 2vw !important;
+}
+
+@media (min-width: 768px){
+    .sidebar p a {
+        font-size: 0.7vw !important;
+    }
 }
 
 div.tab-content {
 
     background-color: rgba(255, 255, 255, 0.40);
     border-radius: 15px;
-    padding: 0px 12px;
-    margin-bottom: 3px;
+    padding: 6px;
+    margin-bottom: 0.25vw;
 
 }
 
 div.footer {
 
-    background-color: rgba(255, 255, 255, 0.40);
+    background-color: rgba(255, 255, 255, 0.85);
     border-radius: 15px;
-    padding: 6px 6px;
-    margin-top: 3px;
-    margin-bottom: 3px;
+    padding: 0.5vw 0.5vw;
+    margin: 0;
     overflow: auto;
     color: black;
 
@@ -57,14 +79,14 @@ div.footer p {
 ul.nav-tabs {
 
     border-bottom: none;
-    padding-left: 25px;
-    margin-top: 5px;
+    padding-left: 2vw;
+    margin-top: 0.5vw;
 
 }
 
 ul.nav-tabs li {
 
-    margin-bottom: 0px;
+    margin-bottom: 0;
 
 }
 
@@ -73,7 +95,7 @@ ul.nav-tabs li a {
     background-color: rgba(255, 255, 255, 0.50) !important;
     border-color: transparent !important;
     font-weight: bold;
-    font-size: 12px;
+    padding: 0.7vw;
 
 }
 
@@ -84,36 +106,73 @@ ul.nav-tabs li.active a {
 
 }
 
-.sidebar .btn.action-button{
+.sidebar .btn{
 	
-	margin-top: 3px;
-	margin-bottom: 3px;
+	margin: 6px 0;
     font-weight: bold;
-    font-size: large;
-    width: 80%;
+    width: 100%;
     border-radius: 5px;
 
 }
-
-.sidebar .btn.shiny-download-link{
-	
-	margin-top: 3px;
-	margin-bottom: 3px;
-    font-weight: bold;
-    font-size: large;
-    width: 80%;
-    border-radius: 5px;
-
-}
-
 
 .sidebar .btn.btn-file{
 
-    font-size: 12px;
-    width: 100%;
-    padding: 5.5px 12px;
-    height: 30px;
+    height: 34px;
+    margin: 0;
+    font-size: 2vw;
+    vertical-align: middle;
+
+}
+
+@media (min-width: 768px){
+    .sidebar .btn.btn-file{
+        font-size: 1vw;
+    }
+}
+
+.button-container{
+    margin: 0 auto;
+    width:100%;
+}
+
+#download_button_csv{
+    float: left;  
+    width: 49%;
+    display: inline-block;
+}
+
+#download_button_gpkg{
+    float: right;
+    width: 49%;
+    display: inline-block;
+}
+
+#download_button_csv_clipped{
+    float: left;  
+    width: 49%;
+    display: inline-block;
+}
+
+#download_button_gpkg_clipped{
+    float: right;
+    width: 49%;
+    display: inline-block;
+}
+
+.input-group-sm > .form-control{
     
+    height: 34px;
+
+}
+
+.form-control{
+    font-size: 3vw;
+}
+
+@media (min-width: 768px){
+    .form-control{
+        font-size: 1vw;
+    }
 }
 
 .form-control[disabled] {
@@ -122,11 +181,14 @@ ul.nav-tabs li.active a {
    
 }
 
-.form-control {
+div.sidebar div.input-group {
 
-    font-size: inherit;
-    height: 30px;
+    height: 2.5vw;
 
+}
+
+.input-daterange .input-group-addon{
+    padding: 0.5vw 1vw;
 }
 
 div.input-daterange.input-group.input-group-sm {
@@ -150,22 +212,40 @@ div.input-daterange.input-group.input-group-sm {
    
 .input-numeric-range.input-group {
 
-height: 30px;
+height: 2.5vw;
 
 }
 
 .input-group-addon {
 
-    padding: 5px 10px;
+    padding: 0.5vw 2vw;
     border: none;
-    font-size: 0.8vw;
+    font-size: 2vw;
 
 }
 
+@media (min-width: 768px){
+    .input-group-addon {
+
+        padding: 0.5vw 1vw;
+        font-size: 1vw;
+    
+    }
+}
+
+
 .input-group-sm > .form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .btn {
 
-    font-size: 0.8vw;
+    font-size: 2vw;
 
+}
+
+@media (min-width: 768px){
+    .input-group-sm > .form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .btn {
+
+        font-size: 1vw;
+    
+    }
 }
 
 span.input-group-addon.input-group-prepend.input-group-append{
@@ -176,7 +256,15 @@ span.input-group-addon.input-group-prepend.input-group-append{
 .shiny-options-group{
 
     text-align: left;
-    
+    font-size: 3vw;;
+}
+
+@media (min-width: 768px){
+    .shiny-options-group{
+
+        font-size: inherit;
+
+    }
 }
 
 .shiny-input-container:not(.shiny-input-container-inline){
@@ -190,9 +278,9 @@ div.dataTables_wrapper.form-inline.dt-bootstrap{
     background-color: rgba(255, 255, 255, 0.850);
     border-radius: 15px;
     text-align:center;
-    margin-top: 12px;
+    margin-top: 1vw;
     width: 100%;
-    padding: 12px;
+    padding: 1vw;
 
 }
 
@@ -201,7 +289,7 @@ table.table.shiny-table.table-.spacing-s {
     background-color: rgba(255, 255, 255, 0.850);
     border-radius: 15px;
     text-align:center;
-    margin-top: 12px;
+    margin-top: 1vw;
     width: 100% !important;
 
 }
@@ -214,19 +302,49 @@ table.table.table-striped.table-hover.dataTable{
 
 form.well {
 
-    padding: 0px;
+    padding: 0;
 
 }
 
 table {
-    
-    padding-left: 0px;
-    padding-right: 0px;
+
 	text-align: center !important;
-    font-size: 0.7vw !important;
+    font-size: 1.6vw;
 
 }
 
-div#sql_query {
-    font-size: 0.7vw !important;
+.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th{
+    
+    padding: 8px 0;
+
+}
+
+@media (min-width: 768px){
+    table {
+
+        font-size: 1vw
+    
+    }
+}
+
+table.dataTable thead > tr > th{
+    padding: 0;
+    text-align: center;
+    width: 1px !important;
+}
+
+code {
+    color: #337ab7;
+    padding: 0;
+    font-size: 2vw;
+}
+
+@media (min-width: 768px){
+    code {
+        font-size: 0.7vw;
+    }
+}
+
+.row {
+    margin: 0;
 }

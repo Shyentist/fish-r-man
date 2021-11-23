@@ -162,12 +162,6 @@ available_summaries_10th <- append(column_10th, month_year_vector, after = 1)
 
 available_summaries_100th <- append(column_100th, month_year_vector, after = 1)
 
-sf_column_100th <- column_100th[!column_100th %in% c("cell_ll_lat", "cell_ll_lon")] %>% # to later check the validity of spatial data uploaded (they must have same colnames as these vectors)
-  append("geom")
-
-sf_column_10th <- column_10th[!column_10th %in% c("cell_ll_lat", "cell_ll_lon")] %>%
-  append("geom")
-
 add_layer_choices_backend <- c("eez_boundaries_v11.gpkg", "eez_24nm_v3_boundaries.gpkg", "eez_12nm_v3_boundaries.gpkg")
 
 add_layer_choices_ui <- c("EEZ", "24 Nautical Miles Zones", "12 Nautical Miles Zones")

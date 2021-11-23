@@ -127,28 +127,36 @@ ui <- fluidPage(
             ),
             tags$div(
               class = "sidebar",
+              "SQL Query:",
+              tags$code(textOutput(
+                outputId = "sql_query"
+              ))
+            ),
+            tags$div(
+              class = "sidebar hide-overflow",
               
               textInput(
                 inputId = "billing",
                 label = "Billing project",
                 placeholder="fish-r-man"
               ),
+              tags$div(
+                class = "button-container",
               actionButton(
                 inputId = "filter_button",
                 label = "Filter"
               ),
               disabled(
                 downloadButton(
-                  outputId = "download_button",
-                  label = "Download"
+                  outputId = "download_button_csv",
+                  label = ".csv"
                 )
-              )
-            ),
-            tags$div(
-              class = "sidebar",
-              "SQL Query:",
-              tags$code(textOutput(
-                outputId = "sql_query"
+              ),
+              disabled(
+                downloadButton(
+                  outputId = "download_button_gpkg",
+                  label = ".gpkg"
+                )
               ))
             )
           )
@@ -174,12 +182,8 @@ ui <- fluidPage(
             class = "sidenav",
             tags$div(
               class = "sidebar",
-              tabsetPanel(
-                id = "filetype_tabs",
-                type = "tabs",
-                tabPanel(
-                  "CSV",
-                  tipify(
+              "Data to analyse",
+              tipify(
                     fileInput("uploaded_csv", "Choose CSV File",
                       accept = ".csv"
                     ),
@@ -188,44 +192,13 @@ ui <- fluidPage(
                     trigger = "hover",
                     options = list(container = "body")
                   )
-                ), tabPanel(
-                  "GPKG",
-                  tipify(
-                    fileInput("uploaded_gpkg", "Choose GPKG File",
-                      multiple = FALSE,
-                      accept = ".gpkg"
-                    ),
-                    title = "Only upload GPKG files downloaded from fishRman (EPSG: 4326). Maximum 150 Mb.",
-                    placement = "right",
-                    trigger = "hover",
-                    options = list(container = "body")
-                  ),
-                  "Or use the current data",
-                  disabled(actionButton(
-                    inputId = "convert_to_spatial_button",
-                    label = "Convert"
-                  )),
-                  disabled(
-                    tipify(
-                      downloadButton(
-                        outputId = "download_gpkg_button",
-                        label = "Download .gpkg"
-                      ),
-                      title = "Download may take a couple of minutes for larger dataframes, please wait.",
-                      placement = "right",
-                      trigger = "hover",
-                      options = list(container = "body")
-                    )
-                  )
-                )
-              ),
+                ),
               tags$div(
-                class = "sidebar",
-                id = "area_of_interest",
+                class = "sidebar hide-overflow",
                 "Area of interest",
                 disabled(
                   tipify(
-                    fileInput("second_uploaded_gpkg", "Choose GPKG File",
+                    fileInput("area_of_interest", "Choose GPKG File",
                       multiple = FALSE,
                       accept = ".gpkg"
                     ),
@@ -237,7 +210,7 @@ ui <- fluidPage(
                 ),
                 disabled(
                   selectInput(
-                    inputId = "second_gpkg_layer",
+                    inputId = "area_of_interest_layer",
                     label = "Layer",
                     choices = NULL,
                     multiple = FALSE
@@ -255,7 +228,21 @@ ui <- fluidPage(
                     trigger = "hover",
                     options = list(container = "body")
                   )
-                )
+                ),
+                tags$div(
+                  class = "button-container",
+                  disabled(
+                    downloadButton(
+                      outputId = "download_button_csv_clipped",
+                      label = ".csv"
+                    )
+                  ),
+                  disabled(
+                    downloadButton(
+                      outputId = "download_button_gpkg_clipped",
+                      label = ".gpkg"
+                    )
+                  ))
               )
             ),
             tags$div(
@@ -300,15 +287,9 @@ ui <- fluidPage(
                 )
               )
             )
-          )
-        ),
+          ),
         column(
           9,
-          tags$div(
-            class = "queried_table",
-            id = "preview-table",
-            tableOutput("uploaded_csv_viz")
-          ),
           tags$div(
             class = "queried_table",
             id = "summary-table",
@@ -391,72 +372,6 @@ ui <- fluidPage(
             class = "queried-table",
             id = "documentation",
             uiOutput("pdfview")
-          )
-        )
-      )
-    )
-  ),
-  fluidRow(
-    column(
-      12,
-      tags$div(
-        class = "footer",
-        column(
-          3,
-          tags$p("Software"),
-          tags$a(
-            target = "_blank",
-            rel = "noreferrer noopener",
-            img(
-              src = "img/fishrman_banner.png",
-              height = "auto",
-              width = "100%"
-            ),
-            href = "https://github.com/Shyentist/fish-r-man"
-          )
-        ),
-        column(
-          6,
-          tags$p("References"),
-          "Software: Buonomo P. [2021]. fishRman: A Shiny R Dashboard improving Global Fishing Watch data availability. Journal of Open Source Software.",
-          tags$a("https://doi.org/10.21105/joss.03467",
-            target = "_blank",
-            rel = "noreferrer noopener",
-            href = "https://doi.org/10.21105/joss.03467",
-            style = "color:#000000"
-          ),
-          tags$br(),
-          tags$br(),
-          "Data: Global Fishing Watch. [2021].",
-          tags$a("https://globalfishingwatch.org/",
-            target = "_blank",
-            rel = "noreferrer noopener",
-            href = "https://globalfishingwatch.org/",
-            style = "color:#000000"
-          ),
-          tags$br(),
-          tags$br(),
-          tags$p("Contacts"),
-          "E-mail:",
-          tags$a("pasqualebuonomo@hotmail.it",
-            target = "_blank",
-            rel = "noreferrer noopener",
-            href = "mailto:pasqualebuonomo@hotmail.it",
-            style = "color:#000000"
-          )
-        ),
-        column(
-          3,
-          tags$p("Sponsor"),
-          tags$a(
-            target = "_blank",
-            rel = "noreferrer noopener",
-            img(
-              src = "img/OSMOS_logo.png",
-              height = "auto",
-              width = "100%"
-            ),
-            href = "https://osmos.xyz/"
           )
         )
       )

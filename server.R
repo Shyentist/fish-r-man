@@ -8,7 +8,7 @@ server <- function(input, output, session) {
     
     table_name_ui <- input$table_name_ui
 
-    # check which table the user decided to query, and presents the checkboxes
+    # checks which table the user decided to query, and presents the checkboxes
     # of the fields (columns) of that table
     
     if (table_name_ui == "fishing_effort_byvessel_v2"){
@@ -51,34 +51,93 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
 
+  # this function takes different paths depending on the input
+  # if "Filter" button is pressed, it creates an SQL Query runs it
+  # if csv or gpkg files are uploaded, it assign the dataframe to "my_data"
+  
+  SQL <- reactive({
+    
+    table <- input$table_name_ui
+    
+    table_full_name <- paste(
+      project,
+      dataset,
+      table,
+      sep = "."
+    )
+    
+    # Below, I check which filter boxes are checked, and assign the input
+    # value to a variable named exactly like the input's id. If the checkbox
+    # is unchecked, I assign NULL to the respective variable.
+    # I do this because, otherwise, one could i.e. select the 100th degree
+    # table, which has a flag and a geartype column, check those boxes,
+    # input something and then switch to the 10th degree table, which does
+    # not have the columns. The inputs would only be grayed out, not deleted,
+    # so the query would have them all the same.
+    
+    checked_boxes <- input$filter_columns_ui
+    
+    for (id in list_togglable_ids) {
+      if (id %in% checked_boxes) {
+        assign(id, input[[id]])
+      } else {
+        assign(id, NULL)
+      }
+    }
+    
+    # start the SQL constructor
+    SQL <- sql.construct(
+      table = table_full_name,
+      date = date,
+      cell_ll_lat = cell_ll_lat,
+      cell_ll_lon = cell_ll_lon,
+      hours = hours,
+      fishing_hours = fishing_hours,
+      mmsi_present = mmsi_present,
+      flag = flag,
+      geartype = geartype,
+      mmsi = mmsi
+    )  
+    
+    return(SQL)
+    
+  })
+  
+  observe({
+    
+    SQL <- SQL()
+    
+    output$sql_query <- renderText({
+      SQL
+    })
+    
+  })
+  
   # what is happening down here, with which_event, you will see it often in this
   # code. It is basically a switch, that I can later check in reactive expressions
   # that must differentiate among the various types of inputs that they can receive
   # for instance, both when uploading a csv or querying data, I need the final
   # result to be assigned to 'my_data', so that later on I can just refer to this
   # value, which is qualitatively the same for both sources
-
+  
   which_event <- reactiveValues(
     query = FALSE, # activated when new data is queried
-    csv = FALSE, # activated when new data is uploaded via csv
-    gpkg = FALSE # activated when new data is uploaded via gpkg
+    csv = FALSE # activated when new data is uploaded via csv
   )
-
+  
   observeEvent(input$filter_button, {
     which_event$query <- TRUE
     which_event$csv <- FALSE
-    which_event$gpkg <- FALSE
   })
-
+  
   observeEvent(input$uploaded_csv, {
     which_event$query <- FALSE
     which_event$csv <- TRUE
-    which_event$gpkg <- FALSE
   })
-
-  # the switch for which_event$gpkg is in sf_data(), when the spatial dataframe
+  
+  # the switch for which_event$gpkg is in my_data(), when the spatial dataframe
   # passes the checks and is successfully loaded
-
+  
   # I used the possibleInputs list to have reactive events start at any
   # change of the list, then check which of the previously mentioned
   # switches was turned on (TRUE)
@@ -86,89 +145,47 @@ server <- function(input, output, session) {
   possibleInputs <- reactive({
     list(
       input$filter_button,
-      input$uploaded_csv,
-      which_event$gpkg
+      input$uploaded_csv
     )
   })
 
-  # this function takes different paths depending on the input
-  # if "Filter" button is pressed, it creates an SQL Query runs it
-  # if csv or gpkg files are uploaded, it assign the dataframe to "my_data"
-  
   my_data <- eventReactive(possibleInputs(), {
     tryCatch(
       {
         df <- NULL
+        
+        shinyjs::hide(id = "map") # to avoid users messing with revisualisation, possibly skipping the checks
 
         updatePrettyCheckbox( # uploading a new csv or running a new query "overwrites"
           session = session, # the "clip" mode, so that the summaries and analyses shown
           inputId = "clip", # are always related to the latest loaded data
           value = FALSE
         )
-
+        
         if (which_event$query) {
+          
           showModal(
             modalDialog(
               size = "l",
-              "Constructing SQL Query...",
+              "Fishing for data...",
               footer = NULL
             )
           )
-
+          
           output$queried_table <- renderDataTable({}) # empty the table before starting the function
-
-          table <- input$table_name_ui
-
-          table_full_name <- paste(
-            project,
-            dataset,
-            table,
-            sep = "."
-          )
-
-          # Below, I check which filter boxes are checked, and assign the input
-          # value to a variable named exactly like the input's id. If the checkbox
-          # is unchecked, I assign NULL to the respective variable.
-          # I do this because, otherwise, one could i.e. select the 100th degree
-          # table, which has a flag and a geartype column, check those boxes,
-          # input something and then switch to the 10th degree table, which does
-          # not have the columns. The inputs would only be grayed out, not deleted,
-          # so the query would have them all the same.
-
-          checked_boxes <- input$filter_columns_ui
-
-          for (id in list_togglable_ids) {
-            if (id %in% checked_boxes) {
-              assign(id, input[[id]])
-            } else {
-              assign(id, NULL)
-            }
-          }
-
-          # start the SQL constructor
-          SQL <- sql.construct(
-            table = table_full_name,
-            date = date,
-            cell_ll_lat = cell_ll_lat,
-            cell_ll_lon = cell_ll_lon,
-            hours = hours,
-            fishing_hours = fishing_hours,
-            mmsi_present = mmsi_present,
-            flag = flag,
-            geartype = geartype,
-            mmsi = mmsi
-          )
-
+          
+          SQL <- SQL()
+          
           # creating the query to count the number of rows the resulting table 
           # would have, so I can put a cap to avoid huge queries
 
           SQL_count <- count.sql(SQL)
-
-          output$sql_query <- renderText({
-            SQL
-          })
-          
+         
           billing <- input$billing
+          
+          if (billing == ""){
+            billing <- "fish-r-man"
+          }
           
           BQ_connection <- dbConnect(bigquery(),
                                      project = project,
@@ -182,56 +199,19 @@ server <- function(input, output, session) {
             SQL_count
           )
 
-          max_rows <- 1000000 # add more 0s if you don't care for speed and need to perform large analyses
-
           # and here is where the count from SQL_count is used
           # to check the number of rows the query would retrieve
           # against max_rows just above
           
           if (count$count_col <= max_rows) {
-            showModal(
-              modalDialog(
-                size = "l",
-                "Fishing for data...",
-                footer = NULL
-              )
-            )
 
             df <- dbGetQuery(
               BQ_connection,
               SQL
             )
 
-            showModal(
-              modalDialog(
-                size = "l",
-                "Building table...",
-                footer = NULL
-              )
-            )
-
             output$queried_table <- renderDataTable(df) # now the table can be repopulated
-
-            enable(id = "download_button") # and the download button enabled
-
-            output$download_button <- downloadHandler(
-              filename = function() {
-                paste(
-                  "data-",
-                  Sys.Date(),
-                  ".csv",
-                  sep = ""
-                )
-              },
-              content = function(con) {
-                write.csv(
-                  df,
-                  con,
-                  row.names = F
-                )
-              }
-            )
-
+            
             removeModal()
           } else {
             message <- sprintf(
@@ -239,7 +219,6 @@ server <- function(input, output, session) {
               max_rows,
               count$count_col
             )
-
 
             showModal(
               modalDialog(
@@ -263,49 +242,38 @@ server <- function(input, output, session) {
             quote = '"'
           )
 
-          col_names_csv <- colnames(df)
+          col_names_df <- colnames(df)
 
           # I just check for the col_names to know whether the file
           # is compatible. Someone could go out of their way to make
           # a csv with the same col_names and different types of data
           # to crash the app for the sake of it, but no one else should
           # have any issue
-          if ((isFALSE(all.equal(col_names_csv, column_100th))) && (isFALSE(all.equal(col_names_csv, column_10th)))) {
+          if ((isFALSE(all.equal(col_names_df, column_100th))) && (isFALSE(all.equal(col_names_df, column_10th)))) {
             df <- NULL
           }
 
           removeModal()
-        } else if (which_event$gpkg) {
-          sdf <- sf_data()
-
-          # if the spatial data is not empty, then I revert the "geom"
-          # column to cell_ll_lon and cell_ll_lat for consistency, before
-          # assigning them to the dataframe
-          if (!is.null(sdf) && !is.na(sdf)) {
-            df <- sdf %>%
-              dplyr::mutate(
-                cell_ll_lon = sf::st_coordinates(.)[, 1],
-                cell_ll_lat = sf::st_coordinates(.)[, 2]
-              ) %>%
-              as.data.frame()
-
-            # and here I delete the "geom" column from the database
-            df <- select(df, -c(geom))
-
-            # this is to preserve the same order for
-            # colnames, to avoid eventual inconsistencies
-            # if the number of columns does not match
-            # the df is set to NULL, because something went wrong
-            if (length(colnames(df)) == 8) {
-              df <- select(df, column_100th)
-            } else if (length(colnames(df)) == 6) {
-              df <- select(df, column_10th)
-            }
-          } else {
-            df <- NULL
-          }
         }
-      },
+        
+        sdf <- df
+        
+        if (!is.null(sdf)){
+
+        # create a geom/geometry column via cell_ll_lat and cell_ll_lon
+        sdf <- st_as_sf(
+          df, 
+          coords = c("cell_ll_lon", "cell_ll_lat"), 
+          remove = FALSE
+          )
+        
+        st_crs(sdf) <- 4326 # make sure to set the CRS, which is a very important check later on
+        
+        }
+        
+        return(sdf)
+      
+        },
       error = function(err) {
         showModal(
           modalDialog(
@@ -313,42 +281,124 @@ server <- function(input, output, session) {
             paste("The error '", err, "' arose while loading the dataframe. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
-      }
-    )
-
-    return(df)
+      })
   })
+  
+  observe({
+    
+    tryCatch(
+      {
+    
+    sdf <- my_data()
 
+    if ((!is.null(sdf)) && (length(sdf$geometry) > 0)) {
+      
+      df <- as.data.frame(sdf) %>%
+        select(-c(geometry))
+      
+    output$download_button_gpkg <- downloadHandler(
+      filename = function() {
+        paste(
+          "spatial-data-",
+          Sys.Date(),
+          ".gpkg",
+          sep = ""
+        )
+      },
+      content = function(file) {
+        st_write(
+          sdf,
+          file,
+          layer = "GFW",
+          driver = "GPKG"
+        )
+      })
+    
+    output$download_button_csv <- downloadHandler(
+      filename = function() {
+        paste(
+          "data-",
+          Sys.Date(),
+          ".csv",
+          sep = ""
+        )
+      },
+      content = function(file) {
+        write.csv(
+          df,
+          file,
+          row.names = F
+        )
+      }
+    )}
+    },
+    error = function(err) {
+      showModal(
+        modalDialog(
+          size = "l",
+          paste("The error '", err, "' arose while preparing the downloadable files. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
+        )
+      )
+    })
+  })
+  
   # function to enable/disable/update inputs related to my_data/clipped_data
   # because I don't want inputs available to the user if that could break the app
+  
+  # all inputs relying on sdf are enabled/disabled here depending on the fact
+  # that sdf exists and has at least one point
+  
   observe({
     tryCatch(
       {
-        df <- my_data()
-
-        whether_to_clip <- input$clip
-
-        if (whether_to_clip) {
-          df <- clipped_data()
+       sdf <- my_data()
+        
+        if ((!is.null(sdf)) && (length(sdf$geometry) > 0)) {
+          enable(id = "visualize_button")
+          enable(id = "area_of_interest")
+          enable(id = "re_visualize_button")
+          enable(id = "download_button_csv")
+          enable(id = "download_button_gpkg")
+          enable(id = "summarize_button")
+        } else {
+          disable(id = "visualize_button")
+          disable(id = "area_of_interest")
+          disable(id = "re_visualize_button")
+          disable(id = "download_button_csv")
+          disable(id = "download_button_gpkg")
+          disable(id = "summarize_button")
         }
+      },
+      error = function(err) {
+        showModal(
+          modalDialog(
+            size = "l",
+            paste("The error '", err, "' arose while enabling/disabling inputs. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
+          )
+        )
+      }
+    )
+  })
 
-        col_names_df <- colnames(df)
+  observe({
+    tryCatch(
+      {
+        col_names_df <- colnames(my_data())
+        
+        col_names_df <- col_names_df[! col_names_df %in% c('geometry')]
 
         if (isTRUE(all.equal(col_names_df, column_100th))) {
+          
           summaries <- available_summaries_100th
 
-          enable(id = "summarize_button")
-          enable(id = "convert_to_spatial_button")
         } else if (isTRUE(all.equal(col_names_df, column_10th))) {
+          
           summaries <- available_summaries_10th
-
-          enable(id = "summarize_button")
-          enable(id = "convert_to_spatial_button")
+          
         } else {
+          
           summaries <- NULL
-
-          disable(id = "summarize_button")
-          disable(id = "convert_to_spatial_button")
+          
         }
 
         updatePrettyCheckboxGroup(
@@ -362,32 +412,6 @@ server <- function(input, output, session) {
           modalDialog(
             size = "l",
             paste("The error '", err, "' arose while updating the summaries. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
-          )
-        )
-      }
-    )
-  })
-
-  output$uploaded_csv_viz <- renderTable({
-    tryCatch(
-      { # renderTable must have had an update
-
-        df <- my_data() # that is messing with the date format. In an attempt to
-
-        if (length(df$date) != 0) { # solve that, I also had issues with the header,
-
-          header <- head(my_data()) # so this is my solution for now
-
-          header$date <- as.character(as.Date(header$date, "%Y-%m-%d"))
-
-          return(header)
-        }
-      },
-      error = function(err) {
-        showModal(
-          modalDialog(
-            size = "l",
-            paste("The error '", err, "' arose while rendering the preview table. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
       }
@@ -412,9 +436,11 @@ server <- function(input, output, session) {
           whether_to_clip <- input$clip
 
           if (whether_to_clip) {
-            df <- clipped_data()
+            df <- as.data.frame(clipped_data())%>%
+              select(-c(geometry))
           } else {
-            df <- my_data()
+            df <- as.data.frame(my_data()) %>%
+              select(-c(geometry))
           }
 
           # since there is no month column, the app has to create it now
@@ -442,41 +468,12 @@ server <- function(input, output, session) {
             # although only Total and mean are displayed, the actual table that
             # can be downloaded has more complete info such as quartiles and median
             summarized <- group_by_at(df, vars(one_of(choice))) %>%
-              summarize(
-                "Total fishing" = sum(fishing_hours),
-                "Min. fishing" = min(fishing_hours),
-                "1st Qu. fishing" = quantile(fishing_hours, 0.25),
-                "Median fishing" = median(fishing_hours),
-                "Mean fishing" = mean(fishing_hours),
-                "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
-                "Max. fishing" = max(fishing_hours),
-                "Total hours" = sum(hours),
-                "Min. hours" = min(hours),
-                "1st Qu. hours" = quantile(hours, 0.25),
-                "Median hours" = median(hours),
-                "Mean hours" = mean(hours),
-                "3rd Qu. hours" = quantile(hours, 0.75),
-                "Max. hours" = max(hours)
-              )
+              gfw.summarize()
+            
           } else {
 
             # if no choice is made for aggregation, the entire dataframe is summarized
-            summarized <- summarize(df,
-              "Total fishing" = sum(fishing_hours),
-              "Min. fishing" = min(fishing_hours),
-              "1st Qu. fishing" = quantile(fishing_hours, 0.25),
-              "Median fishing" = median(fishing_hours),
-              "Mean fishing" = mean(fishing_hours),
-              "3rd Qu. fishing" = quantile(fishing_hours, 0.75),
-              "Max. fishing" = max(fishing_hours),
-              "Total hours" = sum(hours),
-              "Min. hours" = min(hours),
-              "1st Qu. hours" = quantile(hours, 0.25),
-              "Median hours" = median(hours),
-              "Mean hours" = mean(hours),
-              "3rd Qu. hours" = quantile(hours, 0.75),
-              "Max. hours" = max(hours)
-            )
+            summarized <- gfw.summarize(df)
           }
 
           columns_to_append <- c(
@@ -534,244 +531,9 @@ server <- function(input, output, session) {
     )
   })
 
-  # again, switches, so that the functions depending on a list of them
-  # are triggered by any change in the list. Then, to decide which
-  # route the function should take, we check which switch is on (TRUE)
-  which_sf_event <- reactiveValues(
-    gpkg = FALSE, # activates when a gpkg file is uploaded, creating a new sf_data
-    converted = FALSE # activates when sf_data is created via the 'Convert' button
-  )
-
-  observeEvent(input$convert_to_spatial_button, {
-    which_sf_event$converted <- TRUE
-    which_sf_event$gpkg <- FALSE
-  })
-
-  observeEvent(input$uploaded_gpkg, {
-    which_sf_event$converted <- FALSE
-    which_sf_event$gpkg <- TRUE
-  })
-
-  possibleSpatialInputs <- reactive({
-    list(
-      input$uploaded_gpkg,
-      input$convert_to_spatial_button
-    )
-  })
-
-  sf_data <- eventReactive(possibleSpatialInputs(), {
-    sdf <- NULL
-
-    tryCatch(
-      {
-        shinyjs::hide(id = "map") # to avoid users messing with revisualisation, possibly skipping the checks
-
-        updatePrettyCheckbox( # uploading or converting into a new gpkg "overwrites"
-          session = session, # the "clip" mode, so that the checks can be run again
-          inputId = "clip",
-          value = FALSE
-        )
-
-        disable(id = "clip") # to avoid users purposefully loading a gpkg that might
-        # break the clip function without first passing the due checks
-
-        if (which_sf_event$converted) {
-          showModal(
-            modalDialog(
-              size = "l",
-              "Converting data to GeoPackage...",
-              footer = NULL
-            )
-          )
-
-          df <- my_data()
-
-          col_names_conv <- colnames(df)
-
-          # create a geom/geometry column via cell_ll_lat and cell_ll_lon
-          sdf <- st_as_sf(df,
-            coords = c(
-              "cell_ll_lon",
-              "cell_ll_lat"
-            )
-          )
-
-          colnames(sdf)[colnames(sdf) == "geometry"] <- "geom" # this happens because
-          # st_write creates a column "geom",
-          # but st_as_sf names it "geometry", messing
-          # with my system of checking colnames
-
-          st_geometry(sdf) <- "geom" # otherwise the sf object would still look for "geometry" for its geometry
-
-          st_crs(sdf) <- 4326 # make sure to set the CRS, which is a very important
-          # check later on
-
-          removeModal()
-        } else if (which_sf_event$gpkg) {
-          showModal(
-            modalDialog(
-              size = "l",
-              "Uploading GeoPackage...",
-              footer = NULL
-            )
-          )
-
-          # this is to check for the presence of "GFW" layer before asking
-          # the code to actually read that layer
-          layers <- st_layers(input$uploaded_gpkg$datapath)
-
-          layers_name <- layers$name
-
-          if ("GFW" %in% layers_name) {
-            sdf <- st_read(input$uploaded_gpkg$datapath,
-              layer = "GFW",
-              geometry_column = "geom"
-            )
-
-            col_names_gpkg <- colnames(sdf)
-
-            removeModal()
-
-            if (((isFALSE(all.equal(col_names_gpkg, sf_column_100th)) && isFALSE(all.equal(col_names_gpkg, sf_column_10th)))) || (st_crs(sdf) != st_crs(4326))) {
-
-              # if the gpkg file, at the GFW layer, does not have the right column
-              # names, the function is aborted and sdf (later sf_data) is set to NULL
-              sdf <- NULL
-
-              showModal(
-                modalDialog(
-                  size = "l",
-                  "Please upload a file originating from fishRman"
-                )
-              )
-            }
-
-            which_event$gpkg <- TRUE # this part of the switch had to be moved here
-            which_event$query <- FALSE # to avoid making repetitive checks just for
-            which_event$csv <- FALSE # these boolean values
-          } else {
-
-            # if there is no GFW layer at all in the gpkg, the function
-            # is aborted and the sdf (later sf_data) is set to NULL
-            sdf <- NULL
-
-            showModal(
-              modalDialog(
-                size = "l",
-                "Please upload a file originating from fishRman"
-              )
-            )
-          }
-        }
-      },
-      error = function(err) {
-        showModal(
-          modalDialog(
-            size = "l",
-            paste("The error '", err, "' arose while loading the spatial dataframe. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
-          )
-        )
-      }
-    )
-
-    return(sdf)
-  })
-
-  # all inputs relying on sdf are enabled/disabled here depending on the fact
-  # that sdf exists and has at least one point
-  observe({
-    tryCatch(
-      {
-        sdf <- sf_data()
-
-        whether_to_clip <- input$clip
-
-        if (whether_to_clip) {
-          sdf <- clipped_sf_data()
-        }
-
-        if ((!is.null(sdf)) && (length(sdf$geom) > 0)) {
-          enable(id = "download_gpkg_button")
-          enable(id = "visualize_button")
-          enable(id = "second_uploaded_gpkg")
-          enable(id = "re_visualize_button")
-        } else {
-          disable(id = "download_gpkg_button")
-          disable(id = "visualize_button")
-          disable(id = "second_uploaded_gpkg")
-          disable(id = "re_visualize_button")
-        }
-      },
-      error = function(err) {
-        showModal(
-          modalDialog(
-            size = "l",
-            paste("The error '", err, "' arose while enabling/disabling spatial inputs. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
-          )
-        )
-      }
-    )
-  })
-
-  # to download either clipped or unclipped data
-  output$download_gpkg_button <- tryCatch(
-    {
-      downloadHandler(
-        filename = function() {
-          paste(
-            "spatial-data-",
-            Sys.Date(),
-            ".gpkg",
-            sep = ""
-          )
-        },
-        content = function(file) {
-          whether_to_clip <- input$clip
-
-          if (whether_to_clip) {
-            sdf <- clipped_sf_data()
-          } else {
-            sdf <- sf_data()
-          }
-
-          world_sf <- sf::st_as_sf(
-            maps::map(
-              "world",
-              plot = FALSE,
-              fill = TRUE
-            )
-          )
-
-          st_write(
-            sdf,
-            file,
-            layer = "GFW",
-            driver = "GPKG"
-          )
-
-          st_write(
-            world_sf,
-            file,
-            layer = "Land",
-            driver = "GPKG",
-            append = TRUE
-          )
-        }
-      )
-    },
-    error = function(err) {
-      showModal(
-        modalDialog(
-          size = "l",
-          paste("The error '", err, "' arose while downloading spatial data. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
-        )
-      )
-    }
-  )
-
   # function to update list for selection of layer for clipping
   # first of a series of checks to make the process as safe as possible
-  observeEvent(input$second_uploaded_gpkg, {
+  observeEvent(input$area_of_interest, {
     tryCatch(
       {
         showModal(
@@ -784,16 +546,16 @@ server <- function(input, output, session) {
 
         # look for the names of the layers in the file to fill
         # the selectInput
-        layers <- st_layers(input$second_uploaded_gpkg$datapath)
+        layers <- st_layers(input$area_of_interest$datapath)
 
         layers_name <- layers$name
 
         updateSelectInput(
-          inputId = "second_gpkg_layer",
+          inputId = "area_of_interest_layer",
           choices = layers_name
         )
 
-        enable(id = "second_gpkg_layer")
+        enable(id = "area_of_interest_layer")
 
         removeModal()
       },
@@ -807,17 +569,35 @@ server <- function(input, output, session) {
       }
     )
   })
+  
+  observe({
+    
+    whether_to_clip <- input$clip 
+    
+    if (whether_to_clip){
+      
+      enable(id = "download_button_csv_clipped")
+      enable(id = "download_button_gpkg_clipped")
+      
+    } else { 
+      
+      disable(id = "download_button_csv_clipped")
+      disable(id = "download_button_gpkg_clipped")
+      
+    }
+    
+  })
 
   # function to just CHECK whether the chosen layer of the uploaded geopackage is
   # in CRS EPSG 4326 and is a POLYGON/MULTIPOLYGON, thus suitable for st_intersects
-  observeEvent(input$second_gpkg_layer, {
+  observeEvent(input$area_of_interest_layer, {
     tryCatch(
       {
-        chosen_layer <- input$second_gpkg_layer
+        chosen_layer <- input$area_of_interest_layer
 
-        dsn <- input$second_uploaded_gpkg$datapath
+        dsn <- input$area_of_interest$datapath
 
-        sdf <- sf_data
+        sdf <- my_data()
 
         if ((!is.null(dsn)) && (!is.na(dsn))) {
           area_of_interest <- st_read(
@@ -829,7 +609,7 @@ server <- function(input, output, session) {
             class()
 
           if (("sfc_POLYGON" %in% geom_type) || ("sfc_MULTIPOLYGON" %in% geom_type)) {
-            if (st_crs(sf_data()) == st_crs(area_of_interest)) {
+            if (st_crs(sdf) == st_crs(area_of_interest)) {
               enable(id = "clip")
             } else {
               disable(id = "clip")
@@ -866,7 +646,7 @@ server <- function(input, output, session) {
 
   # function to get the insersection between GFW points and uploaded polygons
   # de facto executing a clip of the points falling in the polygons
-  clipped_sf_data <- eventReactive(input$clip, {
+  clipped_data <- eventReactive(input$clip, {
     tryCatch(
       {
         whether_to_clip <- input$clip
@@ -880,11 +660,11 @@ server <- function(input, output, session) {
             )
           )
 
-          chosen_layer <- input$second_gpkg_layer
+          chosen_layer <- input$area_of_interest_layer
 
-          dsn <- input$second_uploaded_gpkg$datapath
+          dsn <- input$area_of_interest$datapath
 
-          points <- sf_data()
+          points <- my_data()
 
           area_of_interest <- st_read(
             dsn = dsn,
@@ -932,45 +712,79 @@ server <- function(input, output, session) {
       }
     )
   })
-
-  # function to derive csv-like (non-spatial, turning geom column into
-  # cell_ll_lat and cell_ll_lon) data from clipped spatial data
-  clipped_data <- reactive({
+  
+  observe({
+    
     tryCatch(
       {
-        df <- NULL
-
-        sdf <- clipped_sf_data()
-
-        if (!is.null(sdf) && !is.na(sdf)) {
-          df <- sdf %>%
-            dplyr::mutate(
-              cell_ll_lon = sf::st_coordinates(.)[, 1],
-              cell_ll_lat = sf::st_coordinates(.)[, 2]
-            ) %>%
-            as.data.frame()
-
-          df <- select(df, -c(geom))
-
-          if (length(colnames(df)) == 8) { # this is to preserve the same order for
-
-            df <- select(df, column_100th) # colnames, to avoid eventual inconsistencies
-          } else if (length(colnames(df)) == 6) {
-            df <- select(df, column_10th)
-          }
-        }
+        sdf <- clipped_data()
+        
+        if ((!is.null(sdf)) && (length(sdf$geometry) > 0)) {
+          
+          df <- as.data.frame(sdf) %>%
+            select(-c(geometry))
+          
+          output$download_button_gpkg_clipped <- downloadHandler(
+            filename = function() {
+              paste(
+                "clipped-spatial-data-",
+                Sys.Date(),
+                ".gpkg",
+                sep = ""
+              )
+            },
+            content = function(file) {
+              
+              world_sf <- sf::st_as_sf(
+                maps::map(
+                  "world",
+                  plot = FALSE,
+                  fill = TRUE
+                )
+              )
+              
+              st_write(
+                sdf,
+                file,
+                layer = "GFW",
+                driver = "GPKG"
+              )
+              
+              st_write(
+                world_sf,
+                file,
+                layer = "Land",
+                driver = "GPKG",
+                append = TRUE
+              )
+            })
+          
+          output$download_button_csv_clipped <- downloadHandler(
+            filename = function() {
+              paste(
+                "clipped-data-",
+                Sys.Date(),
+                ".csv",
+                sep = ""
+              )
+            },
+            content = function(file) {
+              write.csv(
+                df,
+                file,
+                row.names = F
+              )
+            }
+          )}
       },
       error = function(err) {
         showModal(
           modalDialog(
             size = "l",
-            paste("The error '", err, "' arose while retrieving a dataframe from clipped data. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
+            paste("The error '", err, "' arose while preparing the downloadable files for the area of interest. Please be sure to follow the documentation. If the problem persists, contact the developer(s) for assistance (contacts below).")
           )
         )
-      }
-    )
-
-    return(df)
+      })
   })
 
   which_viz_event <- reactiveValues(
@@ -1007,13 +821,13 @@ server <- function(input, output, session) {
         whether_to_clip <- input$clip
 
         if (whether_to_clip) {
-          sdf <- clipped_sf_data()
+          sdf <- clipped_data()
         } else {
-          sdf <- sf_data()
+          sdf <- my_data()
         }
 
         # first, just use the bbox boundaries to set the coords for the plot
-        if ((!is.null(sdf)) && (length(sdf$geom) > 0)) {
+        if ((!is.null(sdf)) && (length(sdf$geometry) > 0)) {
           bbox <- st_bbox(sdf)
 
           xmin <- bbox$xmin
@@ -1074,24 +888,20 @@ server <- function(input, output, session) {
         whether_to_clip <- input$clip
 
         if (whether_to_clip) {
-          sdf <- clipped_sf_data()
+          sdf <- clipped_data()
         } else {
-          sdf <- sf_data()
+          sdf <- my_data()
         }
 
         col_names_sdf <- colnames(sdf)
 
-        df <- sdf %>%
-          dplyr::mutate(
-            lon = sf::st_coordinates(.)[, 1],
-            lat = sf::st_coordinates(.)[, 2]
-          ) # lat and lon are easier to work with than "geom"
+        col_names_sdf <- col_names_sdf[! col_names_sdf %in% c('geometry')]
 
         # if it is the first time visualizing the plot and the column
         # names are those of the 0.01 degrees table, rez is 0.01
         # minimum rez is set to 0.01 too
         if (which_viz_event$origin) {
-          if (isTRUE(all.equal(col_names_sdf, sf_column_100th))) {
+          if (isTRUE(all.equal(col_names_sdf, column_100th))) {
             updateNumericInput(session,
               inputId = "map_rez",
               min = 0.01,
@@ -1103,7 +913,7 @@ server <- function(input, output, session) {
             # if it is the first time visualizing and the col names are
             # those of the 0.1 table, rez stays 0.1. Minimum rez is set
             # to 0.1 too
-          } else if (isTRUE(all.equal(col_names_sdf, sf_column_10th))) {
+          } else if (isTRUE(all.equal(col_names_sdf, column_10th))) {
             updateNumericInput(session,
               inputId = "map_rez",
               min = 0.1,
@@ -1148,36 +958,31 @@ server <- function(input, output, session) {
           whether_to_clip <- input$clip
 
           if (whether_to_clip) {
-            sdf <- clipped_sf_data()
+            df <- clipped_data()
           } else {
-            sdf <- sf_data()
+            df <- my_data()
           }
 
-          col_names_sdf <- colnames(sdf)
-
-          df <- sdf %>%
-            dplyr::mutate(
-              lon = sf::st_coordinates(.)[, 1],
-              lat = sf::st_coordinates(.)[, 2]
-            ) # lat and lon are easier to work with than "geom"
+          col_names_df <- colnames(df)
+          
+          col_names_df <- col_names_df[! col_names_df %in% c('geometry')]
 
           rez <- rez()
 
           # if statements to reaggregate data according to rez
-          if (isTRUE(all.equal(col_names_sdf, sf_column_100th))) {
+          if (isTRUE(all.equal(col_names_df, column_100th))) {
             if (is.numeric(rez) && rez > 0.01 && rez <= 2) {
               df <- df %>%
                 mutate(
-                  lat = floor(lat / rez) * rez + 0.5 * rez,
-                  lon = floor(lon / rez) * rez + 0.5 * rez
+                  lat = floor(cell_ll_lat / rez) * rez + 0.5 * rez,
+                  lon = floor(cell_ll_lon / rez) * rez + 0.5 * rez
                 )
             } # this sets new lat and lon for the new aggregation
-
+            
+            # aggregation starts here
             grouped_df <- df %>%
-              # aggregation starts here
-
               as.data.frame() %>%
-              group_by(lon, lat) %>%
+              group_by(cell_ll_lon, cell_ll_lat) %>%
               summarise(
                 "Total fishing hours" = sum(fishing_hours),
                 "Total hours" = sum(hours),
@@ -1186,18 +991,18 @@ server <- function(input, output, session) {
                 "Mean hours" = mean(hours),
                 "Mean MMSI present" = mean(mmsi_present)
               )
-          } else if (isTRUE(all.equal(col_names_sdf, sf_column_10th))) {
+          } else if (isTRUE(all.equal(col_names_df, column_10th))) {
             if (is.numeric(rez) && rez > 0.1 && rez <= 2) {
               df <- df %>%
                 mutate(
-                  lat = floor(lat / rez) * rez + 0.5 * rez,
-                  lon = floor(lon / rez) * rez + 0.5 * rez
+                  cell_ll_lat = floor(cell_ll_lat / rez) * rez + 0.5 * rez,
+                  cell_ll_lon = floor(cell_ll_lon / rez) * rez + 0.5 * rez
                 )
             }
 
             grouped_df <- df %>%
               as.data.frame() %>%
-              group_by(lon, lat) %>%
+              group_by(cell_ll_lon, cell_ll_lat) %>%
               summarise(
                 "Total fishing hours" = sum(fishing_hours),
                 "Total hours" = sum(hours),
@@ -1210,7 +1015,7 @@ server <- function(input, output, session) {
           if (which_viz_event$origin) {
             col_names_grouped <- colnames(grouped_df)
 
-            col_names_grouped_no_geo <- col_names_grouped[!col_names_grouped %in% c("lat", "lon")]
+            col_names_grouped_no_geo <- col_names_grouped[!col_names_grouped %in% c("cell_ll_lat", "cell_ll_lon")]
 
             updateSelectInput(session,
               inputId = "mapped_column",
@@ -1221,7 +1026,7 @@ server <- function(input, output, session) {
           } else {
             to_fill <- input$mapped_column
           } # basically, if it's the first plot, it defaults to "Total fishing hours" to fill, otherwise, it is the chosen field
-
+          print(to_fill)
           # sort table according to to_fill, decreasing
           grouped_df <- grouped_df[order(-grouped_df[to_fill]), ]
 
@@ -1285,7 +1090,7 @@ server <- function(input, output, session) {
           highy <- plot_range$highy
 
           map <- ggplot() +
-            geom_tile(data = grouped_df, aes(x = lon, y = lat, fill = .data[[to_fill]])) +
+            geom_tile(data = grouped_df, aes(x = cell_ll_lon, y = cell_ll_lat, fill = .data[[to_fill]])) +
             scale_fill_viridis() +
             geom_sf(
               data = world_sf,
