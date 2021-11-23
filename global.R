@@ -16,6 +16,7 @@ source("fun/count.sql.R")
 source("fun/length.until.R")
 source("fun/intro.message.R")
 source("fun/gfw.summarize.R")
+source("fun/footer.R")
 
 options(scipen = 999)
 
