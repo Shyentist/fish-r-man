@@ -1,21 +1,22 @@
 library(shiny)
 library(shinyjs)
+library(shinyBS)
 library(shinyWidgets)
 library(DBI)
 library(bigrquery)
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(countrycode)
-library(stringi)
 library(sf)
 library(maps)
-library(ggplot2)
 library(viridis)
-library(shinyBS)
 
 source("fun/sql.construct.R")
 source("fun/count.sql.R")
 source("fun/length.until.R")
 source("fun/intro.message.R")
+source("fun/gfw.summarize.R")
+source("fun/footer.R")
 
 options(scipen = 999)
 
@@ -30,6 +31,9 @@ bq_auth(email = "fishrman-user@fish-r-man.iam.gserviceaccount.com", path = "www/
 # uncomment line below for "offline distro"
 #bq_auth(email=FALSE, scopes = "https://www.googleapis.com/auth/bigquery") 
 
+max_rows <- 1000000 # max number of rows to be returned for queries
+# add more 0s if you don't care for speed and need to perform large analyses
+# queries larger than this will not be retrieved at all
 
 # these are the IDs for the filter checkboxes, so that later
 # functions can iterate through it
@@ -157,12 +161,6 @@ month_year_vector <- c("month", "year") # to append to colnames, to have a clean
 available_summaries_10th <- append(column_10th, month_year_vector, after = 1)
 
 available_summaries_100th <- append(column_100th, month_year_vector, after = 1)
-
-sf_column_100th <- column_100th[!column_100th %in% c("cell_ll_lat", "cell_ll_lon")] %>% # to later check the validity of spatial data uploaded (they must have same colnames as these vectors)
-  append("geom")
-
-sf_column_10th <- column_10th[!column_10th %in% c("cell_ll_lat", "cell_ll_lon")] %>%
-  append("geom")
 
 add_layer_choices_backend <- c("eez_boundaries_v11.gpkg", "eez_24nm_v3_boundaries.gpkg", "eez_12nm_v3_boundaries.gpkg")
 
