@@ -2,8 +2,6 @@ server <- function(input, output, session) {
 
   intro.message()
 
-  #depending on the chosen table, update the input checkboxes
-  
   observeEvent(input$table_name_ui, {
     
     table_name_ui <- input$table_name_ui
@@ -51,9 +49,8 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
 
-  # this function takes different paths depending on the input
-  # if "Filter" button is pressed, it creates an SQL Query runs it
-  # if csv or gpkg files are uploaded, it assign the dataframe to "my_data"
+  # based on chosen table and input values to query
+  # returns an SQL query string
   
   SQL <- reactive({
     
@@ -103,6 +100,8 @@ server <- function(input, output, session) {
     
   })
   
+  # the SQL query string is rendered as text in the UI
+  
   observe({
     
     SQL <- SQL()
@@ -113,12 +112,12 @@ server <- function(input, output, session) {
     
   })
   
-  # what is happening down here, with which_event, you will see it often in this
-  # code. It is basically a switch, that I can later check in reactive expressions
-  # that must differentiate among the various types of inputs that they can receive
-  # for instance, both when uploading a csv or querying data, I need the final
-  # result to be assigned to 'my_data', so that later on I can just refer to this
-  # value, which is qualitatively the same for both sources
+  # what is happening down here, with which_event, is basically a switch, that I 
+  # can later check in reactive expressions that must differentiate among the 
+  # various types of inputs that they can receive. For instance, both when 
+  # uploading a csv or querying data, I need the final result to be assigned to 
+  # 'my_data', so that later on I can just refer to this value, which is 
+  # qualitatively the same for both sources
   
   which_event <- reactiveValues(
     query = FALSE, # activated when new data is queried
@@ -135,9 +134,6 @@ server <- function(input, output, session) {
     which_event$csv <- TRUE
   })
   
-  # the switch for which_event$gpkg is in my_data(), when the spatial dataframe
-  # passes the checks and is successfully loaded
-  
   # I used the possibleInputs list to have reactive events start at any
   # change of the list, then check which of the previously mentioned
   # switches was turned on (TRUE)
@@ -149,6 +145,10 @@ server <- function(input, output, session) {
     )
   })
 
+  # this function takes different paths depending on the input. If "Filter" button 
+  # is pressed, it runs the SQL Query created by the user and assigns the data
+  # to "my_data", if a csv file is uploaded, it assigns the dataframe to "my_data"
+  
   my_data <- eventReactive(possibleInputs(), {
     tryCatch(
       {
@@ -184,8 +184,12 @@ server <- function(input, output, session) {
           billing <- input$billing
           
           if (billing == ""){
-            billing <- "fish-r-man"
+            billing <- "fish-r-man" 
           }
+          
+          # billing defaults to fish-r-man to make the online experience more comfortable
+          # as the user is not meant to access their google account nor input 
+          # their billing project
           
           BQ_connection <- dbConnect(bigquery(),
                                      project = project,
@@ -249,6 +253,7 @@ server <- function(input, output, session) {
           # a csv with the same col_names and different types of data
           # to crash the app for the sake of it, but no one else should
           # have any issue
+          
           if ((isFALSE(all.equal(col_names_df, column_100th))) && (isFALSE(all.equal(col_names_df, column_10th)))) {
             df <- NULL
           }
@@ -264,10 +269,12 @@ server <- function(input, output, session) {
         sdf <- st_as_sf(
           df, 
           coords = c("cell_ll_lon", "cell_ll_lat"), 
-          remove = FALSE
+          remove = FALSE # retains cell_ll_lat and cell_ll_lon columns
           )
         
-        st_crs(sdf) <- 4326 # make sure to set the CRS, which is a very important check later on
+        # make sure to set the CRS, which is a very important check later on (when dealing with the area of interest)
+        
+        st_crs(sdf) <- 4326 
         
         }
         
@@ -284,12 +291,18 @@ server <- function(input, output, session) {
       })
   })
   
+  # download buttons for my_data are managed down here
+  
   observe({
     
     tryCatch(
       {
     
     sdf <- my_data()
+    
+    # if my_data is not empty and has at least 1 row, turn it back into a
+    # regular dataframe, rather than sf object, and assign it to the csv download
+    # while the sf object is assigned to the gpkg download
 
     if ((!is.null(sdf)) && (length(sdf$geometry) > 0)) {
       
@@ -306,11 +319,28 @@ server <- function(input, output, session) {
         )
       },
       content = function(file) {
+        
+        world_sf <- sf::st_as_sf(
+          maps::map(
+            "world",
+            plot = FALSE,
+            fill = TRUE
+          )
+        )
+        
         st_write(
           sdf,
           file,
           layer = "GFW",
           driver = "GPKG"
+        )
+        
+        st_write(
+          world_sf,
+          file,
+          layer = "Land",
+          driver = "GPKG",
+          append = TRUE
         )
       })
     
@@ -346,7 +376,7 @@ server <- function(input, output, session) {
   # because I don't want inputs available to the user if that could break the app
   
   # all inputs relying on sdf are enabled/disabled here depending on the fact
-  # that sdf exists and has at least one point
+  # that my_data exists and has at least one point
   
   observe({
     tryCatch(
@@ -379,6 +409,9 @@ server <- function(input, output, session) {
       }
     )
   })
+  
+  # check the column names for my_data (minus the geometry column) and updates
+  # the available summaries in Descriptive Analyses" tab accordingly
 
   observe({
     tryCatch(
@@ -433,7 +466,7 @@ server <- function(input, output, session) {
         choice <- input$summaries
 
         if (length(choice) < 8) {
-          whether_to_clip <- input$clip
+          whether_to_clip <- input$clip # whether to use my_data or clipped_data for the analyses
 
           if (whether_to_clip) {
             df <- as.data.frame(clipped_data())%>%
@@ -490,6 +523,8 @@ server <- function(input, output, session) {
           output$summary_preview <- renderDataTable({
             summarized[, columns_to_show]
           })
+          
+          # the download file is also created here and the button is enabled
 
           output$download_analyses_button <- downloadHandler(
             filename = function() {
@@ -532,7 +567,8 @@ server <- function(input, output, session) {
   })
 
   # function to update list for selection of layer for clipping
-  # first of a series of checks to make the process as safe as possible
+  # it is the first check to make the process as safe as possible
+  
   observeEvent(input$area_of_interest, {
     tryCatch(
       {
@@ -568,24 +604,6 @@ server <- function(input, output, session) {
         )
       }
     )
-  })
-  
-  observe({
-    
-    whether_to_clip <- input$clip 
-    
-    if (whether_to_clip){
-      
-      enable(id = "download_button_csv_clipped")
-      enable(id = "download_button_gpkg_clipped")
-      
-    } else { 
-      
-      disable(id = "download_button_csv_clipped")
-      disable(id = "download_button_gpkg_clipped")
-      
-    }
-    
   })
 
   # function to just CHECK whether the chosen layer of the uploaded geopackage is
@@ -712,6 +730,31 @@ server <- function(input, output, session) {
       }
     )
   })
+  
+  # if the clipping is successful in every step, the input$clip checkbox stays
+  # checked (TRUE), and can be used to know whether clipped_data exists and whether
+  # the user would like to analyze that instead of my_data. Also, while it is
+  # TRUE, the download csv and download gpkg buttons are enabled.
+  
+  observe({
+    
+    whether_to_clip <- input$clip 
+    
+    if (whether_to_clip){
+      
+      enable(id = "download_button_csv_clipped")
+      enable(id = "download_button_gpkg_clipped")
+      
+    } else { 
+      
+      disable(id = "download_button_csv_clipped")
+      disable(id = "download_button_gpkg_clipped")
+      
+    }
+    
+  })
+  
+  # here we prepare the files for the download buttons for the clipped_data
   
   observe({
     

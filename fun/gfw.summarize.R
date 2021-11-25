@@ -1,4 +1,5 @@
-library(dplyr)
+# specific instance of the dplyr::summarize() function, with important measures
+# of central tendency for fishing_hours and hours
 
 gfw.summarize <- function(df){
   
