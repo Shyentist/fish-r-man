@@ -125,8 +125,8 @@ geartype_names <- c(
   "Squid jigger",
   "Trawlers",
   "Trollers",
-  "Tuna purse seins",
-  "Other purse seins",
+  "Tuna purse seines",
+  "Other purse seines",
   "Other seines",
   "Fishing"
 )

@@ -101,7 +101,7 @@ ui <- fluidPage(
                     href = "https://www.nationsonline.org/oneworld/country_code_list.htm",
                     style = "color:gray; text-decoration: underline; font-size: 0.7vw;"
                   )),
-                  choices = na.omit(codelist$iso3c),
+                  choices = sort(na.omit(codelist$iso3c)),
                   multiple = TRUE
                 )
               ),
