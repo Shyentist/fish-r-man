@@ -15,6 +15,12 @@ body {
     }
 }
 
+@media (min-width: 2000px) {
+    body{
+        font-size: 20px;
+    }
+}
+
 .container-fluid {
 
     padding-right: 0.5vw;
@@ -46,6 +52,12 @@ div.sidebar.hide-overflow{
 @media (min-width: 768px){
     .sidebar p a {
         font-size: 0.7vw !important;
+    }
+}
+
+@media (min-width: 2000px) {
+    .sidebar p a {
+        font-size: 14px !important;
     }
 }
 
@@ -125,8 +137,14 @@ ul.nav-tabs li.active a {
 }
 
 @media (min-width: 768px){
-    .sidebar .btn.btn-file{
+    .sidebar .btn.btn-file {
         font-size: 1vw;
+    }
+}
+
+@media (min-width: 2000px) {
+    .sidebar .btn.btn-file {
+        font-size: 20px;
     }
 }
 
@@ -172,6 +190,12 @@ ul.nav-tabs li.active a {
 @media (min-width: 768px){
     .form-control{
         font-size: 1vw;
+    }
+}
+
+@media (min-width: 2000px) {
+    .form-control {
+        font-size: 20px;
     }
 }
 
@@ -233,6 +257,12 @@ height: 2.5vw;
     }
 }
 
+@media (min-width: 2000px) {
+    .input-group-addon {
+        font-size: 20px;
+    }
+}
+
 
 .input-group-sm > .form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .btn {
 
@@ -245,6 +275,12 @@ height: 2.5vw;
 
         font-size: 1vw;
     
+    }
+}
+
+@media (min-width: 2000px) {
+    .input-group-sm > .form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .btn {
+        font-size: 20px;
     }
 }
 
@@ -278,7 +314,7 @@ div.dataTables_wrapper.form-inline.dt-bootstrap{
     background-color: rgba(255, 255, 255, 0.850);
     border-radius: 15px;
     text-align:center;
-    margin-top: 1vw;
+    margin: 1vw 0;
     width: 100%;
     padding: 1vw;
 
@@ -327,6 +363,12 @@ table {
     }
 }
 
+@media (min-width: 2000px) {
+    table {
+        font-size: 20px;
+    }
+}
+
 table.dataTable thead > tr > th{
     padding: 0;
     text-align: center;
@@ -342,6 +384,12 @@ code {
 @media (min-width: 768px){
     code {
         font-size: 0.7vw;
+    }
+}
+
+@media (min-width: 2000px) {
+    code {
+        font-size: 14px;
     }
 }
 
