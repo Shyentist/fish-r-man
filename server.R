@@ -162,6 +162,10 @@ server <- function(input, output, session) {
           value = FALSE
         )
         
+        output$summary_preview <- renderDataTable({}) # uploading a new csv or running a new query also voids previous analyses
+        
+        disable(id = "download_analyses_button") # also, having voided the analyses table, we must also prevent download of previous analyses
+        
         if (which_event$query) {
           
           showModal(
