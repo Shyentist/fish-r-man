@@ -1018,11 +1018,12 @@ server <- function(input, output, session) {
 
           # if statements to reaggregate data according to rez
           if (isTRUE(all.equal(col_names_df, column_100th))) {
+            
             if (is.numeric(rez) && rez > 0.01 && rez <= 2) {
               df <- df %>%
                 mutate(
-                  lat = floor(cell_ll_lat / rez) * rez + 0.5 * rez,
-                  lon = floor(cell_ll_lon / rez) * rez + 0.5 * rez
+                  cell_ll_lat = floor(cell_ll_lat / rez) * rez + 0.5 * rez,
+                  cell_ll_lon = floor(cell_ll_lon / rez) * rez + 0.5 * rez
                 )
             } # this sets new lat and lon for the new aggregation
             
@@ -1073,7 +1074,7 @@ server <- function(input, output, session) {
           } else {
             to_fill <- input$mapped_column
           } # basically, if it's the first plot, it defaults to "Total fishing hours" to fill, otherwise, it is the chosen field
-          print(to_fill)
+          
           # sort table according to to_fill, decreasing
           grouped_df <- grouped_df[order(-grouped_df[to_fill]), ]
 
