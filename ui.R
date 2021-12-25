@@ -84,7 +84,7 @@ ui <- fluidPage(
                     "date"
                   ),
                   title = "Minimum is included.<br>Maximum is not.<br>Minimum must be less than maximum.",
-                  placement = "right",
+                  placement = "bottom",
                   trigger = "hover",
                   options = list(container = "body")
                 )
@@ -120,7 +120,9 @@ ui <- fluidPage(
                 ),
                 bsTooltip(
                   id = "mmsi",
-                  title = "Type 123 to search for MMSI number 123, exactly.<br>Type %123 to search for MMSIs ending with 123.<br>Type 123% to search for MMSIs starting with 123.<br>Type %123% to search for MMSIs containing 123.", placement = "right", trigger = "hover",
+                  title = "Type 123 to search for MMSI number 123, exactly.<br>Type %123 to search for MMSIs ending with 123.<br>Type 123% to search for MMSIs starting with 123.<br>Type %123% to search for MMSIs containing 123.", 
+                  placement = "bottom", 
+                  trigger = "hover",
                   options = list(container = "body")
                 )
               )
@@ -188,7 +190,7 @@ ui <- fluidPage(
                       accept = ".csv"
                     ),
                     title = "Only upload CSV files downloaded from fishRman. Maximum 150 Mb.",
-                    placement = "right",
+                    placement = "bottom",
                     trigger = "hover",
                     options = list(container = "body")
                   )
@@ -203,7 +205,7 @@ ui <- fluidPage(
                       accept = ".gpkg"
                     ),
                     title = "File must have same CRS as GFW data (EPSG: 4326). Maximum 150 Mb.",
-                    placement = "right",
+                    placement = "bottom",
                     trigger = "hover",
                     options = list(container = "body")
                   )
@@ -224,7 +226,7 @@ ui <- fluidPage(
                       value = FALSE
                     ),
                     title = "When ticked, analyses are performed only in the area of interest",
-                    placement = "right",
+                    placement = "bottom",
                     trigger = "hover",
                     options = list(container = "body")
                   )
@@ -324,7 +326,7 @@ ui <- fluidPage(
                     value = 100
                   ),
                   title = "Show the top X% of the dataframe",
-                  placement = "left",
+                  placement = "bottom",
                   trigger = "hover",
                   options = list(container = "body")
                 ),
@@ -345,7 +347,7 @@ ui <- fluidPage(
                     value = NULL
                   ),
                   title = "Length of the side of each grid cell, in degrees of latitude and longitude. Maximum 2.",
-                  placement = "left",
+                  placement = "bottom",
                   trigger = "hover",
                   options = list(container = "body")
                 ),
