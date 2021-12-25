@@ -1145,7 +1145,9 @@ server <- function(input, output, session) {
               fill = "#BABABA",
               color = "#0A1738",
               size = 0.1
-            )
+            ) +
+            xlab("Longitude") +
+            ylab("Latitude")
 
           # checks which optional global layers exist in order to
           # add them to the plot function
