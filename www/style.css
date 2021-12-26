@@ -6,6 +6,7 @@ body {
   ),url("img/boat1.jpg") no-repeat fixed center;
     background-size: 100% 100%;
     font-size: 3vw;
+    padding-right: 0px !important;
 
 }
 
