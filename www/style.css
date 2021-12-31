@@ -22,6 +22,10 @@ body {
     }
 }
 
+label .btn {
+    padding: 20% 0;
+}   
+
 .container-fluid {
 
     padding-right: 0.5vw;
@@ -130,10 +134,11 @@ ul.nav-tabs li.active a {
 
 .sidebar .btn.btn-file{
 
-    height: 34px;
+    height: 100%;
     margin: 0;
     font-size: 2vw;
     vertical-align: middle;
+    display: inline-block;
 
 }
 
@@ -178,6 +183,12 @@ ul.nav-tabs li.active a {
     display: inline-block;
 }
 
+.input-group {
+
+    height: 2.5vw;
+
+}
+
 .input-group-sm > .form-control{
     
     height: 34px;
@@ -206,14 +217,13 @@ ul.nav-tabs li.active a {
    
 }
 
-div.sidebar div.input-group {
-
-    height: 2.5vw;
-
+.input-daterange .input-group-addon{
+    padding: 0 1vw;
+    width: 1%;
 }
 
-.input-daterange .input-group-addon{
-    padding: 0.5vw 1vw;
+.input-group .form-control {
+    height:100%;
 }
 
 div.input-daterange.input-group.input-group-sm {
@@ -234,16 +244,10 @@ div.input-daterange.input-group.input-group-sm {
     text-align:left;
     
 }
-   
-.input-numeric-range.input-group {
-
-height: 2.5vw;
-
-}
 
 .input-group-addon {
 
-    padding: 0.5vw 2vw;
+    padding: 0vw 1vw;
     border: none;
     font-size: 2vw;
 
@@ -252,7 +256,6 @@ height: 2.5vw;
 @media (min-width: 768px){
     .input-group-addon {
 
-        padding: 0.5vw 1vw;
         font-size: 1vw;
     
     }
@@ -264,6 +267,9 @@ height: 2.5vw;
     }
 }
 
+.input-group-btn {
+    height: 100%;
+}
 
 .input-group-sm > .form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .btn {
 
