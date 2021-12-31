@@ -130,7 +130,7 @@ ul.nav-tabs li.active a {
 
 .sidebar .btn.btn-file{
 
-    height: 34px;
+    height: 100%;
     margin: 0;
     font-size: 2vw;
     vertical-align: middle;
@@ -206,14 +206,12 @@ ul.nav-tabs li.active a {
    
 }
 
-div.sidebar div.input-group {
-
-    height: 2.5vw;
-
+.input-daterange .input-group-addon{
+    padding: 0 1vw;
 }
 
-.input-daterange .input-group-addon{
-    padding: 0.5vw 1vw;
+.input-group .form-control {
+    height:100%;
 }
 
 div.input-daterange.input-group.input-group-sm {
@@ -234,16 +232,10 @@ div.input-daterange.input-group.input-group-sm {
     text-align:left;
     
 }
-   
-.input-numeric-range.input-group {
-
-height: 2.5vw;
-
-}
 
 .input-group-addon {
 
-    padding: 0.5vw 2vw;
+    padding: 0vw 1vw;
     border: none;
     font-size: 2vw;
 
@@ -252,7 +244,6 @@ height: 2.5vw;
 @media (min-width: 768px){
     .input-group-addon {
 
-        padding: 0.5vw 1vw;
         font-size: 1vw;
     
     }
