@@ -1,0 +1,122 @@
+{
+  "input": {
+    "add_layer": null,
+    "analyses_types_tabs": "Spatial",
+    "cell_ll_lat": [
+      -90,
+      90
+    ],
+    "cell_ll_lon": [
+      -180,
+      180
+    ],
+    "clip": false,
+    "convert_to_spatial_button": 0,
+    "cumul_distr_percent": 100,
+    "date": [
+      "2012-01-01",
+      "2012-01-02"
+    ],
+    "filetype_tabs": "GPKG",
+    "filter_button": 0,
+    "filter_columns_ui": null,
+    "fishing_hours": [
+      0,
+      100000
+    ],
+    "flag": null,
+    "geartype": null,
+    "hours": [
+      0,
+      100000
+    ],
+    "map_rez": 0.01,
+    "mapped_column": "Total fishing hours",
+    "mmsi": "",
+    "mmsi_present": [
+      0,
+      10000
+    ],
+    "re_visualize_button": 0,
+    "second_gpkg_layer": "",
+    "second_uploaded_gpkg": null,
+    "spatial_analyses": null,
+    "summaries": null,
+    "summarize_button": 0,
+    "table_name_ui": "AIS data at 10th degree",
+    "tabs": "Analysis",
+    "uploaded_csv": null,
+    "uploaded_gpkg": {
+      "name": [
+        "geo_100.gpkg"
+      ],
+      "size": [
+        6193152
+      ],
+      "type": [
+        ""
+      ],
+      "datapath": [
+        "0.gpkg"
+      ]
+    },
+    "visualize_button": 1,
+    "xrange": [
+      12.29,
+      17.99
+    ],
+    "yrange": [
+      42,
+      45.75
+    ]
+  },
+  "output": {
+    "uploaded_csv_viz": "<table  class = 'table shiny-table table- spacing-s' style = 'width:auto;'>\n<thead> <tr> <th style='text-align: left;'> date <\/th> <th style='text-align: right;'> cell_ll_lat <\/th> <th style='text-align: right;'> cell_ll_lon <\/th> <th style='text-align: left;'> flag <\/th> <th style='text-align: left;'> geartype <\/th> <th style='text-align: right;'> hours <\/th> <th style='text-align: right;'> fishing_hours <\/th> <th style='text-align: right;'> mmsi_present <\/th>  <\/tr> <\/thead> <tbody>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.08 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.28 <\/td> <td align=\"right\"> 1.28 <\/td> <td align=\"right\">   5 <\/td> <\/tr>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.10 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.07 <\/td> <td align=\"right\"> 1.07 <\/td> <td align=\"right\">   4 <\/td> <\/tr>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.06 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.81 <\/td> <td align=\"right\"> 1.81 <\/td> <td align=\"right\">   6 <\/td> <\/tr>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.02 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.43 <\/td> <td align=\"right\"> 1.17 <\/td> <td align=\"right\">   4 <\/td> <\/tr>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.04 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.02 <\/td> <td align=\"right\"> 1.02 <\/td> <td align=\"right\">   3 <\/td> <\/tr>\n  <tr> <td> 2016-02-10 <\/td> <td align=\"right\"> 42.00 <\/td> <td align=\"right\"> 16.03 <\/td> <td> ITA <\/td> <td> trawlers <\/td> <td align=\"right\"> 1.32 <\/td> <td align=\"right\"> 1.32 <\/td> <td align=\"right\">   4 <\/td> <\/tr>\n   <\/tbody> <\/table>",
+    "viz_map": {
+      "src": "[image data sha1: 03e253cb12eae8ab1ea941e05f2a12848223259d]",
+      "width": 497,
+      "height": 400,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 12.005,
+              "right": 18.275,
+              "bottom": 41.8125,
+              "top": 45.9375
+            },
+            "mapping": {
+              "x": "lon",
+              "y": "lat",
+              "fill": ".data[[\"Total fishing hours\"]]"
+            },
+            "range": {
+              "left": 53.1506742372041,
+              "right": 380.602663145999,
+              "bottom": 335.090615280884,
+              "top": 36.2380590102116
+            }
+          }
+        ],
+        "dims": {
+          "width": 497,
+          "height": 400
+        }
+      }
+    }
+  },
+  "export": {
+
+  }
+}
