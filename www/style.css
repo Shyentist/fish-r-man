@@ -22,10 +22,6 @@ body {
     }
 }
 
-label .btn {
-    padding: 20% 0;
-}   
-
 .container-fluid {
 
     padding-right: 0.5vw;
@@ -186,8 +182,11 @@ ul.nav-tabs li.active a {
 .input-group {
 
     height: 2.5vw;
+    max-height: 34px;
 
 }
+
+
 
 .input-group-sm > .form-control{
     
