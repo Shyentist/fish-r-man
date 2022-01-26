@@ -28,5 +28,11 @@ before_install:
   - "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then hash -r; fi"
   - "phantomjs --version"
 
+# Specify that this library needs to be installed (to be able to install.packages(units))
+addons:
+  apt:
+    packages:
+      - libudunits2-dev
+      
 script:
   - R -f run_tests.R
