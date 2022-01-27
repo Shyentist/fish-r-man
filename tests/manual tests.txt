@@ -5,14 +5,14 @@
 
 #########################################################################################
 
-##TESTS FOR QUERYING FROM TABLE "Fishing effort at 10th degree"
-#TEST 1: successful query for the table "Fishing effort at 10th degree"
+##TESTS FOR QUERYING FROM TABLE "AIS data at 10th degree"
+#TEST 1: successful query for the table "AIS data at 10th degree"
 
 - open app
 
-Query table should show "Fishing effort at 10th degree"
+Query table should show "AIS data at 10th degree"
 
-- check in any order the boxes "Date","Latitude", "Longitude", "Fishing hours", "Vessel hours"
+- check in any order the boxes "Date", "Latitude", "Longitude", "Fishing hours", "Vessel hours"
 
 The respective input fields should be activated as soon as the boxes are checked
 
@@ -24,25 +24,17 @@ Longitude between 12 and 18
 Fishing hours between 1 and 1000
 Vessel hours between 1 and 100
 
-- click on the "Filter" button
-
 The SQL Query text output should show the following
 
 'SELECT * FROM `global-fishing-watch.gfw_public_data.fishing_effort_byvessel_v2` WHERE date >= '2016-01-01' AND date < '2016-03-01' AND cell_ll_lat >= 42 AND cell_ll_lat < 46 AND cell_ll_lon >= 12 AND cell_ll_lon < 18 AND hours >= 1 AND hours < 100 AND fishing_hours >= 1 AND fishing_hours < 1000'
 
-The table output, which should state `Showing 1 to 25 of 53,287 entries` and is downloadable via the "Dowload" button, should match the file 'successful_query_10.csv'
+- click on the "Filter" button
 
-Click on the "Analysis" tab 
+The table output, which should state `Showing 1 to 25 of 53,287 entries` and is downloadable via the ".csv" button, should match the file 'successful_query_10.csv'
 
-Click on the "GPKG" subtab
+The file that is downloadable via the ".gpkg" button should match 'geo_10.gpkg'
 
-Click "Convert"
-
-Click "Download .gpkg"
-
-The downloaded file should match 'geo_10.gpkg'
-
-#TEST 2: impossible query for the table "Fishing effort at 10th degree"
+#TEST 2: impossible query for the table "AIS data at 10th degree"
 
 same steps as TEST 1, but at least one of the numeric range input fields must have minimum = maximum (e.g. "fishing hours" between 1 and 1)
 
@@ -50,7 +42,7 @@ The SQL Query text output should be equal to one from TEST 1, apart from the cha
 
 The table output should show 0 entries, and the download button should download a csv with only column names, matching the file 'impossible_query_10.csv'
 
-#TEST 3: empty query for the table "Fishing effort at 10th degree"
+#TEST 3: empty query for the table "AIS data at 10th degree"
 
 same steps as TEST 1, but the date must be amended to the range "between 2012-01-01 and 2012-01-02", no data is present in the table for that date, at that latitude and longitude
 
@@ -60,12 +52,12 @@ The table output should show 0 entries, and the download button should download 
 
 ########################################################################
 
-##TESTS FOR QUERYING FROM TABLE "Fishing effort at 100th degree"
-#TEST 4: successful query for the table "Fishing effort at 100th degree"
+##TESTS FOR QUERYING FROM TABLE "AIS data at 100th degree"
+#TEST 4: successful query for the table "AIS data at 100th degree"
 
-- select from the dropdown menu the table "Fishing effort at 100th degree"
+- select from the dropdown menu the table "AIS data at 100th degree"
 
-Query table should show "Fishing effort at 100th degree"
+Query table should show "AIS data at 100th degree"
 
 - check in any order the boxes "Date","Latitude", "Longitude", "Fishing hours", "Vessel hours", "Flag", "Geartype", "MMSI present"
 
@@ -82,25 +74,17 @@ Flag "ITA", "HRV", "SVN"
 Geartype "Trawlers"
 MMSI present between 1 and 10
 
-- click on the "Filter" button
-
 The SQL Query text output should show the following
 
-'SELECT * FROM `global-fishing-watch.gfw_public_data.fishing_effort_v2` WHERE date >= '2016-01-01' AND date < '2016-03-01' AND cell_ll_lat >= 42 AND cell_ll_lat < 46 AND cell_ll_lon >= 12 AND cell_ll_lon < 18 AND hours >= 1 AND hours < 100 AND fishing_hours >= 1 AND fishing_hours < 1000 AND mmsi_present >= 1 AND mmsi_present < 10 AND ( flag = 'ITA' OR flag = 'HRV' OR flag = 'SVN') AND ( geartype = 'trawlers')'
+'SELECT * FROM `global-fishing-watch.gfw_public_data.fishing_effort_v2` WHERE date >= '2016-01-01' AND date < '2016-03-01' AND cell_ll_lat >= 42 AND cell_ll_lat < 46 AND cell_ll_lon >= 12 AND cell_ll_lon < 18 AND hours >= 1 AND hours < 100 AND fishing_hours >= 1 AND fishing_hours < 1000 AND mmsi_present >= 1 AND mmsi_present < 10 AND flag IN ('ITA', 'HRV', 'SVN') AND geartype IN ('trawlers')'
 
-The table output, which should state `Showing 1 to 25 of 219 entries` and is downloadable via the "Dowload" button, should match the file 'successful_query_100.csv'
+- click on the "Filter" button
 
-Click on the "Analysis" tab 
+The table output, which should state `Showing 1 to 25 of 32082 entries` and is downloadable via the ".csv" button, should match the file 'successful_query_100.csv'
 
-Click on the "GPKG" subtab
+The file that is downloadable via the ".gpkg" button should match 'geo_100.gpkg'
 
-Click "Convert"
-
-Click "Download .gpkg"
-
-The downloaded file should match 'geo_100.gpkg'
-
-#TEST 5: impossible query for the table "Fishing effort at 100th degree"
+#TEST 5: impossible query for the table "AIS data at 100th degree"
 
 same steps as TEST 4, but at least one of the numeric range input fields must have minimum = maximum (e.g. "fishing hours" between 1 and 1)
 
@@ -108,7 +92,7 @@ The SQL Query text output should be equal to one from TEST 4, apart from the cha
 
 The table output should show 0 entries, and the download button should download a csv with only column names, matching the file 'impossible_query_100.csv'
 
-#TEST 6: empty query for the table "Fishing effort at 100th degree"
+#TEST 6: empty query for the table "AIS data at 100th degree"
 
 same steps as TEST 4, but the date must be amended to the range "between 2012-01-01 and 2012-01-02", no data is present in the table for that date, at that latitude and longitude
 
@@ -118,14 +102,11 @@ The table output should show 0 entries, and the download button should download 
 
 #########################################################################################
 
-##TESTING THE ZOOM-IN/ZOOM-OUT FEATURE
-#TEST 7: successful query for the table "Fishing effort at 10th degree"
+#TEST 7: zoom-in and zoom-out feature
 
-Go to the "Analysis" tab
+Go to the "Analysis" tab 
 
-Go to the "GPKG" subtab
-
-Upload any of the two gpkg files (geo_10.gpkg, geo_100.gpkg)
+Upload either successful_query_10.csv or successful_query_100.csv 
 
 Go to the "Spatial" subtab
 
