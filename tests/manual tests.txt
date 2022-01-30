@@ -119,7 +119,9 @@ Click "Re-Visualize"
 The new plot should now have shifted in order to accommodate the range you selected, with a "buffer length" for each axis equal to 5% of the difference between minimum and maximum (the two numbers you chose) for that axis
 
 ########################################################################################
-#from this point, automated tests are performed with the csv files mentioned above, since they match the queried data.
+#from this point, automated tests are performed with the csv files mentioned above, since they match the queried data. 
+#To use those tests, you need to set up your own permissions with a json file, since it will not be uploaded on GitHub
+#The tests can be run via test_calling.R
 
 
 
