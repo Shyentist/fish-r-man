@@ -1,0 +1,128 @@
+#these tests are not automated for compatibility issues with the shinytest package
+#automatic tests are to be launched via "test_calling.R" because running them from the "Run tests" button in R Studio returns errors
+#two dataframes can be tested as identical with the function identical(dataframe1, dataframe2)
+#csv files can be read via read.csv(), while gpkg files can be read with st_read()
+
+#########################################################################################
+
+##TESTS FOR QUERYING FROM TABLE "AIS data at 10th degree"
+#TEST 1: successful query for the table "AIS data at 10th degree"
+
+- open app
+
+Query table should show "AIS data at 10th degree"
+
+- check in any order the boxes "Date", "Latitude", "Longitude", "Fishing hours", "Vessel hours"
+
+The respective input fields should be activated as soon as the boxes are checked
+
+Fill the fields as follows, in no particular order. Inputting the minimum and maximum into the left or right box makes no difference. Input them randomly as to check that the last statement is true.
+
+Date between 2016-01-01 and 2016-03-01
+Latitude between 42 and 46
+Longitude between 12 and 18
+Fishing hours between 1 and 1000
+Vessel hours between 1 and 100
+
+The SQL Query text output should show the following
+
+'SELECT * FROM `global-fishing-watch.gfw_public_data.fishing_effort_byvessel_v2` WHERE date >= '2016-01-01' AND date < '2016-03-01' AND cell_ll_lat >= 42 AND cell_ll_lat < 46 AND cell_ll_lon >= 12 AND cell_ll_lon < 18 AND hours >= 1 AND hours < 100 AND fishing_hours >= 1 AND fishing_hours < 1000'
+
+- click on the "Filter" button
+
+The table output, which should state `Showing 1 to 25 of 53,287 entries` and is downloadable via the ".csv" button, should match the file 'successful_query_10.csv'
+
+The file that is downloadable via the ".gpkg" button should match 'geo_10.gpkg'
+
+#TEST 2: impossible query for the table "AIS data at 10th degree"
+
+same steps as TEST 1, but at least one of the numeric range input fields must have minimum = maximum (e.g. "fishing hours" between 1 and 1)
+
+The SQL Query text output should be equal to one from TEST 1, apart from the changes made by the tester during the previous step.
+
+The table output should show 0 entries, and the download button should download a csv with only column names, matching the file 'impossible_query_10.csv'
+
+#TEST 3: empty query for the table "AIS data at 10th degree"
+
+same steps as TEST 1, but the date must be amended to the range "between 2012-01-01 and 2012-01-02", no data is present in the table for that date, at that latitude and longitude
+
+The SQL Query text output should be equal to one from TEST 1, apart from the changes made for the date.
+
+The table output should show 0 entries, and the download button should download a csv with only column names, matching the file 'empty_query_10.csv'
+
+########################################################################
+
+##TESTS FOR QUERYING FROM TABLE "AIS data at 100th degree"
+#TEST 4: successful query for the table "AIS data at 100th degree"
+
+- select from the dropdown menu the table "AIS data at 100th degree"
+
+Query table should show "AIS data at 100th degree"
+
+- check in any order the boxes "Date","Latitude", "Longitude", "Fishing hours", "Vessel hours", "Flag", "Geartype", "MMSI present"
+
+The respective input fields should be activated as soon as the boxes are checked
+
+Fill the fields as follows, in no particular order. Inputting the minimum and maximum into the left or right box makes no difference. Input them randomly as to check that the last statement is true.
+
+Date between 2016-01-01 and 2016-03-01
+Latitude between 42 and 46
+Longitude between 12 and 18
+Fishing hours between 1 and 1000
+Vessel hours between 1 and 100
+Flag "ITA", "HRV", "SVN"
+Geartype "Trawlers"
+MMSI present between 1 and 10
+
+The SQL Query text output should show the following
+
+'SELECT * FROM `global-fishing-watch.gfw_public_data.fishing_effort_v2` WHERE date >= '2016-01-01' AND date < '2016-03-01' AND cell_ll_lat >= 42 AND cell_ll_lat < 46 AND cell_ll_lon >= 12 AND cell_ll_lon < 18 AND hours >= 1 AND hours < 100 AND fishing_hours >= 1 AND fishing_hours < 1000 AND mmsi_present >= 1 AND mmsi_present < 10 AND flag IN ('ITA', 'HRV', 'SVN') AND geartype IN ('trawlers')'
+
+- click on the "Filter" button
+
+The table output, which should state `Showing 1 to 25 of 32082 entries` and is downloadable via the ".csv" button, should match the file 'successful_query_100.csv'
+
+The file that is downloadable via the ".gpkg" button should match 'geo_100.gpkg'
+
+#TEST 5: impossible query for the table "AIS data at 100th degree"
+
+same steps as TEST 4, but at least one of the numeric range input fields must have minimum = maximum (e.g. "fishing hours" between 1 and 1)
+
+The SQL Query text output should be equal to one from TEST 4, apart from the changes made by the tester during the previous step.
+
+The table output should show 0 entries, and the download button should download a csv with only column names, matching the file 'impossible_query_100.csv'
+
+#TEST 6: empty query for the table "AIS data at 100th degree"
+
+same steps as TEST 4, but the date must be amended to the range "between 2012-01-01 and 2012-01-02", no data is present in the table for that date, at that latitude and longitude
+
+The SQL Query text output should be equal to one from TEST 4, apart from the changes made for the date.
+
+The table output should show 0 entries, and the download button should download a csv with only column names, matching the file 'empty_query_100.csv'
+
+#########################################################################################
+
+#TEST 7: zoom-in and zoom-out feature
+
+Go to the "Analysis" tab 
+
+Upload either successful_query_10.csv or successful_query_100.csv 
+
+Go to the "Spatial" subtab
+
+Click "Visualize"
+
+Edit the fields "Longitude range" and "Latitude range" at your will
+
+Click "Re-Visualize"
+
+The new plot should now have shifted in order to accommodate the range you selected, with a "buffer length" for each axis equal to 5% of the difference between minimum and maximum (the two numbers you chose) for that axis
+
+########################################################################################
+#from this point, automated tests are performed with the csv files mentioned above, since they match the queried data. 
+#To use those tests, you need to set up your own permissions with a json file, since it will not be uploaded on GitHub
+#The tests can be run via test_calling.R
+
+
+
+

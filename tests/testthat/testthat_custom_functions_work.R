@@ -1,8 +1,8 @@
 library(testthat)
 
-source("fun/sql.construct.R")
-
 test_that("SQL constructor works", {
+  
+  source("fun/sql.construct.R")
   
   expect_equal(
     sql.construct(
@@ -62,18 +62,18 @@ test_that("SQL constructor works", {
 
   })
 
-source("fun/count.sql.R")
-
 test_that("count.sql works", {
+  
+  source("fun/count.sql.R")
   
   expect_equal(count.sql("SELECT * FROM `global-fishing-watch.gfw_public_data.fishing_effort_byvessel_v2`"), "SELECT COUNT(*) as count_col FROM `global-fishing-watch.gfw_public_data.fishing_effort_byvessel_v2`")
   expect_equal(count.sql("SELECT * FROM `global-fishing-watch.gfw_public_data.fishing_effort_v2`"), "SELECT COUNT(*) as count_col FROM `global-fishing-watch.gfw_public_data.fishing_effort_v2`")
   
 })
 
-source("fun/length.until.R")
-
 test_that("length.until works", {
+  
+  source("fun/length.until.R")
   
   expect_equal(length.until(c(0,1,2,3,4,5), 14), 4)
   expect_equal(length.until(c(2,1,3,5,4,0), 13), 4)
