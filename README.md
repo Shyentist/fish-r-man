@@ -1,4 +1,3 @@
-# Welcome to fishRman [![DOI](https://joss.theoj.org/papers/10.21105/joss.03467/status.svg)](https://doi.org/10.21105/joss.03467) <!-- badges: start -->
 # Welcome to fishRman [![DOI](https://joss.theoj.org/papers/10.21105/joss.03467/status.svg)](https://doi.org/10.21105/joss.03467) <!-- badges: start --> [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) <!-- badges: end -->
 
 `fishRman` is an Open-Source Shiny R Dashboard to easily query, download, analyse and visualise Global Fishing Watch data on fishing effort. 
