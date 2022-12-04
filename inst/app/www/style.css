@@ -1,0 +1,404 @@
+body {
+
+    overflow-y: scroll;
+    background:linear-gradient(rgba(0, 0, 0, 0.10), /* #4189bf */
+    rgba(0, 0, 0, 0.10)
+  ),url("img/boat1.jpg") no-repeat fixed center;
+    background-size: 100% 100%;
+    font-size: 3vw;
+    padding-right: 0px !important;
+
+}
+
+@media (min-width: 768px) {
+    body{
+        font-size: 1vw;
+    }
+}
+
+@media (min-width: 2000px) {
+    body{
+        font-size: 20px;
+    }
+}
+
+.container-fluid {
+
+    padding-right: 0.5vw;
+    padding-left: 0.5vw;
+
+}
+
+div.sidebar {
+
+    margin: 1vw 0;
+    width: 100%;
+    padding: 1vw;
+    background-color: rgba(255, 255, 255, 0.850);
+    border-radius: 15px;
+    text-align:center;
+
+}
+
+div.sidebar.hide-overflow{
+    
+    overflow: hidden;
+
+}
+
+.sidebar p a {
+    font-size: 2vw !important;
+}
+
+@media (min-width: 768px){
+    .sidebar p a {
+        font-size: 0.7vw !important;
+    }
+}
+
+@media (min-width: 2000px) {
+    .sidebar p a {
+        font-size: 14px !important;
+    }
+}
+
+div.tab-content {
+
+    background-color: rgba(255, 255, 255, 0.40);
+    border-radius: 15px;
+    padding: 6px;
+    margin-bottom: 0.25vw;
+
+}
+
+div.footer {
+
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 15px;
+    padding: 0.5vw 0.5vw;
+    margin: 0;
+    overflow: auto;
+    color: black;
+
+}
+
+div.footer p {
+
+    font-weight: bold;
+
+}
+
+
+ul.nav-tabs {
+
+    border-bottom: none;
+    padding-left: 2vw;
+    margin-top: 0.5vw;
+
+}
+
+ul.nav-tabs li {
+
+    margin-bottom: 0;
+
+}
+
+ul.nav-tabs li a {
+
+    background-color: rgba(255, 255, 255, 0.50) !important;
+    border-color: transparent !important;
+    font-weight: bold;
+    padding: 0.7vw;
+
+}
+
+ul.nav-tabs li.active a {
+
+    background-color: rgba(255, 255, 255, 0.40) !important;
+    border-color: transparent !important;
+
+}
+
+.sidebar .btn{
+	
+	margin: 6px 0;
+    font-weight: bold;
+    width: 100%;
+    border-radius: 5px;
+
+}
+
+.sidebar .btn.btn-file{
+
+    height: 100%;
+    margin: 0;
+    font-size: 2vw;
+    vertical-align: middle;
+    display: inline-block;
+
+}
+
+@media (min-width: 768px){
+    .sidebar .btn.btn-file {
+        font-size: 1vw;
+    }
+}
+
+@media (min-width: 2000px) {
+    .sidebar .btn.btn-file {
+        font-size: 20px;
+    }
+}
+
+.button-container{
+    margin: 0 auto;
+    width:100%;
+}
+
+#download_button_csv{
+    float: left;  
+    width: 49%;
+    display: inline-block;
+}
+
+#download_button_gpkg{
+    float: right;
+    width: 49%;
+    display: inline-block;
+}
+
+#download_button_csv_clipped{
+    float: left;  
+    width: 49%;
+    display: inline-block;
+}
+
+#download_button_gpkg_clipped{
+    float: right;
+    width: 49%;
+    display: inline-block;
+}
+
+.input-group {
+
+    height: 2.5vw;
+    max-height: 34px;
+
+}
+
+
+
+.input-group-sm > .form-control{
+    
+    height: 34px;
+
+}
+
+.form-control{
+    font-size: 3vw;
+}
+
+@media (min-width: 768px){
+    .form-control{
+        font-size: 1vw;
+    }
+}
+
+@media (min-width: 2000px) {
+    .form-control {
+        font-size: 20px;
+    }
+}
+
+.form-control[disabled] {
+
+    background-color: #c1c1c1;
+   
+}
+
+.input-daterange .input-group-addon{
+    padding: 0 1vw;
+    width: 1%;
+}
+
+.input-group .form-control {
+    height:100%;
+}
+
+div.input-daterange.input-group.input-group-sm {
+
+    position: relative;
+    display: table;
+    border-collapse: separate;
+    text-align: center;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 1.42857143;
+    color: #333;
+    height: auto;
+
+}
+
+.input-daterange input {
+
+    text-align:left;
+    
+}
+
+.input-group-addon {
+
+    padding: 0vw 1vw;
+    border: none;
+    font-size: 2vw;
+
+}
+
+@media (min-width: 768px){
+    .input-group-addon {
+
+        font-size: 1vw;
+    
+    }
+}
+
+@media (min-width: 2000px) {
+    .input-group-addon {
+        font-size: 20px;
+    }
+}
+
+.input-group-btn {
+    height: 100%;
+}
+
+.input-group-sm > .form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .btn {
+
+    font-size: 2vw;
+
+}
+
+@media (min-width: 768px){
+    .input-group-sm > .form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .btn {
+
+        font-size: 1vw;
+    
+    }
+}
+
+@media (min-width: 2000px) {
+    .input-group-sm > .form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .btn {
+        font-size: 20px;
+    }
+}
+
+span.input-group-addon.input-group-prepend.input-group-append{
+
+    height: auto;
+}
+
+.shiny-options-group{
+
+    text-align: left;
+    font-size: 3vw;;
+}
+
+@media (min-width: 768px){
+    .shiny-options-group{
+
+        font-size: inherit;
+
+    }
+}
+
+.shiny-input-container:not(.shiny-input-container-inline){
+
+    width: auto;
+
+}
+
+div.dataTables_wrapper.form-inline.dt-bootstrap{
+
+    background-color: rgba(255, 255, 255, 0.850);
+    border-radius: 15px;
+    text-align:center;
+    margin: 1vw 0;
+    width: 100%;
+    padding: 1vw;
+
+}
+
+table.table.shiny-table.table-.spacing-s {
+
+    background-color: rgba(255, 255, 255, 0.850);
+    border-radius: 15px;
+    text-align:center;
+    margin-top: 1vw;
+    width: 100% !important;
+
+}
+
+table.table.table-striped.table-hover.dataTable{
+    
+    width: 100% !important;
+    
+}
+
+form.well {
+
+    padding: 0;
+
+}
+
+table {
+
+	text-align: center !important;
+    font-size: 1.6vw;
+
+}
+
+.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th{
+    
+    padding: 8px 0;
+
+}
+
+@media (min-width: 768px){
+    table {
+
+        font-size: 1vw
+    
+    }
+}
+
+@media (min-width: 2000px) {
+    table {
+        font-size: 20px;
+    }
+}
+
+table.dataTable thead > tr > th{
+    padding: 0;
+    text-align: center;
+    width: 1px !important;
+}
+
+code {
+    color: #337ab7;
+    padding: 0;
+    font-size: 2vw;
+}
+
+@media (min-width: 768px){
+    code {
+        font-size: 0.7vw;
+    }
+}
+
+@media (min-width: 2000px) {
+    code {
+        font-size: 14px;
+    }
+}
+
+.row {
+    margin: 0;
+}
