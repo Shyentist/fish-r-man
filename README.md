@@ -5,7 +5,7 @@
 ## Useful links
 You can use the dashboard and learn more about the code, the software, the data, and the people behind them via:
 
-- The [**Handbook**](https://raw.githubusercontent.com/Shyentist/fish-r-man/main/www/doc/Handbook.pdf) constitutes `fishRman`'s official instructions for use. Regardless of the prior knowledge of the user, reading the **Handbook** is key to the correct usage of the software.
+- The [**Handbook**](https://raw.githubusercontent.com/Shyentist/fish-r-man/main/inst/app/www/doc/Handbook.pdf) constitutes `fishRman`'s official instructions for use. Regardless of the prior knowledge of the user, reading the **Handbook** is key to the correct usage of the software.
 - Website of [**Open-Source for Marine and Ocean Sciences (OSMOS)**](https://osmos.xyz/), which is our research group. If you like our projects, and would like a more interactive role, consider joining our [**Discord server**](https://discord.com/invite/W2unKxKbp7), following us on [**Twitter**](https://twitter.com/osmos_xyz), or [**donating**](https://www.buymeacoffee.com/osmos).
 - The **Dashboard** can be accessed here: **https://shyentist.shinyapps.io/fish-r-man/**
 
