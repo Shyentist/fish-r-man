@@ -24,7 +24,7 @@ fish <- function(bait, JSON = FALSE) {
 
   if (missing(bait)) stop("You can only fish with a bait.")
 
-  url <- "http://127.0.0.1:8000"
+  url <- "http://127.0.0.1:8000" # in the meantime
 
   endpoint <- bait[[1]]
 
@@ -35,8 +35,8 @@ fish <- function(bait, JSON = FALSE) {
   res <- httr::POST(
     url = url,
     body =  body,
-    httr::add_headers(`accept` = 'application/json'),
-    httr::content_type('application/json')
+    httr::accept_json(),
+    httr::content_type_json()
     )
 
   if (!JSON) {
