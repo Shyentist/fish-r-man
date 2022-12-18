@@ -4,6 +4,8 @@
 #' Function that sorts a dataframe in descending order for a specific column, calculates the sum of all rows for that column, applies the chosen percentage to said sum, and subsets the minimum number of consecutive rows needed to reach this value.
 #'
 #' @param df A dataframe object as returned by passing the result of `bait.gfw.effort()` to `fish()`.
+#' @param percentage Number. The 'x' in 'the top x percent of the dataframe'.
+#' @param by Character. The name of the column for which the percentage will be calculated.
 #'
 #' @returns A dataframe.
 #'

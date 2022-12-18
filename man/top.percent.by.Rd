@@ -8,6 +8,10 @@ top.percent.by(df, percentage, by)
 }
 \arguments{
 \item{df}{A dataframe object as returned by passing the result of `bait.gfw.effort()` to `fish()`.}
+
+\item{percentage}{Number. The 'x' in 'the top x percent of the dataframe'.}
+
+\item{by}{Character. The name of the column for which the percentage will be calculated.}
 }
 \value{
 A dataframe.
