@@ -1,8 +1,12 @@
 Package: fishRman
 Title: The fisheries scientist's toolbox
 Version: 0.0.0.9000
-Authors@R: person('Pasquale', 'Buonomo', email = 'pasqualebuonomo@hotmail.it', role = c('cre', 'aut'), comment = c(ORCID = '0000-0002-1848-9313'))
-Description: A bundle of analytics tools for fisheries scientists. A Shiny R App is also included to allow users to analyse data without writing any code.
+Authors@R: 
+    person("Pasquale", "Buonomo", , "pasqualebuonomo@hotmail.it", role = c("cre", "aut"),
+           comment = c(ORCID = "0000-0002-1848-9313"))
+Description: A bundle of analytics tools for fisheries scientists. A Shiny
+    R App is also included to allow users to analyse data without writing
+    any code.
 License: AGPL (>= 3)
 Depends: 
     R (>= 2.10)
@@ -15,6 +19,7 @@ Imports:
     httr,
     jsonlite,
     maps,
+    mregions,
     sf,
     shiny (>= 1.7.1),
     shinyBS,
