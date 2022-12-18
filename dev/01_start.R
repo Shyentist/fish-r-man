@@ -26,7 +26,7 @@ golem::fill_desc(
   author_last_name = "Buonomo", # Your Last Name
   author_email = "pasqualebuonomo@hotmail.it", # Your Email
   author_orcid = "0000-0002-1848-9313",
-  repo_url = NULL # The URL of the GitHub Repo (optional)
+  repo_url = "https://github.com/Shyentist/fish-r-man" # The URL of the GitHub Repo (optional)
 )
 
 ## Set {golem} options ----
