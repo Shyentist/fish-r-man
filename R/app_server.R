@@ -5,8 +5,9 @@
 #' @importFrom shinyjs enable disable
 #' @importFrom shinyWidgets updatePrettyCheckbox updatePrettyCheckboxGroup updateNumericRangeInput
 #' @importFrom utils read.csv write.csv
-#' @importFrom sf st_as_sf st_crs st_write st_bbox st_intersects st_geometry st_read st_layers
+#' @importFrom sf st_as_sf st_crs st_write st_bbox st_intersects st_geometry st_read st_layers st_cast
 #' @importFrom viridis scale_fill_viridis
+#' @importFrom mregions mr_shp
 #' @import shiny
 #' @import dplyr
 #' @import ggplot2
@@ -1109,25 +1110,18 @@ app_server <- function(input, output, session) {
           # the user has decided to plot. Creates a variable for each of those
           layers_added <- input$add_layer
 
-          if ("eez_boundaries_v11.gpkg" %in% layers_added) {
-            world_eez <- st_read("./www/geo/eez_boundaries_v11.gpkg",
-                                 layer = "eez_boundaries_v11",
-                                 geometry_column = "geom"
-            )
+          if ("MarineRegions:eez_boundaries" %in% layers_added) {
+            world_eez <- mr_shp(key="MarineRegions:eez_boundaries", maxFeatures = 9999)
           }
 
-          if ("eez_24nm_v3_boundaries.gpkg" %in% layers_added) {
-            world_24nm <- st_read("./www/geo/eez_24nm_v3_boundaries.gpkg",
-                                  layer = "eez_24nm_v3_boundaries",
-                                  geometry_column = "geom"
-            )
+          if ("MarineRegions:eez_24nm" %in% layers_added) {
+            world_24nm <- mr_shp(key="MarineRegions:eez_24nm", maxFeatures = 9999) %>%
+              st_cast("MULTILINESTRING")
           }
 
-          if ("eez_12nm_v3_boundaries.gpkg" %in% layers_added) {
-            world_12nm <- st_read("./www/geo/eez_12nm_v3_boundaries.gpkg",
-                                  layer = "eez_12nm_v3_boundaries",
-                                  geometry_column = "geom"
-            )
+          if ("MarineRegions:eez_12nm" %in% layers_added) {
+            world_12nm <- mr_shp(key="MarineRegions:eez_12nm", maxFeatures = 9999) %>%
+              st_cast("MULTILINESTRING")
           }
 
           lowx <- plot_range$lowx

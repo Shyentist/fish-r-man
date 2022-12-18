@@ -347,9 +347,9 @@ app_ui <- function(request) {
                       inputId = "add_layer",
                       label = "Also show global",
                       choices = c(
-                        "EEZ" = "eez_boundaries_v11.gpkg",
-                        "24 Nautical Miles Zones" = "eez_24nm_v3_boundaries.gpkg",
-                        "12 Nautical Miles Zones" = "eez_12nm_v3_boundaries.gpkg")
+                        "EEZ" = "MarineRegions:eez_boundaries",
+                        "24 Nautical Miles Zones" = "MarineRegions:eez_24nm",
+                        "12 Nautical Miles Zones" = "MarineRegions:eez_12nm")
                     ),
                     selectInput(
                       inputId = "mapped_column",
