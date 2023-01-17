@@ -1,5 +1,7 @@
 #' Subset the top percent of a dataframe by a specific column
 #'
+#' @importFrom dplyr pull arrange
+#'
 #' @description
 #' Function that sorts a dataframe in descending order for a specific column, calculates the sum of all rows for that column, applies the chosen percentage to said sum, and subsets the minimum number of consecutive rows needed to reach this value.
 #'
@@ -23,7 +25,7 @@
 top.percent.by <- function(df, percentage, by) {
 
   # sort df according to 'by' parameter, decreasing
-  df <- df[order(-df[by]), ]
+  df <- arrange(df, desc(!!sym(by))) # formerly df <- df[order(-df[by]), ] #used dplyr::arrange instead of order
 
   # calculate sum of the entire column named as the 'by' parameter and find its 'percentage'
   summed <- sum(df[by]) * (percentage / 100)
