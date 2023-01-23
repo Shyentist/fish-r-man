@@ -20,11 +20,13 @@ A dataframe.
 Function that sorts a dataframe in descending order for a specific column, calculates the sum of all rows for that column, applies the chosen percentage to said sum, and subsets the minimum number of consecutive rows needed to reach this value.
 }
 \examples{
+\dontrun{
 bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
 
 catch <- fish(bait = bait)
 
 who.fishs.the.most <- top.percent.by(catch, 90, "fishing_hours")
+}
 
 }
 \seealso{

@@ -18,9 +18,11 @@ The result of your query, usually a dataframe.
 Function to 'fish' for data using a 'bait' via fishRman's API.
 }
 \examples{
+\dontrun{
 bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
 
 catch <- fish(bait = bait)
+}
 
 }
 \seealso{

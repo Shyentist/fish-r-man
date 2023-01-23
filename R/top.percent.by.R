@@ -12,11 +12,13 @@
 #' @returns A dataframe.
 #'
 #' @examples
+#' \dontrun{
 #' bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
 #'
 #' catch <- fish(bait = bait)
 #'
 #' who.fishs.the.most <- top.percent.by(catch, 90, "fishing_hours")
+#' }
 #'
 #' @seealso [bait.gfw.effort()] [fish()]
 #'

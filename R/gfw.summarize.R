@@ -11,11 +11,13 @@
 #' @returns A dataframe.
 #'
 #' @examples
+#' \dontrun{
 #' bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
 #'
 #' catch <- fish(bait = bait)
 #'
 #' summary <- gfw.summarize(catch)
+#' }
 #'
 #' @seealso [bait.gfw.effort()] [fish()] [dplyr::summarise()] [dplyr::group_by()]
 #'

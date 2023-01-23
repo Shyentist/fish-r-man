@@ -13,9 +13,9 @@
 #'
 #' @examples
 #' \dontrun{
-#'   bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
+#' bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
 #'
-#'   catch <- fish(bait = bait)
+#' catch <- fish(bait = bait)
 #' }
 #'
 #' @seealso [bait.gfw.effort()]
@@ -24,27 +24,44 @@
 
 fish <- function(bait, JSON = FALSE) {
 
-  if (missing(bait)) stop("You can only fish with a bait.")
+  out <- tryCatch({
+    if (missing(bait)) stop("You can only fish with a bait.")
 
-  url <- "http://127.0.0.1:8000" # in the meantime
+    url <- "http://127.0.0.1:8000" # in the meantime
 
-  endpoint <- bait[[1]]
+    endpoint <- bait[[1]]
 
-  body <- bait[[2]]
+    body <- bait[[2]]
 
-  url <- paste(url, endpoint, sep = "")
+    url <- paste(url, endpoint, sep = "")
 
-  res <- httr::POST(
-    url = url,
-    body =  body,
-    httr::accept_json(),
-    httr::content_type_json()
+    res <- httr::POST(
+      url = url,
+      body =  body,
+      httr::accept_json(),
+      httr::content_type_json()
     )
 
-  if (!JSON) {
+    if (!JSON) {
 
-    res <- jsonlite::fromJSON(content(res, as = "text"))
+      res <- jsonlite::fromJSON(content(res, as = "text"))
 
-  }
+    }
+
+    return(res)
+
+  },
+  error=function(cond) {
+    message("The resource you requested cannot be served. Error message:")
+    message(cond)
+    # Return value for an error
+    return(NA)
+  },
+  warning=function(cond) {
+    message("The resource you requested provided the following warning:")
+    message(cond)
+    # Return value for a warning
+    return(NULL)
+  })
 
 }
