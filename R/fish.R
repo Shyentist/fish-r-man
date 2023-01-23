@@ -12,9 +12,11 @@
 #' @returns The result of your query, usually a dataframe.
 #'
 #' @examples
-#' bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
+#' \dontrun{
+#'   bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
 #'
-#' catch <- fish(bait = bait)
+#'   catch <- fish(bait = bait)
+#' }
 #'
 #' @seealso [bait.gfw.effort()]
 #'
