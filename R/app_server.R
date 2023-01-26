@@ -120,6 +120,18 @@ app_server <- function(input, output, session) {
 
     checked_boxes <- input$filter_columns_ui
 
+    # initializing variables the user might or might not input
+
+    date <- NULL
+    cell_ll_lat <- NULL
+    cell_ll_lon <- NULL
+    hours <- NULL
+    fishing_hours <- NULL
+    mmsi_present <- NULL
+    flag <- NULL
+    geartype <- NULL
+    mmsi <- NULL
+
     for (id in list_togglable_ids) {
       if (id %in% checked_boxes) {
         assign(id, input[[id]])
@@ -320,7 +332,7 @@ app_server <- function(input, output, session) {
         if ((!is.null(sdf)) && (length(sdf$geometry) > 0)) {
 
           df <- as.data.frame(sdf) %>%
-            select(-c(geometry))
+            select(-c(.data$geometry))
 
           output$download_button_gpkg <- downloadHandler(
             filename = function() {
@@ -499,10 +511,10 @@ app_server <- function(input, output, session) {
 
           if (whether_to_clip) {
             df <- as.data.frame(clipped_data())%>%
-              select(-c(geometry))
+              select(-c(.data$geometry))
           } else {
             df <- as.data.frame(my_data()) %>%
-              select(-c(geometry))
+              select(-c(.data$geometry))
           }
 
           # since there is no month column, the app has to create it now
@@ -794,7 +806,7 @@ app_server <- function(input, output, session) {
         if ((!is.null(sdf)) && (length(sdf$geometry) > 0)) {
 
           df <- as.data.frame(sdf) %>%
-            select(-c(geometry))
+            select(-c(.data$geometry))
 
           output$download_button_gpkg_clipped <- downloadHandler(
             filename = function() {
