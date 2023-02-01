@@ -20,8 +20,8 @@
 ##
 golem::fill_desc(
   pkg_name = "fishRman", # The Name of the package containing the App
-  pkg_title = "The fisheries scientist's toolbox", # The Title of the package containing the App
-  pkg_description = "A bundle of analytics tools for fisheries scientists. A Shiny R App is also included to allow users to analyse data without writing any code.", # The Description of the package containing the App
+  pkg_title = "The Fisheries Scientist's Toolbox", # The Title of the package containing the App
+  pkg_description = "A bundle of analytics tools for fisheries scientists. A Shiny R App is included for a 'no-code' solution.", # The Description of the package containing the App
   author_first_name = "Pasquale", # Your First Name
   author_last_name = "Buonomo", # Your Last Name
   author_email = "pasqualebuonomo@hotmail.it", # Your Email

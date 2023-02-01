@@ -55,7 +55,7 @@ bait.gfw.effort <- function(
 
   body <- as.list(environment())
 
-  body <- toJSON(body[!sapply(body, is.symbol)])
+  body <- toJSON(body[!sapply(body, is.symbol)], auto_unbox = TRUE)
 
   # begin to prepare the SQL the user will be able to check before sending the http request
 
