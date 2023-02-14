@@ -27,7 +27,7 @@ fish <- function(bait, JSON = FALSE) {
   out <- tryCatch({
     if (missing(bait)) stop("You can only fish with a bait.")
 
-    url <- "http://127.0.0.1:8000" # in the meantime
+    url <- "http://146.190.62.224:8000" # in the meantime
 
     endpoint <- bait[[1]]
 
@@ -44,7 +44,7 @@ fish <- function(bait, JSON = FALSE) {
 
     if (!JSON) {
 
-      res <- jsonlite::fromJSON(content(res, as = "text"))
+      res <- jsonlite::fromJSON(content(res, as = "text", encoding = "UTF-8"))
 
     }
 
