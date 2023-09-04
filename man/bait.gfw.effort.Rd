@@ -26,7 +26,7 @@ bait.gfw.effort(
 \arguments{
 \item{table}{Character. The table you want to query. Available tables are 'fishing_effort_v2' (resolution of 0.01 degrees latitude by 0.01 degrees of longitude) and 'fishing_effort_byvessel_v2' (resolution of 0.1 degrees latitude by 0.1 degrees of longitude).}
 
-\item{start_date, end_date}{Optional. Date (yyyy-mm-dd) boundaries. Start and end values are included.}
+\item{start_date, end_date}{Optional. Characters. Date (yyyy-mm-dd) boundaries. Start and end values are included.}
 
 \item{min_lat, max_lat}{Optional. Numbers. Latitude boundaries. Minimum and maximum values are included.}
 
@@ -42,13 +42,13 @@ bait.gfw.effort(
 
 \item{geartype}{Optional. A character vector. The main geartype (fishing gear) of the boat streaming the data. Only available for table 'fishing_effort_v2'.}
 
-\item{mmsi}{Optional. A character vector. Pattern (regular expression) to look for in the MMSI number of the boats. Only available for table 'fishing_effort_byvessel_v2'.}
+\item{mmsi}{Optional. Characters. Pattern (regular expression) to look for in the MMSI number of the boats. Only available for table 'fishing_effort_byvessel_v2'.}
 }
 \value{
-A list (bait) to pass to `fish()`. The list contains the endpoint of the http request, the body of the request, and the SQL that will be run.
+A character scalar (bait) to pass to `fish()`. The scalar contains the endpoint of the http GET request.
 }
 \description{
-Preliminary function to prepare a 'bait' with all the necessary components to `fish()` for GFW fishing effort data via fishRman's API.
+Preliminary function to prepare a 'bait' (API endpoint) to `fish()` for GFW fishing effort data via fishRman's API.
 }
 \examples{
 bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))

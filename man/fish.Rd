@@ -4,12 +4,12 @@
 \alias{fish}
 \title{Send a query request for data}
 \usage{
-fish(bait, JSON = FALSE)
+fish(bait, sql = NULL)
 }
 \arguments{
-\item{bait}{A 'bait' packaged via a bait function (e.g. `bait.gfw.effort()`)}
+\item{bait}{A 'bait' character scalar (endpoint) prepared via a bait function (e.g. `bait.gfw.effort()`).}
 
-\item{JSON}{Logical. Defaults to FALSE. Whether the result should be in JSON format (text).}
+\item{sql}{Optional. A character scalar. Defaults to NULL. Select sql="count" to get the number of entries that the bait would normally return, sql="query" to get the query that will be run on the database.}
 }
 \value{
 The result of your query, usually a dataframe.
@@ -20,6 +20,10 @@ Function to 'fish' for data using a 'bait' via fishRman's API.
 \examples{
 \dontrun{
 bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
+
+what_is_the_bait_selecting <- fish(bait = bait, sql = "query")
+
+how_many_rows_would_catch_have <- fish(bait = bait, sql = "count")
 
 catch <- fish(bait = bait)
 }

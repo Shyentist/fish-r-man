@@ -17,14 +17,14 @@ Function to check the type of dataframe in relation to fishRman. Most of the tim
 }
 \examples{
 
-date <- c("2020-01-01", "2020-01-02")
-cell_ll_lat <- c(40, 41)
-cell_ll_lon <- c(12,13)
+dated <- c("2020-01-01", "2020-01-02")
+lat <- c(40, 41)
+lon <- c(12,13)
 mmsi <- c("34534555", "25634555")
 hours <- c(0, 5)
 fishing_hours <- c(1,2)
 
-df <- data.frame(date, cell_ll_lat, cell_ll_lon, mmsi, hours, fishing_hours)
+df <- data.frame(dated, lat, lon, mmsi, hours, fishing_hours)
 
 what.type <- df.type(df)
 

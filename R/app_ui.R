@@ -49,7 +49,7 @@ app_ui <- function(request) {
                     class = "doubleNumber",
                     shinyjs::disabled(
                       dateRangeInput(
-                        inputId = "date",
+                        inputId = "dated",
                         label = "Date range:",
                         start = "2012-01-01",
                         end = "2012-01-02",
@@ -60,14 +60,14 @@ app_ui <- function(request) {
                     ),
                     shinyjs::disabled(
                       shinyWidgets::numericRangeInput(
-                        inputId = "cell_ll_lat",
+                        inputId = "lat",
                         label = "Latitude range:",
                         value = c(-90, 90)
                       )
                     ),
                     shinyjs::disabled(
                       shinyWidgets::numericRangeInput(
-                        inputId = "cell_ll_lon",
+                        inputId = "lon",
                         label = "Longitude range:",
                         value = c(-180, 180)
                       )

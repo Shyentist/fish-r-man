@@ -1,19 +1,22 @@
 #' Send a query request for data
 #'
-#' @importFrom httr POST content
 #' @importFrom jsonlite fromJSON
 #'
 #' @description
 #' Function to 'fish' for data using a 'bait' via fishRman's API.
 #'
-#' @param bait A 'bait' packaged via a bait function (e.g. `bait.gfw.effort()`)
-#' @param JSON Logical. Defaults to FALSE. Whether the result should be in JSON format (text).
+#' @param bait A 'bait' character scalar (endpoint) prepared via a bait function (e.g. `bait.gfw.effort()`).
+#' @param sql Optional. A character scalar. Defaults to NULL. Select sql="count" to get the number of entries that the bait would normally return, sql="query" to get the query that will be run on the database.
 #'
 #' @returns The result of your query, usually a dataframe.
 #'
 #' @examples
 #' \dontrun{
 #' bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
+#'
+#' what_is_the_bait_selecting <- fish(bait = bait, sql = "query")
+#'
+#' how_many_rows_would_catch_have <- fish(bait = bait, sql = "count")
 #'
 #' catch <- fish(bait = bait)
 #' }
@@ -22,34 +25,22 @@
 #'
 #' @export
 
-fish <- function(bait, JSON = FALSE) {
+fish <- function(bait, sql = NULL) {
 
   out <- tryCatch({
     if (missing(bait)) stop("You can only fish with a bait.")
 
-    url <- "http://146.190.62.224:8000" # in the meantime
+    url <- "http://127.0.0.1:4000" # in the meantime
 
-    endpoint <- bait[[1]]
-
-    body <- bait[[2]]
-
-    url <- paste(url, endpoint, sep = "")
-
-    res <- httr::POST(
-      url = url,
-      body =  body,
-      httr::accept_json(),
-      httr::content_type_json()
-    )
-
-    if (!JSON) {
-
-      res <- jsonlite::fromJSON(content(res, as = "text", encoding = "UTF-8"))
-
+    if (!is.null(sql) && (sql == "query" || sql == "count")) {
+      bait = paste(bait, "&sql=", sql, sep = "")
     }
 
-    return(res)
+    url <- paste(url, bait, sep = "")
 
+    res <- fromJSON(url)
+
+    return(res)
   },
   error=function(cond) {
     message("The resource you requested cannot be served. Error message:")
@@ -63,5 +54,4 @@ fish <- function(bait, JSON = FALSE) {
     # Return value for a warning
     return(NULL)
   })
-
 }

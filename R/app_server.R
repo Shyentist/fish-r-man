@@ -31,9 +31,9 @@ app_server <- function(input, output, session) {
     if (table_name_ui == "fishing_effort_byvessel_v2"){
 
       fields_list <- c(
-        "Date" = "date",
-        "Latitude" = "cell_ll_lat",
-        "Longitude" = "cell_ll_lon",
+        "Date" = "dated",
+        "Latitude" = "lat",
+        "Longitude" = "lon",
         "MMSI" = "mmsi",
         "Vessel hours" = "hours",
         "Fishing hours" = "fishing_hours"
@@ -42,9 +42,9 @@ app_server <- function(input, output, session) {
     } else {
 
       fields_list <- c(
-        "Date" = "date",
-        "Latitude" = "cell_ll_lat",
-        "Longitude" = "cell_ll_lon",
+        "Date" = "dated",
+        "Latitude" = "lat",
+        "Longitude" = "lon",
         "Flag" = "flag",
         "Geartype" = "geartype",
         "Vessel hours" = "hours",
@@ -71,9 +71,9 @@ app_server <- function(input, output, session) {
                {
 
                  list_togglable_ids <- list(
-                   "date",
-                   "cell_ll_lat",
-                   "cell_ll_lon",
+                   "dated",
+                   "lat",
+                   "lon",
                    "hours",
                    "fishing_hours",
                    "mmsi_present",
@@ -96,9 +96,9 @@ app_server <- function(input, output, session) {
   bait <- reactive({
 
     list_togglable_ids <- list(
-      "date",
-      "cell_ll_lat",
-      "cell_ll_lon",
+      "dated",
+      "lat",
+      "lon",
       "hours",
       "fishing_hours",
       "mmsi_present",
@@ -122,9 +122,9 @@ app_server <- function(input, output, session) {
 
     # initializing variables the user might or might not input
 
-    date <- NULL
-    cell_ll_lat <- NULL
-    cell_ll_lon <- NULL
+    dated <- NULL
+    lat <- NULL
+    lon <- NULL
     hours <- NULL
     fishing_hours <- NULL
     mmsi_present <- NULL
@@ -141,12 +141,12 @@ app_server <- function(input, output, session) {
     }
 
     # I adjust the inputs (sometimes lists, sometimes vectors, sometimes double/numeric) to fit the API
-    start_date <- if (is.null(date)) { NULL } else { as.character(min(date)) }
-    end_date <- if (is.null(date)) { NULL } else { as.character(max(date)) }
-    min_lat <- if (is.null(cell_ll_lat)) { NULL } else { min(cell_ll_lat) }
-    max_lat <- if (is.null(cell_ll_lat)) { NULL } else { max(cell_ll_lat) }
-    min_lon <- if (is.null(cell_ll_lon)) { NULL } else { min(cell_ll_lon) }
-    max_lon <- if (is.null(cell_ll_lon)) { NULL } else { max(cell_ll_lon) }
+    start_date <- if (is.null(dated)) { NULL } else { as.character(min(dated)) }
+    end_date <- if (is.null(dated)) { NULL } else { as.character(max(dated)) }
+    min_lat <- if (is.null(lat)) { NULL } else { min(lat) }
+    max_lat <- if (is.null(lat)) { NULL } else { max(lat) }
+    min_lon <- if (is.null(lon)) { NULL } else { min(lon) }
+    max_lon <- if (is.null(lon)) { NULL } else { max(lon) }
     min_hours <- if (is.null(hours)) { NULL } else { min(hours) }
     max_hours <- if (is.null(hours)) { NULL } else { max(hours) }
     min_fishing_hours <- if (is.null(fishing_hours)) { NULL } else { min(fishing_hours) }
@@ -184,7 +184,7 @@ app_server <- function(input, output, session) {
     bait <- bait()
 
     output$sql_query <- renderText({
-      bait[[3]] # the 3rd value of a bait is the SQL statement derived from the inputs
+      fish(bait, sql="query")
     })
 
   })
@@ -255,9 +255,11 @@ app_server <- function(input, output, session) {
 
           output$queried_table <- renderDataTable({}) # empty the table before starting the function
 
-          # df <- fish(bait)
+          bait <- bait()
+          print(bait)
+          df <- fish(bait)
 
-          # output$queried_table <- renderDataTable(df) # now the table can be repopulated
+          output$queried_table <- renderDataTable(df) # now the table can be repopulated
 
           removeModal()
         } else if (which_event$csv) {
@@ -290,11 +292,11 @@ app_server <- function(input, output, session) {
 
         if (!is.null(df)){
 
-          # create a geom/geometry column via cell_ll_lat and cell_ll_lon
+          # create a geom/geometry column via lat and lon
           df <- sf::st_as_sf(
             df,
-            coords = c("cell_ll_lon", "cell_ll_lat"),
-            remove = FALSE # retains cell_ll_lat and cell_ll_lon columns
+            coords = c("lon", "lat"),
+            remove = FALSE # retains lat and lon columns
           )
 
           # make sure to set the CRS, which is a very important check later on (when dealing with the area of interest)
@@ -444,11 +446,11 @@ app_server <- function(input, output, session) {
         if (df.type(my_data()) == "GFW Fishing Effort (as Simple Feature)") {
 
           summaries <- c(
-            "date",
+            "dated",
             "month",
             "year",
-            "cell_ll_lat",
-            "cell_ll_lon",
+            "lat",
+            "lon",
             "flag",
             "geartype",
             "hours",
@@ -459,11 +461,11 @@ app_server <- function(input, output, session) {
         } else if (df.type(my_data()) == "GFW Fishing Effort By Vessel (as Simple Feature)") {
 
           summaries <- c(
-            "date",
+            "dated",
             "month",
             "year",
-            "cell_ll_lat",
-            "cell_ll_lon",
+            "lat",
+            "lon",
             "mmsi",
             "hours",
             "fishing_hours"
@@ -522,7 +524,7 @@ app_server <- function(input, output, session) {
           if (!is.null(choice)) {
             if ("month" %in% choice) {
               df$month <- substr(
-                df$date,
+                df$dated,
                 start = 1,
                 stop = 7
               )
@@ -533,7 +535,7 @@ app_server <- function(input, output, session) {
             if ("year" %in% choice) { # allow users to summarise by year
 
               df$year <- substr(
-                df$date,
+                df$dated,
                 start = 1,
                 stop = 4
               )
@@ -1051,15 +1053,15 @@ app_server <- function(input, output, session) {
             if (is.numeric(rez) && rez > 0.01 && rez <= 2) {
               df <- df %>%
                 mutate(
-                  cell_ll_lat = floor(cell_ll_lat / rez) * rez + 0.5 * rez,
-                  cell_ll_lon = floor(cell_ll_lon / rez) * rez + 0.5 * rez
+                  lat = floor(lat / rez) * rez + 0.5 * rez,
+                  lon = floor(lon / rez) * rez + 0.5 * rez
                 )
             } # this sets new lat and lon for the new aggregation
 
             # aggregation starts here
             grouped_df <- df %>%
               as.data.frame() %>%
-              group_by(cell_ll_lon, cell_ll_lat) %>%
+              group_by(lon, lat) %>%
               summarise(
                 "Total fishing hours" = sum(fishing_hours),
                 "Total hours" = sum(hours),
@@ -1072,14 +1074,14 @@ app_server <- function(input, output, session) {
             if (is.numeric(rez) && rez > 0.1 && rez <= 2) {
               df <- df %>%
                 mutate(
-                  cell_ll_lat = floor(cell_ll_lat / rez) * rez + 0.5 * rez,
-                  cell_ll_lon = floor(cell_ll_lon / rez) * rez + 0.5 * rez
+                  lat = floor(lat / rez) * rez + 0.5 * rez,
+                  lon = floor(lon / rez) * rez + 0.5 * rez
                 )
             }
 
             grouped_df <- df %>%
               as.data.frame() %>%
-              group_by(cell_ll_lon, cell_ll_lat) %>%
+              group_by(lon, lat) %>%
               summarise(
                 "Total fishing hours" = sum(fishing_hours),
                 "Total hours" = sum(hours),
@@ -1092,7 +1094,7 @@ app_server <- function(input, output, session) {
           if (which_viz_event$origin) {
             col_names_grouped <- colnames(grouped_df)
 
-            col_names_grouped_no_geo <- col_names_grouped[!col_names_grouped %in% c("cell_ll_lat", "cell_ll_lon")]
+            col_names_grouped_no_geo <- col_names_grouped[!col_names_grouped %in% c("lat", "lon")]
 
             updateSelectInput(session,
                               inputId = "mapped_column",
@@ -1142,7 +1144,7 @@ app_server <- function(input, output, session) {
           highy <- plot_range$highy
 
           map <- ggplot() +
-            geom_tile(data = grouped_df, aes(x = cell_ll_lon, y = cell_ll_lat, fill = .data[[to_fill]])) +
+            geom_tile(data = grouped_df, aes(x = lon, y = lat, fill = .data[[to_fill]])) +
             scale_fill_viridis() +
             geom_sf(
               data = world_sf,
