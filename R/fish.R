@@ -1,6 +1,7 @@
 #' Send a query request for data
 #'
 #' @importFrom jsonlite fromJSON
+#' @importFrom httr GET content timeout status_code
 #'
 #' @description
 #' Function to 'fish' for data using a 'bait' via fishRman's API.
@@ -30,7 +31,7 @@ fish <- function(bait, sql = NULL) {
   out <- tryCatch({
     if (missing(bait)) stop("You can only fish with a bait.")
 
-    url <- "http://127.0.0.1:4000" # in the meantime
+    url <- "https://fishrman.ddnsfree.com" # in the meantime
 
     if (!is.null(sql) && (sql == "query" || sql == "count")) {
       bait = paste(bait, "&sql=", sql, sep = "")
@@ -38,7 +39,23 @@ fish <- function(bait, sql = NULL) {
 
     url <- paste(url, bait, sep = "")
 
-    res <- fromJSON(url)
+    res <- GET(url, timeout(300))
+    # Check the status code of the response
+    status <- status_code(res)
+
+    # Print or process the response based on the status code
+    if (status == 200) {
+      # Successful response
+      res <- content(x = res, as = "text", encoding = "UTF-8")
+      # Process the content as needed
+    } else {
+      # Handle other status codes or errors
+      stop(paste("Error: Status Code", status))
+    }
+
+    res <- fromJSON(res)
+
+    res <- res[[1]] # only return the dataframe, no metadata (table schema)
 
     return(res)
   },

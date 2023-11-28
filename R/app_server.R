@@ -7,7 +7,7 @@
 #' @importFrom utils read.csv write.csv
 #' @importFrom sf st_as_sf st_crs st_write st_bbox st_intersects st_geometry st_read st_layers st_cast
 #' @importFrom viridis scale_fill_viridis
-#' @importFrom mregions mr_shp
+#' @importFrom mregions2 mrp_get
 #' @import shiny
 #' @import dplyr
 #' @import ggplot2
@@ -256,12 +256,35 @@ app_server <- function(input, output, session) {
           output$queried_table <- renderDataTable({}) # empty the table before starting the function
 
           bait <- bait()
-          print(bait)
+
           df <- fish(bait)
 
-          output$queried_table <- renderDataTable(df) # now the table can be repopulated
+          if(typeof(df) == "integer"){
+            removeModal()
+            showModal(
+              modalDialog(
+                size = "l",
+                paste("This query would return ", df, " rows")
+              )
+            )
+          } else if (typeof(df) == "character"){
+            removeModal()
+            showModal(
+              modalDialog(
+                size = "l",
+                paste("The query that would run on the database is: ", df)
+              )
+            )
+          } else if (typeof(df) == "list"){
+            to_render <- df
+            output$queried_table <- renderDataTable(to_render) # now the table can be repopulated
 
-          removeModal()
+            removeModal()
+          } else {
+            removeModal()
+            stop("Error: Unexpected response from server")
+          }
+
         } else if (which_event$csv) {
           showModal(
             modalDialog(
@@ -1125,16 +1148,16 @@ app_server <- function(input, output, session) {
           layers_added <- input$add_layer
 
           if ("MarineRegions:eez_boundaries" %in% layers_added) {
-            world_eez <- mr_shp(key="MarineRegions:eez_boundaries", maxFeatures = 9999)
+            world_eez <- mrp_get("eez_boundaries")
           }
 
           if ("MarineRegions:eez_24nm" %in% layers_added) {
-            world_24nm <- mr_shp(key="MarineRegions:eez_24nm", maxFeatures = 9999) %>%
+            world_24nm <- mrp_get("eez_24nm") %>%
               st_cast("MULTILINESTRING")
           }
 
           if ("MarineRegions:eez_12nm" %in% layers_added) {
-            world_12nm <- mr_shp(key="MarineRegions:eez_12nm", maxFeatures = 9999) %>%
+            world_12nm <- mrp_get("eez_12nm") %>%
               st_cast("MULTILINESTRING")
           }
 

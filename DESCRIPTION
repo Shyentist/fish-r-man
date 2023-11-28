@@ -15,7 +15,7 @@ Imports:
     httr,
     jsonlite,
     maps,
-    mregions,
+    mregions2,
     sf,
     shiny (>= 1.7.1),
     shinyBS,
