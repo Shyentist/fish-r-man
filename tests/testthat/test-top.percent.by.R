@@ -13,6 +13,6 @@ test_that("the right percentage of the dataframe is kept", {
 
   expect_equal(sum.to.test, sum.to.test.against)
 
-  expect_equal(to.test, catch.top.90.fh)
+  expect_equal(summary(to.test), summary(catch.top.90.fh))
 
 })

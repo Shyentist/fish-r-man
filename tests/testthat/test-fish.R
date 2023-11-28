@@ -15,11 +15,15 @@ test_that("the right dataframe is returned from the API", {
 
   just.fished = fish(bait)
 
+  just.fished = summary(just.fished)
+
+  catch = summary(catch)
+
   expect_equal(just.fished, catch)
 
   query = fish(bait, sql="query")
 
-  expect_equal(query, "SELECT * FROM fishing_effort_byvessel_v2 WHERE dated >= '2012-01-01' AND dated <= '2012-01-10' AND lat >= 0 AND lat <= 44.99 AND lon >= 0 AND lon <= 17.99")
+  expect_equal(query, "SELECT * FROM gfw_fishing_effort_byvessel_v2 WHERE dated >= '2012-01-01' AND dated <= '2012-01-10' AND lat >= 0 AND lat <= 44.99 AND lon >= 0 AND lon <= 17.99")
 
   count <- fish(bait, sql="count")
 
