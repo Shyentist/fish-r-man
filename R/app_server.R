@@ -7,7 +7,6 @@
 #' @importFrom utils read.csv write.csv
 #' @importFrom sf st_as_sf st_crs st_write st_bbox st_intersects st_geometry st_read st_layers st_cast
 #' @importFrom viridis scale_fill_viridis
-#' @importFrom mregions2 mrp_get
 #' @import shiny
 #' @import dplyr
 #' @import ggplot2
@@ -259,22 +258,18 @@ app_server <- function(input, output, session) {
 
           df <- fish(bait)
 
-          if(typeof(df) == "integer"){
+          if (typeof(df) == "character"){
+            # if it is type character, then it is an Error
             removeModal()
             showModal(
               modalDialog(
                 size = "l",
-                paste("This query would return ", df, " rows")
+                paste(df) # so, show the Error
               )
             )
-          } else if (typeof(df) == "character"){
-            removeModal()
-            showModal(
-              modalDialog(
-                size = "l",
-                paste("The query that would run on the database is: ", df)
-              )
-            )
+
+            df <- NULL # and bring the df back to NULL, since it is empty
+
           } else if (typeof(df) == "list"){
             to_render <- df
             output$queried_table <- renderDataTable(to_render) # now the table can be repopulated
@@ -1147,18 +1142,22 @@ app_server <- function(input, output, session) {
           # the user has decided to plot. Creates a variable for each of those
           layers_added <- input$add_layer
 
-          if ("MarineRegions:eez_boundaries" %in% layers_added) {
-            world_eez <- mrp_get("eez_boundaries")
+          if ("eez" %in% layers_added) {
+            world_eez <- bait.mr.boundaries("eez") %>%
+              fish() %>%
+              st_read()
           }
 
           if ("MarineRegions:eez_24nm" %in% layers_added) {
-            world_24nm <- mrp_get("eez_24nm") %>%
-              st_cast("MULTILINESTRING")
+            world_24nm <- bait.mr.boundaries("eez_24nm") %>%
+              fish() %>%
+              st_read()
           }
 
           if ("MarineRegions:eez_12nm" %in% layers_added) {
-            world_12nm <- mrp_get("eez_12nm") %>%
-              st_cast("MULTILINESTRING")
+            world_12nm <- bait.mr.boundaries("eez_12nm") %>%
+              fish() %>%
+              st_read()
           }
 
           lowx <- plot_range$lowx

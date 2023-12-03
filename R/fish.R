@@ -53,9 +53,10 @@ fish <- function(bait, sql = NULL) {
       stop(paste("Error: Status Code", status))
     }
 
-    res <- fromJSON(res)
-
-    res <- res[[1]] # only return the dataframe, no metadata (table schema)
+    # files from /mr are kept as geojson, the others go from JSON to R object
+    if (substr(bait, 1, 3) != "/mr") {
+      res <- fromJSON(res)
+    }
 
     return(res)
   },

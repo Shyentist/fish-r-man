@@ -1,6 +1,6 @@
 Package: fishRman
 Title: The Fisheries Scientist's Toolbox
-Version: 1.2.0
+Version: 1.2.1
 Authors@R: person('Pasquale', 'Buonomo', email = 'pasqualebuonomo@hotmail.it', role = c('cre', 'aut'), comment = c(ORCID = '0000-0002-1848-9313'))
 Description: A bundle of analytics tools for fisheries scientists. A Shiny R App is included for a 'no-code' solution.
 License: AGPL (>= 3)
@@ -15,7 +15,6 @@ Imports:
     httr,
     jsonlite,
     maps,
-    mregions2,
     sf,
     shiny (>= 1.7.1),
     shinyBS,

@@ -1,7 +1,5 @@
 #' Prepare a query request for GFW fishing effort data
 #'
-#' @importFrom jsonlite toJSON
-#'
 #' @description
 #' Preliminary function to prepare a 'bait' (API endpoint) to `fish()` for GFW fishing effort data via fishRman's API.
 #'
