@@ -2,7 +2,7 @@ Package: fishRman
 Title: The Fisheries Scientist's Toolbox
 Version: 1.2.1
 Authors@R: person('Pasquale', 'Buonomo', email = 'pasqualebuonomo@hotmail.it', role = c('cre', 'aut'), comment = c(ORCID = '0000-0002-1848-9313'))
-Description: A bundle of analytics tools for fisheries scientists. A Shiny R App is included for a 'no-code' solution.
+Description: A bundle of analytics tools for fisheries scientists. Data on fishing effort by Global Fishing Watch can be retrieved via the package's API, as well as data on Exclusive Economic Zones by Marine Regions. A Shiny R App is included for a 'no-code' solution for retrieval, analysis, and visualization.
 License: AGPL (>= 3)
 Depends: 
     R (>= 2.10)
