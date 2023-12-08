@@ -12,8 +12,8 @@
 #' @returns A dataframe.
 #'
 #' @examples
-#' \dontrun{
-#' bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
+#' \donttest{
+#' bait <- bait.gfw.effort(table = "fishing_effort_byvessel_v2", end_date="2012-01-02")
 #'
 #' catch <- fish(bait = bait)
 #'

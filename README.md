@@ -1,6 +1,6 @@
-# Welcome to fishRman [![DOI](https://joss.theoj.org/papers/10.21105/joss.03467/status.svg)](https://doi.org/10.21105/joss.03467) <!-- badges: start --> [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) <!-- badges: end -->
+# Welcome to fishRman [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5582567.svg)](https://doi.org/10.5281/zenodo.5582567) [![DOI](https://joss.theoj.org/papers/10.21105/joss.03467/status.svg)](https://doi.org/10.21105/joss.03467) <!-- badges: start --> [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) <!-- badges: end -->
 
-`fishRman` is an Open-Source Shiny R Dashboard to easily query, download, analyse and visualise Global Fishing Watch data on fishing effort. 
+`fishRman` is a bundle of analytics tools for fisheries scientists. Data on fishing effort by 'Global Fishing Watch' can be retrieved via the package's API, as well as data on Exclusive Economic Zones by 'Marine Regions'. A 'shiny' R App is included for a 'no-code' solution for retrieval, analysis, and visualization. 
 
 ## Useful links
 You can use the dashboard and learn more about the code, the software, the data, and the people behind them via:
@@ -11,7 +11,9 @@ You can use the dashboard and learn more about the code, the software, the data,
 
 ## How to quote
 - Software: Buonomo, P., (2021). fishRman: A Shiny R Dashboard improving Global Fishing Watch data availability. *Journal of Open Source Software*, 6(66), 3467, **https://doi.org/10.21105/joss.03467**
-- Data: Global Fishing Watch, (2021). **https://globalfishingwatch.org/**
+- Software: Buonomo, P. (2023). fishRman: The Fisheries Scientist's Toolbox. R package, **https://doi.org/10.5281/zenodo.5582567**
+- Fishing Effort Data: Global Fishing Watch, (2021). **https://globalfishingwatch.org/**
+- EEZ Boundaries: Marine Regions. **https://www.marineregions.org/**
 
 ## How to become a contributor
 First things first, you might want to take a look at the Issues page. There, I listed some tasks that I reckon the project needs. If you don't find anything that you can do, you can still run the code and make up **your own** opinion on what is needed. From there, you can either file this new Issue and forget about it, or file it and handle it yourself. The pull requests should be made onto the `pull-requests` branch.

@@ -12,14 +12,13 @@
 #' @returns The result of your query, usually a dataframe.
 #'
 #' @examples
-#' \dontrun{
-#' bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
+#' \donttest{
+#' bait <- bait.gfw.effort(table = "fishing_effort_byvessel_v2", end_date="2012-01-02")
 #'
 #' what_is_the_bait_selecting <- fish(bait = bait, sql = "query")
 #'
-#' how_many_rows_would_catch_have <- fish(bait = bait, sql = "count")
-#'
-#' catch <- fish(bait = bait)
+#' print(what_is_the_bait_selecting)
+#' # "SELECT * FROM gfw_fishing_effort_byvessel_v2 WHERE dated <= '2012-01-02'"
 #' }
 #'
 #' @seealso [bait.gfw.effort()]

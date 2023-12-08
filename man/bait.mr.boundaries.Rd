@@ -16,8 +16,13 @@ A character scalar (bait) to pass to `fish()`. The scalar contains the endpoint 
 Preliminary function to prepare a 'bait' (API endpoint) to `fish()` for GFW fishing effort data via fishRman's API.
 }
 \examples{
-bait <- bait.mr.boundaries(file = "eez_12nm")
+\donttest{
+bait <- bait.mr.boundaries(file = "eez")
 
+print(bait)
+
+# "/mr?file=eez_boundaries_v11"
+}
 }
 \seealso{
 [fish()]

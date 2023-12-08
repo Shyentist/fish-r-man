@@ -16,8 +16,8 @@ A dataframe.
 Wrapper function for `dplyr::summarise()` that summarizes GFW data into the most important measures of central tendency for fishing_hours and hours, creating a new dataframe. It will have one (or more) rows for each combination of grouping variables; if there are no grouping variables, the output will have a single row summarising all observations in the input.
 }
 \examples{
-\dontrun{
-bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
+\donttest{
+bait <- bait.gfw.effort(table = "fishing_effort_byvessel_v2", end_date="2012-01-02")
 
 catch <- fish(bait = bait)
 

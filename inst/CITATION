@@ -1,0 +1,35 @@
+# bibentry for the package's documentation
+fishRman_entry <- bibentry(
+  bibtype = "manual",
+  title = "{fishRman}: The Fisheries Scientist's Toolbox",
+  author = "Pasquale Buonomo",
+  year = "2023",
+  note = "CRAN",
+  url = "https://doi.org/10.5281/zenodo.5582567",
+  textVersion = paste(
+    "Buonomo, P. (2023).",
+    "{fishRman}: The Fisheries Scientist's Toolbox.",
+    "CRAN.",
+    "https://doi.org/10.5281/zenodo.5582567"
+  )
+)
+
+# bibentry for the JOSS article
+article_entry <- bibentry(
+  bibtype = "article",
+  title = "{fishRman}: A Shiny R Dashboard improving Global Fishing Watch data availability",
+  author = "Pasquale Buonomo",
+  journal = "Journal of Open Source Software",
+  year = "2021",
+  volume = "6",
+  number = "66",
+  pages = "3467",
+  doi = "10.21105/joss.03467",
+  url = "https://doi.org/10.21105/joss.03467",
+  textVersion = paste(
+    "Buonomo, P. (2021).",
+    "{fishRman}: A Shiny R Dashboard improving Global Fishing Watch data availability.",
+    "Journal of Open Source Software, 6(66), 3467.",
+    "https://doi.org/10.21105/joss.03467"
+  )
+)

@@ -7,6 +7,7 @@
 #' @export
 #' @importFrom shiny shinyApp
 #' @importFrom golem with_golem_options
+#' @returns Does not return a value. This function launches the embedded Shiny application, making it accessible through a web browser. The user interacts with the Shiny app through the browser interface.
 run_app <- function(
   onStart = NULL,
   options = list(),

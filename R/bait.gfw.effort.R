@@ -18,8 +18,13 @@
 #' @returns A character scalar (bait) to pass to `fish()`. The scalar contains the endpoint of the http GET request.
 #'
 #' @examples
-#' bait <- bait.gfw.effort(table = "fishing_effort_v2", min_lat = 0, flag = c("ITA", "FRA"))
+#' \donttest{
+#' bait <- bait.gfw.effort(table = "fishing_effort_byvessel_v2", end_date="2012-01-02")
 #'
+#' print(bait)
+#'
+#' # "/gfw?table=fishing_effort_v2&end_date=2012-01-02"
+#' }
 #' @seealso [fish()]
 #'
 #' @export

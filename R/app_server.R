@@ -12,11 +12,11 @@
 #' @import ggplot2
 #' @noRd
 app_server <- function(input, output, session) {
-  # Your application server logic
+  # Application server logic
 
-  options(scipen = 999)
-
-  options(shiny.maxRequestSize = 150 * 1024^2) # maximum upload size is 150 MB, edit if you need more than that
+  old_options <- options()
+  options(scipen = 999, shiny.maxRequestSize = 150 * 1024^2)
+  on.exit(options(old_options)) # return user's options back to normal on exit
 
   intro.message()
 

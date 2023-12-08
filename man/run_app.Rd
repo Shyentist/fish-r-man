@@ -36,6 +36,9 @@ expression in order for the match to be considered successful.}
 \item{...}{arguments to pass to golem_opts.
 See `?golem::get_golem_options` for more details.}
 }
+\value{
+Does not return a value. This function launches the embedded Shiny application, making it accessible through a web browser. The user interacts with the Shiny app through the browser interface.
+}
 \description{
 Run the Shiny Application
 }

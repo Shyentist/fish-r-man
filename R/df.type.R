@@ -20,6 +20,9 @@
 #'
 #' what.type <- df.type(df)
 #'
+#' print(what.type)
+#'
+#' # "GFW Fishing Effort By Vessel"
 #' @seealso [bait.gfw.effort()] [fish()]
 #'
 #' @export

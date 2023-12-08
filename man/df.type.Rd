@@ -28,6 +28,9 @@ df <- data.frame(dated, lat, lon, mmsi, hours, fishing_hours)
 
 what.type <- df.type(df)
 
+print(what.type)
+
+# "GFW Fishing Effort By Vessel"
 }
 \seealso{
 [bait.gfw.effort()] [fish()]
