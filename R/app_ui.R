@@ -405,14 +405,47 @@ app_ui <- function(request) {
           footer()
         ),
         tabPanel(
-          "Handbook",
-          fluidRow(
-            column(
-              12,
-              tags$div(
-                class = "queried-table",
-                id = "documentation",
-                uiOutput("pdfview")
+          "Docs",
+          tabsetPanel(
+            id = "docs_tabs",
+            type = "tabs",
+            tabPanel(
+              "Handbook",
+              fluidRow(
+                column(
+                  12,
+                  tags$div(
+                    class = "queried-table",
+                    id = "handbook_docs",
+                    uiOutput("handbook_pdfview")
+                  )
+                )
+              )
+            ),
+            tabPanel(
+              "CRAN",
+              fluidRow(
+                column(
+                  12,
+                  tags$div(
+                    class = "queried-table",
+                    id = "cran_docs",
+                    uiOutput("cran_pdfview")  # Add new output ID for CRAN PDF
+                  )
+                )
+              )
+            ),
+            tabPanel(
+              "JOSS",
+              fluidRow(
+                column(
+                  12,
+                  tags$div(
+                    class = "queried-table",
+                    id = "joss_docs",
+                    uiOutput("joss_pdfview")  # Add new output ID for JOSS PDF
+                  )
+                )
               )
             )
           )

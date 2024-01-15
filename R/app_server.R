@@ -1249,8 +1249,18 @@ app_server <- function(input, output, session) {
   })
 
   # pdfview of the Handbook
-  output$pdfview <- renderUI({
+  output$handbook_pdfview <- renderUI({
     tags$iframe(style = "height:90vh; width:100%; margin-top: 6px", src = "www/doc/Handbook.pdf")
+  })
+
+  # pdfview of the CRAN documentation
+  output$cran_pdfview <- renderUI({
+    tags$iframe(style = "height:90vh; width:100%; margin-top: 6px", src = "https://cran.r-project.org/web/packages/fishRman/fishRman.pdf")
+  })
+
+  # pdfview of the JOSS paper
+  output$joss_pdfview <- renderUI({
+    tags$iframe(style = "height:90vh; width:100%; margin-top: 6px", src = "https://www.theoj.org/joss-papers/joss.03467/10.21105.joss.03467.pdf")
   })
 
 }
