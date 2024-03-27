@@ -22,7 +22,7 @@ lat <- c(40, 41)
 lon <- c(12,13)
 mmsi <- c("34534555", "25634555")
 hours <- c(0, 5)
-fishing_hours <- c(1,2)
+fishing_hours <- c(1,9)
 
 df <- data.frame(dated, lat, lon, mmsi, hours, fishing_hours)
 
@@ -31,7 +31,5 @@ what.type <- df.type(df)
 print(what.type)
 
 # "GFW Fishing Effort By Vessel"
-}
-\seealso{
-[bait.gfw.effort()] [fish()]
+
 }

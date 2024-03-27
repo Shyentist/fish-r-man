@@ -73,37 +73,6 @@ intro.message <- function () {
             )
           ),
           ", also available at the bottom of the page, under 'References';"
-        ),
-        tags$li(
-          tags$b(
-            tags$a(
-
-              "OSMOS's website",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://osmos.xyz/"
-            )
-          ),
-          ", also available at the bottom right corner of the page, under 'Sponsor'. Open-Source for Marine and Ocean Sciences (OSMOS) is our research group. If you like our projects, and would like a more interactive role, consider joining our",
-          tags$b(
-            tags$a(
-
-              "Discord server",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://discord.com/invite/W2unKxKbp7"
-            )
-          ),
-          "or",
-          tags$b(
-            tags$a(
-
-              "donating.",
-              target = "_blank",
-              rel = "noreferrer noopener",
-              href = "https://www.buymeacoffee.com/osmos"
-            )
-          )
         )
       ),
       tags$br(),
@@ -118,6 +87,16 @@ intro.message <- function () {
                    target = "_blank",
                    rel = "noreferrer noopener",
                    href = "https://doi.org/10.21105/joss.03467"
+            )
+          )
+        ),
+        tags$li(
+          "Software: Buonomo P. [2023]. fishRman: The Fisheries Scientist's Toolbox. CRAN.",
+          tags$b(
+            tags$a("https://doi.org/10.5281/zenodo.5582567",
+                   target = "_blank",
+                   rel = "noreferrer noopener",
+                   href = "https://doi.org/10.5281/zenodo.5582567"
             )
           )
         ),

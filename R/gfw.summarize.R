@@ -6,20 +6,26 @@
 #' @description
 #' Wrapper function for `dplyr::summarise()` that summarizes GFW data into the most important measures of central tendency for fishing_hours and hours, creating a new dataframe. It will have one (or more) rows for each combination of grouping variables; if there are no grouping variables, the output will have a single row summarising all observations in the input.
 #'
-#' @param df A dataframe object as returned by passing the result of `bait.gfw.effort()` to `fish()`.
+#' @param df A dataframe object as downloaded from GFW's Google Big Data Query.
 #'
 #' @returns A dataframe.
 #'
 #' @examples
-#' \donttest{
-#' bait <- bait.gfw.effort(table = "fishing_effort_byvessel_v2", end_date="2012-01-02")
 #'
-#' catch <- fish(bait = bait)
+#' dated <- c("2020-01-01", "2020-01-02")
+#' lat <- c(40, 41)
+#' lon <- c(12,13)
+#' mmsi <- c("34534555", "25634555")
+#' hours <- c(0, 5)
+#' fishing_hours <- c(1,9)
 #'
-#' summary <- gfw.summarize(catch)
-#' }
+#' df <- data.frame(dated, lat, lon, mmsi, hours, fishing_hours)
 #'
-#' @seealso [bait.gfw.effort()] [fish()] [dplyr::summarise()] [dplyr::group_by()]
+#' summary <- gfw.summarize(df)
+#'
+#' print(summary)
+#'
+#' @seealso [dplyr::summarise()] [dplyr::group_by()]
 #'
 #' @export
 

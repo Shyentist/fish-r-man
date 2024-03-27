@@ -20,212 +20,19 @@ app_server <- function(input, output, session) {
 
   intro.message()
 
-  observeEvent(input$table_name_ui, {
+  # initialising some global variables
 
-    table_name_ui <- input$table_name_ui
+  dated <- NULL
+  lat <- NULL
+  lon <- NULL
+  hours <- NULL
+  fishing_hours <- NULL
+  mmsi_present <- NULL
+  flag <- NULL
+  geartype <- NULL
+  mmsi <- NULL
 
-    # checks which table the user decided to query, and presents the checkboxes
-    # of the fields (columns) of that table
-
-    if (table_name_ui == "fishing_effort_byvessel_v2"){
-
-      fields_list <- c(
-        "Date" = "dated",
-        "Latitude" = "lat",
-        "Longitude" = "lon",
-        "MMSI" = "mmsi",
-        "Vessel hours" = "hours",
-        "Fishing hours" = "fishing_hours"
-      )
-
-    } else {
-
-      fields_list <- c(
-        "Date" = "dated",
-        "Latitude" = "lat",
-        "Longitude" = "lon",
-        "Flag" = "flag",
-        "Geartype" = "geartype",
-        "Vessel hours" = "hours",
-        "Fishing hours" = "fishing_hours",
-        "MMSI present" = "mmsi_present"
-      )
-
-    }
-
-    shinyWidgets::updatePrettyCheckboxGroup( # this way, the checkboxes are always named after the table fields
-      session,
-      inputId = "filter_columns_ui",
-      choices = fields_list
-    )
-  })
-
-  # what follow enables the input boxes that have had their respective checkboxes
-  # ticked, disabling the others. This way I can build the SQL query from the
-  # checked boxes, rather than the existing inputs, which could have been input-ed
-  # when it was allowed, then disabled by changing table to one that does not allow
-  # that input
-
-  observeEvent(input$filter_columns_ui,
-               {
-
-                 list_togglable_ids <- list(
-                   "dated",
-                   "lat",
-                   "lon",
-                   "hours",
-                   "fishing_hours",
-                   "mmsi_present",
-                   "mmsi",
-                   "flag",
-                   "geartype"
-                 )
-
-                 for (field in list_togglable_ids) {
-                   if (field %in% input$filter_columns_ui) {
-                     shinyjs::enable(id = field)
-                   } else {
-                     shinyjs::disable(id = field)
-                   }
-                 }
-               },
-               ignoreNULL = FALSE
-  )
-
-  bait <- reactive({
-
-    list_togglable_ids <- list(
-      "dated",
-      "lat",
-      "lon",
-      "hours",
-      "fishing_hours",
-      "mmsi_present",
-      "mmsi",
-      "flag",
-      "geartype"
-    )
-
-    table <- input$table_name_ui
-
-    # Below, I check which filter boxes are checked, and assign the input
-    # value to a variable named exactly like the input's id. If the checkbox
-    # is unchecked, I assign NULL to the respective variable.
-    # I do this because, otherwise, one could i.e. select the 100th degree
-    # table, which has a flag and a geartype column, check those boxes,
-    # input something and then switch to the 10th degree table, which does
-    # not have the columns. The inputs would only be grayed out, not deleted,
-    # so the query would have them all the same.
-
-    checked_boxes <- input$filter_columns_ui
-
-    # initializing variables the user might or might not input
-
-    dated <- NULL
-    lat <- NULL
-    lon <- NULL
-    hours <- NULL
-    fishing_hours <- NULL
-    mmsi_present <- NULL
-    flag <- NULL
-    geartype <- NULL
-    mmsi <- NULL
-
-    for (id in list_togglable_ids) {
-      if (id %in% checked_boxes) {
-        assign(id, input[[id]])
-      } else {
-        assign(id, NULL)
-      }
-    }
-
-    # I adjust the inputs (sometimes lists, sometimes vectors, sometimes double/numeric) to fit the API
-    start_date <- if (is.null(dated)) { NULL } else { as.character(min(dated)) }
-    end_date <- if (is.null(dated)) { NULL } else { as.character(max(dated)) }
-    min_lat <- if (is.null(lat)) { NULL } else { min(lat) }
-    max_lat <- if (is.null(lat)) { NULL } else { max(lat) }
-    min_lon <- if (is.null(lon)) { NULL } else { min(lon) }
-    max_lon <- if (is.null(lon)) { NULL } else { max(lon) }
-    min_hours <- if (is.null(hours)) { NULL } else { min(hours) }
-    max_hours <- if (is.null(hours)) { NULL } else { max(hours) }
-    min_fishing_hours <- if (is.null(fishing_hours)) { NULL } else { min(fishing_hours) }
-    max_fishing_hours <- if (is.null(fishing_hours)) { NULL } else { max(fishing_hours) }
-    min_mmsi_present <- if (is.null(mmsi_present)) { NULL } else { min(mmsi_present) }
-    max_mmsi_present <- if (is.null(mmsi_present)) { NULL } else { max(mmsi_present) }
-
-    bait <- bait.gfw.effort(
-      table = table,
-      start_date = start_date,
-      end_date = end_date,
-      min_lat = min_lat,
-      max_lat = max_lat,
-      min_lon = min_lon,
-      max_lon = max_lon,
-      min_hours = min_hours,
-      max_hours = max_hours,
-      min_fishing_hours = min_fishing_hours,
-      max_fishing_hours = max_fishing_hours,
-      min_mmsi_present = min_mmsi_present,
-      max_mmsi_present = max_mmsi_present,
-      flag = flag,
-      geartype = geartype,
-      mmsi = mmsi
-    )
-
-    return(bait)
-
-    })
-
-  # the SQL query string is rendered as text in the UI
-
-  observe({
-
-    bait <- bait()
-
-    output$sql_query <- renderText({
-      fish(bait, sql="query")
-    })
-
-  })
-
-  # what is happening down here, with which_event, is basically a switch, that I
-  # can later check in reactive expressions that must differentiate among the
-  # various types of inputs that they can receive. For instance, both when
-  # uploading a csv or querying data, I need the final result to be assigned to
-  # 'my_data', so that later on I can just refer to this value, which is
-  # qualitatively the same for both sources
-
-  which_event <- reactiveValues(
-    query = FALSE, # activated when new data is queried
-    csv = FALSE # activated when new data is uploaded via csv
-  )
-
-  observeEvent(input$filter_button, {
-    which_event$query <- TRUE
-    which_event$csv <- FALSE
-  })
-
-  observeEvent(input$uploaded_csv, {
-    which_event$query <- FALSE
-    which_event$csv <- TRUE
-  })
-
-  # I used the possibleInputs list to have reactive events start at any
-  # change of the list, then check which of the previously mentioned
-  # switches was turned on (TRUE)
-
-  possibleInputs <- reactive({
-    list(
-      input$filter_button,
-      input$uploaded_csv
-    )
-  })
-
-  # this function takes different paths depending on the input. If "Filter" button
-  # is pressed, it runs the SQL Query created by the user and assigns the data
-  # to "my_data", if a csv file is uploaded, it assigns the dataframe to "my_data"
-
-  my_data <- eventReactive(possibleInputs(), {
+  my_data <- eventReactive(input$uploaded_csv, {
     tryCatch(
       {
         df <- NULL
@@ -242,45 +49,8 @@ app_server <- function(input, output, session) {
 
         shinyjs::disable(id = "download_analyses_button") # also, having voided the analyses table, we must also prevent download of previous analyses
 
-        if (which_event$query) {
-
-          showModal(
-            modalDialog(
-              size = "l",
-              "Fishing for data...",
-              footer = NULL
-            )
-          )
-
-          output$queried_table <- renderDataTable({}) # empty the table before starting the function
-
-          bait <- bait()
-
-          df <- fish(bait)
-
-          if (typeof(df) == "character"){
-            # if it is type character, then it is an Error
-            removeModal()
-            showModal(
-              modalDialog(
-                size = "l",
-                paste(df) # so, show the Error
-              )
-            )
-
-            df <- NULL # and bring the df back to NULL, since it is empty
-
-          } else if (typeof(df) == "list"){
-            to_render <- df
-            output$queried_table <- renderDataTable(to_render) # now the table can be repopulated
-
-            removeModal()
-          } else {
-            removeModal()
-            stop("Error: Unexpected response from server")
-          }
-
-        } else if (which_event$csv) {
+        print(is.null(input$uploaded_csv))
+        if (!is.null(input$uploaded_csv)) {
           showModal(
             modalDialog(
               size = "l",
@@ -307,8 +77,9 @@ app_server <- function(input, output, session) {
 
           removeModal()
         }
-
+  print("here")
         if (!is.null(df)){
+          print("there")
 
           # create a geom/geometry column via lat and lon
           df <- sf::st_as_sf(
@@ -334,7 +105,8 @@ app_server <- function(input, output, session) {
           )
         )
       })
-  })
+  },
+  ignoreNULL = FALSE)
 
   # download buttons for my_data are managed down here
 
@@ -1138,28 +910,6 @@ app_server <- function(input, output, session) {
             )
           )
 
-          #  check which global layers (EEZ, contiguous zone and national waters)
-          # the user has decided to plot. Creates a variable for each of those
-          layers_added <- input$add_layer
-
-          if ("eez" %in% layers_added) {
-            world_eez <- bait.mr.boundaries("eez") %>%
-              fish() %>%
-              st_read()
-          }
-
-          if ("MarineRegions:eez_24nm" %in% layers_added) {
-            world_24nm <- bait.mr.boundaries("eez_24nm") %>%
-              fish() %>%
-              st_read()
-          }
-
-          if ("MarineRegions:eez_12nm" %in% layers_added) {
-            world_12nm <- bait.mr.boundaries("eez_12nm") %>%
-              fish() %>%
-              st_read()
-          }
-
           lowx <- plot_range$lowx
           highx <- plot_range$highx
           lowy <- plot_range$lowy
@@ -1176,35 +926,6 @@ app_server <- function(input, output, session) {
             ) +
             xlab("Longitude") +
             ylab("Latitude")
-
-          # checks which optional global layers exist in order to
-          # add them to the plot function
-          if (exists("world_eez")) {
-            map <- map + geom_sf(
-              data = world_eez,
-              fill = "#BABABA",
-              color = "#BABABA",
-              size = 0.5
-            )
-          }
-
-          if (exists("world_24nm")) {
-            map <- map + geom_sf(
-              data = world_24nm,
-              fill = "#BABABA",
-              color = "#BABABA",
-              size = 0.5
-            )
-          }
-
-          if (exists("world_12nm")) {
-            map <- map + geom_sf(
-              data = world_12nm,
-              fill = "#BABABA",
-              color = "#BABABA",
-              size = 0.5
-            )
-          }
 
           map <- map + coord_sf(
             xlim = c(lowx, highx), # these are the zoom in coordinates

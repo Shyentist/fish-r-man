@@ -7,7 +7,7 @@
 top.percent.by(df, percentage, by)
 }
 \arguments{
-\item{df}{A dataframe object as returned by passing the result of `bait.gfw.effort()` to `fish()`.}
+\item{df}{A dataframe object as downloaded from GFW's Google Big Data Query.}
 
 \item{percentage}{Number. The 'x' in 'the top x percent of the dataframe'.}
 
@@ -20,15 +20,18 @@ A dataframe.
 Function that sorts a dataframe in descending order for a specific column, calculates the sum of all rows for that column, applies the chosen percentage to said sum, and subsets the minimum number of consecutive rows needed to reach this value.
 }
 \examples{
-\donttest{
-bait <- bait.gfw.effort(table = "fishing_effort_byvessel_v2", end_date="2012-01-02")
 
-catch <- fish(bait = bait)
+dated <- c("2020-01-01", "2020-01-02")
+lat <- c(40, 41)
+lon <- c(12,13)
+mmsi <- c("34534555", "25634555")
+hours <- c(0, 5)
+fishing_hours <- c(1,9)
 
-who.fishs.the.most <- top.percent.by(catch, 90, "fishing_hours")
-}
+df <- data.frame(dated, lat, lon, mmsi, hours, fishing_hours)
 
-}
-\seealso{
-[bait.gfw.effort()] [fish()]
+who.fishs.the.most <- top.percent.by(df, 90, "fishing_hours")
+
+print(who.fishs.the.most)
+
 }
